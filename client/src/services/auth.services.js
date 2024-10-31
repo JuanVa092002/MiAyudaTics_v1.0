@@ -4,7 +4,7 @@ import axios from "./axios.js"
 
 export const register = async (credentials) =>{
     try {
-        const response = await axios.post("/auth/register", credentials);
+        const response = await axios.post("api/auth/register", credentials);
         return response.data;
     } catch (error) {
         return error;
@@ -13,7 +13,7 @@ export const register = async (credentials) =>{
 
 export const login = async(credentials) => {
     try {
-        const response = await axios.post("/auth/login", credentials);
+        const response = await axios.post("api/auth/login", credentials);
         return response;      
     } catch (error) {
         return error;
@@ -22,7 +22,7 @@ export const login = async(credentials) => {
 
 export const verifyToken = async() => {
     try {
-        const response = await axios.get("/auth/verify-token")
+        const response = await axios.get("api/auth/verify-token")
         return response
     } catch (error) {
         console.log(error)
@@ -32,7 +32,7 @@ export const verifyToken = async() => {
 
 export const logout = async() => {
     try {
-        const response = await axios.post("/auth/logout");
+        const response = await axios.post("api/auth/logout");
         return response;
     } catch (error) {
         console.log("Error al cerrar sesion!");
