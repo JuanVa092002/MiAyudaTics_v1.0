@@ -1,3 +1,54 @@
+/* require("dotenv").config();
+const express = require("express");
+const path = require('path');
+const cors = require("cors");
+const dbConnect = require('./config/mongo')
+const cookieParser = require('cookie-parser')
+const morgan = require("morgan");
+const { server } = require('./utils/handleSocket');
+
+const app = express();
+// tu servidor Express permite solicitudes desde cualquier origen
+app.use(cors({
+  origin: [process.env.FRONTEND_URL],
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  optionsSuccessStatus: 200,
+  
+}));
+app.use(morgan("dev"));
+app.use(express.json());
+
+// Middleware para analizar cuerpos de formularios URL-encoded
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+
+//Esto es para el html
+app.use(express.static(path.join(__dirname, 'public')));
+app.use('/media', express.static(path.join(__dirname, 'media')));
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+// los recursos publicos salen de la carpeta storage
+app.use(express.static("storage"))
+
+
+// Invocar rutas
+app.use("/api", require("./routes"));
+
+const port = process.env.PORT || 8000;
+
+
+
+server.listen(port, () => {
+  console.log(`Servidor corriendo en http://localhost:${port}`);
+});
+
+dbConnect();
+
+ */
+
 require("dotenv").config();
 const express = require("express");
 const { app, server } = require('./utils/handleSocket'); // Importa app y server
@@ -7,24 +58,20 @@ const dbConnect = require('./config/mongo')
 const cookieParser = require('cookie-parser')
 const morgan = require("morgan");
 
+
 // Configuración de Express en la app
+
+
 app.use(cors({
-  origin: function (origin, callback) {
-    // Permite los orígenes específicos definidos en el archivo .env
-    const allowedOrigins = [process.env.FRONTEND_URL, process.env.MOVIL_URL, process.env.FRONTEND_URL_DEV];
-    
-    // Permitir solicitudes sin `origin` (por ejemplo, Postman) o provenientes de orígenes permitidos
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: ['https://frontend-miayudatics-v1-0-1.onrender.com/'],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"], // Encabezados permitidos
   optionsSuccessStatus: 200 // Para resolver problemas con navegadores antiguos
 }));
+
+
+
 
 app.use(morgan("dev"));
 app.use(express.json());
@@ -33,17 +80,19 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// Archivos estáticos y configuración de vistas
+//Esto es para el html
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/media', express.static(path.join(__dirname, 'media')));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Archivos públicos desde la carpeta storage
+// los recursos publicos salen de la carpeta storage
 app.use(express.static("storage"))
+
 
 // Invoca las rutas de la API
 app.use("/api", require("./routes"));
+
 
 // Ruta para listar archivos en la carpeta storage
 /* app.get('/list-storage', (req, res) => {
@@ -64,3 +113,4 @@ server.listen(port, () => {
 
 // Conecta a la base de datos
 dbConnect();
+
