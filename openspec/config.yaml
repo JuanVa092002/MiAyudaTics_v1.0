@@ -23,8 +23,19 @@ testing:
     command: jest --coverage
   quality:
     linter: true
-    type_checker: false
-    formatter: false
+    type_checker: true
+    formatter: true
+
+phases:
+  - name: Phase 1
+    spec: openspec/specs/phase-1-quality-setup.md
+    status: in-progress
+  - name: Phase 2
+    spec: openspec/specs/phase-2-backend-migration.md
+    status: pending
+  - name: Phase 3
+    spec: openspec/specs/phase-3-frontend-migration.md
+    status: pending
 
 rules:
   proposal:
