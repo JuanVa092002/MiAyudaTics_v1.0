@@ -1,6 +1,5 @@
-const express = require('express')
-const router = express.Router()
-const {
+import { Router } from 'express'
+import {
   getUsuarios,
   getUsuariosId,
   getPerfilUsuario,
@@ -9,12 +8,13 @@ const {
   usuariosInactivos,
   usuariosActivos,
   reactivarUsuarios,
-} = require('../controllers/usuarios')
-const { uploadMiddleware } = require('../utils/handleStorage')
-const { checkRol } = require('../middleware/rol')
-const { authMiddleware } = require('../middleware/session')
+} from '../controllers/usuarios'
+import { uploadMiddleware } from '../utils/handleStorage'
+import { checkRol } from '../middleware/rol'
+import { authMiddleware } from '../middleware/session'
+import { validatorUpdateUsuarios, validatorUsuariosId } from '../validators/usuarios'
 
-const { validatorUpdateUsuarios, validatorUsuariosId } = require('../validators/usuarios')
+const router = Router()
 
 // http://localhost:3010/api/usuarios/
 // http://localhost:3010/api/usuarios/perfil
@@ -55,8 +55,4 @@ router.put(
   reactivarUsuarios
 )
 
-module.exports = router
-
-/* El orden de tus rutas debe reflejar la 
-especificidad de los endpoints, colocando las rutas más
- específicas antes de las más generales para evitar conflictos. */
+export default router

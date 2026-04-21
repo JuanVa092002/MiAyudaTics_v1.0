@@ -18,7 +18,7 @@ fs.readdirSync(PATH_ROUTES)
   })
   .forEach(file => {
     const name = removeExtension(file)
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
+     
     let route = require(`./${name}`)
 
     // Interop ESModule: extract default export
