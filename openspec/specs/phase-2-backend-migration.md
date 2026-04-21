@@ -99,4 +99,63 @@ Node.js, Express, TypeScript, Zod, Mongoose, Jest
 - No quedan archivos `.js` en `server/src` o rutas principales (solo en configuraciones raíz).
 - El servidor arranca sin errores de compilación (`tsc --noEmit` exitoso) y sin warnings temporales de eslint.
 
-## Estado: 🔄 En progreso (Grupos A ✅ B ✅ C ✅ — Grupo D pendiente)
+## Estado: 🔄 En progreso (Grupos A ✅ B ✅ C ✅ — Grupo D en curso)
+
+---
+
+## Checkpoint actual
+
+**Fecha:** 2026-04-21  
+**Último commit válido:** `a24fdec` — `refactor(migration): let to const in updateddata usuarios controller`  
+**Grupo completado más reciente:** Grupo C ✅ (modelos Mongoose)
+
+### Archivos completados del Grupo D
+
+**Controllers `.ts` creados (4/13):**
+- `controllers/auth.ts` ✅
+- `controllers/consecutivoCaso.ts` ✅
+- `controllers/solicitud.ts` ✅
+- `controllers/usuarios.ts` ✅
+
+**Controllers `.js` aún existentes (duales — .ts creado pero .js no eliminado todavía):**
+- `controllers/auth.js`, `controllers/consecutivoCaso.js`, `controllers/solicitud.js`, `controllers/usuarios.js`
+
+### Archivos pendientes del Grupo D
+
+**Controllers sin migrar (9):**
+- `controllers/ambienteFormacion.js`
+- `controllers/graficaSolicitudesPorAmbiente.js`
+- `controllers/graficaSolicitudesPorMes.js`
+- `controllers/recuperarPassword.js`
+- `controllers/restablecerPassword.js`
+- `controllers/solucionCaso.js`
+- `controllers/storage.js`
+- `controllers/tecnicos.js`
+- `controllers/tipoCaso.js`
+
+**Routes sin migrar (14 — todos en `.js`):**
+- `routes/ambienteFormacion.js`, `routes/auth.js`, `routes/graficaSolicitudesPorAmbiente.js`
+- `routes/graficaSolicitudesPorMes.js`, `routes/index.js`, `routes/recuperarPassword.js`
+- `routes/restablecerPassword.js`, `routes/solicitud.js`, `routes/solucionCaso.js`
+- `routes/storage.js`, `routes/tecnicos.js`, `routes/tipoCaso.js`, `routes/usuarios.js`
+
+**Entry point:**
+- `app.js` (migrar al final)
+
+**Archivos `.js` de controllers que tienen par `.ts` — eliminar cuando routes estén migradas:**
+- `controllers/auth.js`, `controllers/consecutivoCaso.js`, `controllers/solicitud.js`, `controllers/usuarios.js`
+
+### Riesgos activos
+
+1. **`.js` duales en controllers:** Los `.js` originales coexisten con los `.ts`. `allowJs: true` los incluye ambos. `ts-node-dev` resuelve el `.ts` en tiempo de ejecución vía `transpile-only`, por lo que no hay conflicto en dev — pero es deuda hasta limpiar.
+2. **Routes `.js` importan controllers `.js`:** Hasta migrar las routes a `.ts`, importarán desde los `.js` legacy (que pasan via `allowJs`). No rompe nada, pero mantiene el dual-file state.
+3. **`routes/index.js`:** Usa `fs.readdirSync` dinámico para cargar rutas — requiere cuidado especial al migrar a `.ts` (filtrar por extensión).
+4. **`app.js`:** Es el entry point de `ts-node-dev`. No migrar hasta que TODO lo demás esté en `.ts`.
+
+### Próximo paso exacto
+
+Migrar el **Bloque 2 de controllers** en este orden (de menor a mayor complejidad):
+1. `tipoCaso.ts`, `ambienteFormacion.ts`, `graficaSolicitudesPorAmbiente.ts`, `graficaSolicitudesPorMes.ts`
+2. `solucionCaso.ts`, `recuperarPassword.ts`, `restablecerPassword.ts`
+3. `storage.ts`, `tecnicos.ts`
+
