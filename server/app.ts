@@ -40,10 +40,13 @@ app.use('/api', router)
 
 const port = process.env.PORT || 8000
 
-// Escucha en el puerto usando server.listen
-server.listen(port, () => {
-  console.log(`Servidor corriendo en http://localhost:${port}`)
-})
+// Iniciar el servidor solo si no estamos en entorno de pruebas
+if (process.env.NODE_ENV !== 'test') {
+  server.listen(port, () => {
+    console.log(`Servidor corriendo en http://localhost:${port}`)
+  })
+  dbConnect()
+}
 
-// Conecta a la base de datos
-dbConnect()
+// Exportar para pruebas
+export { app, server }
