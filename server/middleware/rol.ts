@@ -4,9 +4,12 @@ import { handleHttpError } from '../utils/handleError'
 export const checkRol = (roles: string[]) => (req: Request, res: Response, next: NextFunction): void => {
   try {
     const { usuario } = req
-    const rolesUsuario = usuario?.rol || []
+    if (!usuario) {
+      handleHttpError(res, 'usuario no autenticado', 401)
+      return
+    }
 
-    const checkRolValido = roles.some((rolSingle: string) => rolesUsuario.includes(rolSingle))
+    const checkRolValido = roles.includes(usuario.rol)
     if (!checkRolValido) {
       handleHttpError(res, 'usuario no tiene los permisos', 403)
       return

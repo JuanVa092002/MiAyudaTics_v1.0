@@ -1,9 +1,9 @@
-export {}
+import { IUsuario } from '../models/usuarios'
 
 declare global {
   namespace Express {
     interface Request {
-      usuario?: any;
+      usuario?: IUsuario;
     }
   }
 }

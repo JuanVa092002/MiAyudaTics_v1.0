@@ -20,6 +20,10 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
     }
 
     const usuario = await usuarioModel.findById(dataToken._id)
+    if (!usuario) {
+      handleHttpError(res, 'usuario no encontrado', 401)
+      return
+    }
     req.usuario = usuario
 
     console.log('Usuario autenticado:', req.usuario)
