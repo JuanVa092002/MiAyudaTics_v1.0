@@ -14,7 +14,12 @@ const removeExtension = fileName => {
 fs.readdirSync(PATH_ROUTES).filter(file => {
   const name = removeExtension(file)
   if (name !== 'index') {
-    const route = require(`./${file}`)
+    let route = require(`./${file}`)
+    
+    // Si es un módulo de TypeScript con export default, extraemos el default
+    if (route && route.__esModule && route.default) {
+      route = route.default
+    }
 
     // Verificar que lo exportado sea un enrutador válido
     if (
