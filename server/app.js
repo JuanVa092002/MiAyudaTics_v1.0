@@ -49,7 +49,9 @@ dbConnect();
 
  */
 
-require("dotenv").config();
+require("dotenv").config({ 
+  path: require('path').resolve(__dirname, '.env') 
+});
 const express = require("express");
 const { app, server } = require('./utils/handleSocket'); // Importa app y server
 const path = require('path');

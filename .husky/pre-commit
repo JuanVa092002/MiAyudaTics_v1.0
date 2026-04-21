@@ -1,0 +1,28 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Temporarily skip during migration to allow initial commits
+if [ "$SKIP_PRE_COMMIT" = "1" ]; then
+  echo "⏩ Skipping pre-commit checks for this commit."
+  exit 0
+fi
+
+echo "⏳ Running pre-commit checks (TypeScript & ESLint)..."
+
+echo "1/4: Type-checking Server..."
+cd server && pnpm exec tsc --noEmit || { echo "❌ Server TS check failed"; exit 1; }
+cd ..
+
+echo "2/4: Type-checking Client..."
+cd client && pnpm exec tsc --noEmit || { echo "❌ Client TS check failed"; exit 1; }
+cd ..
+
+echo "3/4: Linting Server..."
+cd server && pnpm exec eslint --fix . || { echo "❌ Server ESLint failed"; exit 1; }
+cd ..
+
+echo "4/4: Linting Client..."
+cd client && pnpm exec eslint --fix . || { echo "❌ Client ESLint failed"; exit 1; }
+cd ..
+
+echo "✅ All pre-commit checks passed!"

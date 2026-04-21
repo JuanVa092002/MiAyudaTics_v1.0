@@ -1,0 +1,9 @@
+# Reglas de Proyecto Cursor (MiAyudaTics)
+Ver contexto completo en CLAUDE.md en la raíz.
+1. STACK: React 18, Node/Express, MongoDB, pnpm estricto.
+2. TDD: Jest (Backend), Vitest (Frontend). Escribir test primero.
+3. TYPESCRIPT: Strict mode obligatorio. Prohibido `any`. `allowJs` es deuda temporal.
+4. ARQUITECTURA: Feature-based folders (ej. features/auth).
+5. VALIDACIÓN: Usar Zod para todo contrato de runtime.
+6. GIT HOOKS: tsc --noEmit debe pasar y abortar en caso de fallo antes de eslint.
+7. ESTADO: Migración JS->TS en Fase 1 (Setup de calidad).
