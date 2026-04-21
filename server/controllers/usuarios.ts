@@ -57,7 +57,7 @@ export const updateUsuarios = async (req: Request, res: Response): Promise<void>
     delete body.rol
     delete body.correo
 
-    let updatedData: Record<string, unknown> = { ...body }
+    const updatedData: Record<string, unknown> = { ...body }
 
     const user = await usuarioModel.findById(userId).populate<{
       foto: { _id: Types.ObjectId; filename: string; url: string } | null
