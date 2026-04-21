@@ -1,47 +1,36 @@
 import dotenv from 'dotenv'
 import path from 'path'
-import { Resend } from 'resend'
+import nodemailer from 'nodemailer'
+import { SendMailOptions } from 'nodemailer'
 
 dotenv.config({
   path: path.resolve(__dirname, '../.env'),
 })
 
-const resend = new Resend(process.env.RESEND_API_KEY)
-
 /**
- * Interfaz para las opciones de correo electrónico (compatible con el uso previo de nodemailer)
- */
-interface MailOptions {
-  from?: string
-  to: string | string[]
-  subject: string
-  text?: string
-  html?: string
-}
-
-/**
- * Enviar correo electrónico usando Resend
+ * Enviar correo electrnico usando Brevo (SMTP)
+ * Configurado para portafolio: permite enviar a cualquier destinatario en capa gratuita.
  * @param mailOptions Opciones del correo
  */
-export const sendMail = async (mailOptions: MailOptions): Promise<void> => {
+export const sendMail = async (mailOptions: SendMailOptions): Promise<void> => {
   try {
-    const { from, to, subject, text, html } = mailOptions
-
-    const { data, error } = await resend.emails.send({
-      from: from || process.env.EMAIL_FROM || 'onboarding@resend.dev',
-      to: Array.isArray(to) ? to : [to],
-      subject,
-      text: text || '',
-      html: html || text || '',
+    const transporter = nodemailer.createTransport({
+      host: 'smtp-relay.brevo.com',
+      port: 587,
+      secure: false, // true para 465, false para otros puertos
+      auth: {
+        user: process.env.BREVO_USER,
+        pass: process.env.BREVO_PASSWORD,
+      },
     })
 
-    if (error) {
-      console.error('Error de Resend al enviar correo:', error)
-      return
-    }
+    const info = await transporter.sendMail({
+      ...mailOptions,
+      from: mailOptions.from || process.env.EMAIL_FROM || 'MiAyudaTics <onboarding@brevo.com>',
+    })
 
-    console.log('Correo electrónico enviado exitosamente vía Resend:', data?.id)
+    console.log('Correo electrnico enviado exitosamente va Brevo: %s', info.messageId)
   } catch (error) {
-    console.error('Error fatal al enviar correo electrónico:', error)
+    console.error('Error al enviar correo electrnico con Brevo:', error)
   }
 }

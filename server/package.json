@@ -18,6 +18,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/nodemailer": "^8.0.0",
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
@@ -29,8 +30,8 @@
     "mongoose": "^8.4.1",
     "morgan": "^1.10.1",
     "multer": "^2.1.1",
+    "nodemailer": "^8.0.5",
     "pdf-lib": "^1.17.1",
-    "resend": "^6.12.2",
     "socket.io": "^4.8.3",
     "socket.io-client": "^4.8.3",
     "zod": "^4.3.6",
