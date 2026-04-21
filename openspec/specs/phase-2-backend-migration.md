@@ -61,19 +61,19 @@ Node.js, Express, TypeScript, Zod, Mongoose, Jest
 > **ADR-002 DEFERRED:** Zod migration is explicitly excluded from Grupo D to avoid scope explosion.
 > Validators remain in `express-validator` (already strict-typed TS). Zod refactor → Fase 2.5.
 - [ ] `app.js` | 113 líneas | Media | dotenv, express, path, cors, cookie-parser, morgan
-- [ ] `controllers/ambienteFormacion.js` | 84 líneas | Baja | Ninguna
-- [ ] `controllers/auth.js` | 236 líneas | Alta | express, jsonwebtoken
-- [ ] `controllers/consecutivoCaso.js` | 34 líneas | Baja | luxon
-- [ ] `controllers/graficaSolicitudesPorAmbiente.js` | 57 líneas | Baja | Ninguna
-- [ ] `controllers/graficaSolicitudesPorMes.js` | 45 líneas | Baja | Ninguna
+- [x] `controllers/ambienteFormacion.js` | 84 líneas | Baja | Ninguna
+- [x] `controllers/auth.js` | 236 líneas | Alta | express, jsonwebtoken
+- [x] `controllers/consecutivoCaso.js` | 34 líneas | Baja | luxon
+- [x] `controllers/graficaSolicitudesPorAmbiente.js` | 57 líneas | Baja | Ninguna
+- [x] `controllers/graficaSolicitudesPorMes.js` | 45 líneas | Baja | Ninguna
 - [ ] `controllers/recuperarPassword.js` | 54 líneas | Baja | crypto, bcryptjs
 - [ ] `controllers/restablecerPassword.js` | 44 líneas | Baja | crypto, bcryptjs
-- [ ] `controllers/solicitud.js` | 333 líneas | Alta | Ninguna
+- [x] `controllers/solicitud.js` | 333 líneas | Alta | Ninguna
 - [ ] `controllers/solucionCaso.js` | 96 líneas | Baja | Ninguna
 - [ ] `controllers/storage.js` | 148 líneas | Media | fs, path
 - [ ] `controllers/tecnicos.js` | 136 líneas | Media | fs, path
-- [ ] `controllers/tipoCaso.js` | 66 líneas | Baja | Ninguna
-- [ ] `controllers/usuarios.js` | 236 líneas | Alta | fs, path
+- [x] `controllers/tipoCaso.js` | 66 líneas | Baja | Ninguna
+- [x] `controllers/usuarios.js` | 236 líneas | Alta | fs, path
 - [ ] `routes/ambienteFormacion.js` | 23 líneas | Baja | express
 - [ ] `routes/auth.js` | 20 líneas | Baja | express
 - [ ] `routes/graficaSolicitudesPorAmbiente.js` | 19 líneas | Baja | express
@@ -111,10 +111,14 @@ Node.js, Express, TypeScript, Zod, Mongoose, Jest
 
 ### Archivos completados del Grupo D
 
-**Controllers `.ts` creados (4/13):**
+**Controllers `.ts` creados (8/13):**
+- `controllers/ambienteFormacion.ts` ✅
 - `controllers/auth.ts` ✅
 - `controllers/consecutivoCaso.ts` ✅
+- `controllers/graficaSolicitudesPorAmbiente.ts` ✅
+- `controllers/graficaSolicitudesPorMes.ts` ✅
 - `controllers/solicitud.ts` ✅
+- `controllers/tipoCaso.ts` ✅
 - `controllers/usuarios.ts` ✅
 
 **Controllers `.js` aún existentes (duales — .ts creado pero .js no eliminado todavía):**
@@ -122,16 +126,12 @@ Node.js, Express, TypeScript, Zod, Mongoose, Jest
 
 ### Archivos pendientes del Grupo D
 
-**Controllers sin migrar (9):**
-- `controllers/ambienteFormacion.js`
-- `controllers/graficaSolicitudesPorAmbiente.js`
-- `controllers/graficaSolicitudesPorMes.js`
+**Controllers sin migrar (5):**
 - `controllers/recuperarPassword.js`
 - `controllers/restablecerPassword.js`
 - `controllers/solucionCaso.js`
 - `controllers/storage.js`
 - `controllers/tecnicos.js`
-- `controllers/tipoCaso.js`
 
 **Routes sin migrar (14 — todos en `.js`):**
 - `routes/ambienteFormacion.js`, `routes/auth.js`, `routes/graficaSolicitudesPorAmbiente.js`
