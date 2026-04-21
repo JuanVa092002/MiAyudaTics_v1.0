@@ -1,7 +1,7 @@
-const express = require("express")
-const supertest = require("supertest")
+const express = require('express')
+const supertest = require('supertest')
 
 function testServer(route) {
-    const app = express();
-    route(app)
+  const app = express()
+  route(app)
 }

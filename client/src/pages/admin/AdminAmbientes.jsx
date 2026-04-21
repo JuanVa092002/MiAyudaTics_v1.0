@@ -1,61 +1,61 @@
-import React, { useEffect, useState } from "react";
-import AppLayout from "../../layouts/appLayout/AppLayout";
-import AdminLayout from "../../layouts/adminLayout/AdminLayout";
+import React, { useEffect, useState } from 'react'
+import AppLayout from '../../layouts/appLayout/AppLayout'
+import AdminLayout from '../../layouts/adminLayout/AdminLayout'
 import {
   getAmbientes,
   createAmbiente,
   updateAmbiente,
   inactivarAmbiente,
-} from "../../services/ambiente.services";
+} from '../../services/ambiente.services'
 
 export default function AdminAmbientes() {
-  const [ambientes, setAmbientes] = useState([]);
-  const [nombre, setNombre] = useState("");
-  const [editMode, setEditMode] = useState(false);
-  const [currentAmbienteId, setCurrentAmbienteId] = useState(null);
+  const [ambientes, setAmbientes] = useState([])
+  const [nombre, setNombre] = useState('')
+  const [editMode, setEditMode] = useState(false)
+  const [currentAmbienteId, setCurrentAmbienteId] = useState(null)
 
   useEffect(() => {
-    loadAmbientes();
-  }, []);
+    loadAmbientes()
+  }, [])
 
   const loadAmbientes = async () => {
     try {
-      const data = await getAmbientes();
-      setAmbientes(data.data);
+      const data = await getAmbientes()
+      setAmbientes(data.data)
     } catch (error) {
-      console.error(error.message);
+      console.error(error.message)
     }
-  };
+  }
 
   const handleCreateOrUpdate = async () => {
     try {
       if (editMode) {
-        await updateAmbiente(currentAmbienteId, { nombre });
+        await updateAmbiente(currentAmbienteId, { nombre })
       } else {
-        await createAmbiente({ nombre });
+        await createAmbiente({ nombre })
       }
-      setNombre("");
-      setEditMode(false);
-      loadAmbientes();
+      setNombre('')
+      setEditMode(false)
+      loadAmbientes()
     } catch (error) {
-      console.error(error.message);
+      console.error(error.message)
     }
-  };
+  }
 
-  const handleEdit = (ambiente) => {
-    setNombre(ambiente.nombre);
-    setCurrentAmbienteId(ambiente._id);
-    setEditMode(true);
-  };
+  const handleEdit = ambiente => {
+    setNombre(ambiente.nombre)
+    setCurrentAmbienteId(ambiente._id)
+    setEditMode(true)
+  }
 
-  const handleInactivar = async (id) => {
+  const handleInactivar = async id => {
     try {
-      await inactivarAmbiente(id);
-      loadAmbientes();
+      await inactivarAmbiente(id)
+      loadAmbientes()
     } catch (error) {
-      console.error(error.message);
+      console.error(error.message)
     }
-  };
+  }
 
   return (
     <AppLayout>
@@ -65,16 +65,16 @@ export default function AdminAmbientes() {
             Administrar Ambientes de Formación
           </h2>
           <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleCreateOrUpdate();
+            onSubmit={e => {
+              e.preventDefault()
+              handleCreateOrUpdate()
             }}
             className="flex flex-col sm:flex-row items-center gap-4 mb-6 pr-4"
           >
             <input
               type="text"
               value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
+              onChange={e => setNombre(e.target.value)}
               placeholder="Nombre del ambiente"
               required
               className="w-full sm:w-auto flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -83,12 +83,12 @@ export default function AdminAmbientes() {
               type="submit"
               className="px-4 py-2 bg-verde-sena text-gray-200 rounded-lg hover:text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:bg-azul-sena"
             >
-              {editMode ? "Actualizar" : "Crear"} Ambiente
+              {editMode ? 'Actualizar' : 'Crear'} Ambiente
             </button>
           </form>
 
           <ul className="space-y-4">
-            {ambientes.map((ambiente) => (
+            {ambientes.map(ambiente => (
               <li
                 key={ambiente._id}
                 className="flex justify-between items-center p-4 bg-white rounded-lg shadow-sm"
@@ -116,5 +116,5 @@ export default function AdminAmbientes() {
         </div>
       </AdminLayout>
     </AppLayout>
-  );
+  )
 }

@@ -1,6 +1,6 @@
-import React from "react";
-import Profile from "../profile/Profile";
-import LogOut from "../logOut/LogOut";
+import React from 'react'
+import Profile from '../profile/Profile'
+import LogOut from '../logOut/LogOut'
 
 export default function NavApp() {
   return (
@@ -17,5 +17,5 @@ export default function NavApp() {
         </div>
       </div>
     </nav>
-  );
+  )
 }

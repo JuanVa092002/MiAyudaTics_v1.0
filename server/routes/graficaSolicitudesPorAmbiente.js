@@ -1,10 +1,8 @@
-const express = require("express");
-const router = express.Router();
-const { getSolicitudesPorAmbientes } = require("../controllers/graficaSolicitudesPorAmbiente"); 
+const express = require('express')
+const router = express.Router()
+const { getSolicitudesPorAmbientes } = require('../controllers/graficaSolicitudesPorAmbiente')
 const authMiddleware = require('../middleware/session')
 const checkRol = require('../middleware/rol')
-
-
 
 /*  Ruta para obtener las solicitudes por ambiente
  http://localhost:3010/api/graficaSolicitudesPorAmbiente 
@@ -12,10 +10,9 @@ const checkRol = require('../middleware/rol')
 
  Ruta para obtener la grafica
  http://localhost:3010/solicitudesPorAmbiente.html  */
- 
 
-router.get("/",  getSolicitudesPorAmbientes); 
+router.get('/', getSolicitudesPorAmbientes)
 
-module.exports = router;
+module.exports = router
 
 // authMiddleware, checkRol(['lider']),

@@ -1,44 +1,46 @@
-import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
-import DataTable from 'react-data-table-component';
-import AppLayout from '../../layouts/appLayout/AppLayout';
-import TecnicoLayout from '../../layouts/tecnicoLayout/TecnicoLayout';
-// import ReactToPrint from 'react-to-print'; 
+import React, { useState, useEffect, useRef } from 'react'
+import axios from 'axios'
+import DataTable from 'react-data-table-component'
+import AppLayout from '../../layouts/appLayout/AppLayout'
+import TecnicoLayout from '../../layouts/tecnicoLayout/TecnicoLayout'
+// import ReactToPrint from 'react-to-print';
 
 const CasosResueltosTabla = () => {
-  const [cases, setCases] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const printRef = useRef();
+  const [cases, setCases] = useState([])
+  const [searchTerm, setSearchTerm] = useState('')
+  const printRef = useRef()
 
   useEffect(() => {
     const fetchCases = async () => {
       try {
-        const token = document.cookie.split('; ').find(row => row.startsWith('token=')).split('=')[1];
+        const token = document.cookie
+          .split('; ')
+          .find(row => row.startsWith('token='))
+          .split('=')[1]
         const response = await axios.get('http://localhost:3010/api/solicitud/finalizadas', {
           headers: {
-            'Authorization': `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
-        });
-  
-        console.log('Respuesta de la API:', response.data); 
-  
+        })
+
+        console.log('Respuesta de la API:', response.data)
+
         if (response.data && response.data.solicitudesFinalizadas) {
-          setCases(response.data.solicitudesFinalizadas);
+          setCases(response.data.solicitudesFinalizadas)
         } else {
-          console.error('No se encontraron solicitudes asignadas.');
+          console.error('No se encontraron solicitudes asignadas.')
         }
       } catch (error) {
-        console.error('Error al obtener los casos resueltos:', error.response || error);
+        console.error('Error al obtener los casos resueltos:', error.response || error)
       }
-    };
-  
-    fetchCases();
-  }, []);
-  
+    }
+
+    fetchCases()
+  }, [])
 
   const filteredCases = cases.filter(c =>
     c.descripcion.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  )
 
   // const columns = [
   //   {
@@ -70,7 +72,7 @@ const CasosResueltosTabla = () => {
   //         {row.solucion.descripcionSolucion ? row.solucion.descripcionSolucion : 'No disponible'}
   //       </div>
   //     ),
-  //     width: '200px', 
+  //     width: '200px',
   //   },
   //   {
   //     name: 'Evidencia',
@@ -88,15 +90,17 @@ const CasosResueltosTabla = () => {
   //         <div className="break-words overflow-hidden max-w-xs">Sin Evidencia</div>
   //       ),
   //   },
-    
+
   // ];
-  
+
   const columns = [
     {
       name: 'Código del Caso',
       selector: row => row.codigoCaso,
       cell: row => (
-        <div className="break-words overflow-hidden max-w-xs">{row.codigoCaso || 'No disponible'}</div>
+        <div className="break-words overflow-hidden max-w-xs">
+          {row.codigoCaso || 'No disponible'}
+        </div>
       ),
     },
     {
@@ -119,12 +123,13 @@ const CasosResueltosTabla = () => {
       name: 'Descripción',
       selector: row => row.descripcion,
       cell: row => (
-        <div className="break-words overflow-hidden max-w-xs">{row.descripcion || 'No disponible'}</div>
+        <div className="break-words overflow-hidden max-w-xs">
+          {row.descripcion || 'No disponible'}
+        </div>
       ),
     },
     {
-      name: (
-        <div className="whitespace-normal">Fecha de Resolución</div>),
+      name: <div className="whitespace-normal">Fecha de Resolución</div>,
       selector: row => row.fecha, // Asegúrate de que 'fecha' sea el campo correcto
       cell: row => (
         <div className="break-words overflow-hidden max-w-xs">{row.fecha || 'No disponible'}</div>
@@ -132,17 +137,21 @@ const CasosResueltosTabla = () => {
     },
     {
       name: 'Usuario',
-      selector: row => row.usuario ? row.usuario.nombre : 'No disponible',
+      selector: row => (row.usuario ? row.usuario.nombre : 'No disponible'),
       cell: row => (
-        <div className="break-words overflow-hidden max-w-xs">{row.usuario ? row.usuario.nombre : 'No disponible'}</div>
+        <div className="break-words overflow-hidden max-w-xs">
+          {row.usuario ? row.usuario.nombre : 'No disponible'}
+        </div>
       ),
     },
-    
+
     {
       name: 'Ambiente',
       selector: row => row.ambiente.nombre, // Accede al nombre del ambiente (populate)
       cell: row => (
-        <div className="break-words overflow-hidden max-w-xs">{row.ambiente.nombre || 'No disponible'}</div>
+        <div className="break-words overflow-hidden max-w-xs">
+          {row.ambiente.nombre || 'No disponible'}
+        </div>
       ),
     },
     {
@@ -153,29 +162,25 @@ const CasosResueltosTabla = () => {
           {row.solucion.descripcionSolucion ? row.solucion.descripcionSolucion : 'No disponible'}
         </div>
       ),
-      width: '200px', 
+      width: '200px',
     },
-
-  ];
-  
-
-  
+  ]
 
   return (
     <AppLayout>
-    <TecnicoLayout>
-    <div className="p-4">
-      <h1 className="text-2xl font-semibold mb-4">Casos Resueltos</h1>
+      <TecnicoLayout>
+        <div className="p-4">
+          <h1 className="text-2xl font-semibold mb-4">Casos Resueltos</h1>
 
-      <div className="flex justify-between mb-4">
-        <input
-          type="text"
-          placeholder="Buscar por descripción..."
-          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        {/* Si decides usar la funcionalidad de impresión
+          <div className="flex justify-between mb-4">
+            <input
+              type="text"
+              placeholder="Buscar por descripción..."
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+            />
+            {/* Si decides usar la funcionalidad de impresión
         <ReactToPrint
           trigger={() => (
             <button className="btn bg-red-500 text-white hover:bg-red-600 hover:shadow-lg transition ease-in-out duration-150 ml-4">
@@ -185,29 +190,18 @@ const CasosResueltosTabla = () => {
           content={() => printRef.current}
         />
         */}
-      </div>
+          </div>
 
-      <div>
-        <DataTable
-          columns={columns}
-          data={filteredCases} 
-          pagination
-          responsive
-        />
-      </div>
-    </div>
-    </TecnicoLayout>
+          <div>
+            <DataTable columns={columns} data={filteredCases} pagination responsive />
+          </div>
+        </div>
+      </TecnicoLayout>
     </AppLayout>
-  );
-};
+  )
+}
 
-export default CasosResueltosTabla;
-
-
-
-
-
-
+export default CasosResueltosTabla
 
 // import React, { useState, useEffect, useRef } from 'react';
 // import axios from 'axios';
@@ -303,4 +297,3 @@ export default CasosResueltosTabla;
 // };
 
 // export default CasosResueltosTabla;
-

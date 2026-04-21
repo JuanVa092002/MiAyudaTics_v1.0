@@ -1,5 +1,5 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React from 'react'
+import { Link } from 'react-router-dom'
 
 export default function NavAdmin() {
   return (
@@ -21,7 +21,7 @@ export default function NavAdmin() {
           <Link
             className=" font-semibold text-azul-sena text-xl bg-white px-4 py-3 transition-all hover:bg-azul-sena hover:text-white "
             to="/adminEstadisticas"
-          > 
+          >
             <li> Estadisticas </li>
           </Link>
           <Link
@@ -32,12 +32,12 @@ export default function NavAdmin() {
           </Link>
           <Link
             className=" font-semibold text-azul-sena text-xl bg-white px-4 py-3 transition-all hover:bg-azul-sena hover:text-white "
-            to='/adminCasos'
+            to="/adminCasos"
           >
             <li> Tipo de soporte </li>
           </Link>
         </ol>
       </div>
     </div>
-  );
+  )
 }

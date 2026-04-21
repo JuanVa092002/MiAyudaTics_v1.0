@@ -1,5 +1,5 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React from 'react'
+import { Link } from 'react-router-dom'
 
 export default function NavTecnico() {
   return (
@@ -15,12 +15,11 @@ export default function NavTecnico() {
           <Link
             className=" font-semibold text-azul-sena text-xl bg-white px-4 py-3 transition-all hover:bg-azul-sena hover:text-white "
             to="/casos-resueltos"
-          > 
+          >
             <li> Casos Resueltos </li>
           </Link>
-        
         </ol>
       </div>
     </div>
-  );
+  )
 }

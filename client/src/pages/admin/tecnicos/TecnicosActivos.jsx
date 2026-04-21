@@ -1,65 +1,65 @@
-import React, { useEffect, useState } from "react";
-import AppLayout from "../../../layouts/appLayout/AppLayout";
-import AdminLayout from "../../../layouts/adminLayout/AdminLayout";
-import DataTable from "react-data-table-component";
-import { getTecnicosActivos, inactivarTecnico } from "../../../services/tecnicos.services";
-import { toast } from "react-toastify";  // Si ya tienes Toastify configurado
-import AdminTecnicosLayout from "../../../layouts/adminLayout/AdminTecnicosLayout";
+import React, { useEffect, useState } from 'react'
+import AppLayout from '../../../layouts/appLayout/AppLayout'
+import AdminLayout from '../../../layouts/adminLayout/AdminLayout'
+import DataTable from 'react-data-table-component'
+import { getTecnicosActivos, inactivarTecnico } from '../../../services/tecnicos.services'
+import { toast } from 'react-toastify' // Si ya tienes Toastify configurado
+import AdminTecnicosLayout from '../../../layouts/adminLayout/AdminTecnicosLayout'
 
 export default function TecnicosActivos() {
-  const [tecnicosActivos, setTecnicosActivos] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [tecnicosActivos, setTecnicosActivos] = useState([])
+  const [loading, setLoading] = useState(true)
 
   // Cargar técnicos activos al montar el componente
   useEffect(() => {
     const cargarTecnicosActivos = async () => {
       try {
-        const data = await getTecnicosActivos();
-        setTecnicosActivos(data);  // Aquí se asignan correctamente los datos al estado
+        const data = await getTecnicosActivos()
+        setTecnicosActivos(data) // Aquí se asignan correctamente los datos al estado
       } catch (error) {
-        console.error("Error al cargar técnicos activos:", error);
+        console.error('Error al cargar técnicos activos:', error)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
-    cargarTecnicosActivos();
-  }, []);
+    }
+    cargarTecnicosActivos()
+  }, [])
 
   // Inactivar técnico
-  const handleInactivar = async (id) => {
+  const handleInactivar = async id => {
     try {
-      await inactivarTecnico(id);
-      toast.success("Técnico inactivado exitosamente");  // Mostrar mensaje con Toastify
-      setTecnicosActivos(prevState => prevState.filter(tecnico => tecnico._id !== id));  // Remover técnico inactivado de la lista
+      await inactivarTecnico(id)
+      toast.success('Técnico inactivado exitosamente') // Mostrar mensaje con Toastify
+      setTecnicosActivos(prevState => prevState.filter(tecnico => tecnico._id !== id)) // Remover técnico inactivado de la lista
     } catch (error) {
-      toast.error("Error al inactivar técnico");
-      console.error("Error al inactivar técnico:", error);
+      toast.error('Error al inactivar técnico')
+      console.error('Error al inactivar técnico:', error)
     }
-  };
+  }
   const paginationOptions = {
-    rowsPerPageText: "Filas por página",
-    rangeSeparatorText: "de",
+    rowsPerPageText: 'Filas por página',
+    rangeSeparatorText: 'de',
     noRowsPerPage: false,
     selectAllRowsItem: true,
-    selectAllRowsItemText: "Todos",
-  };
+    selectAllRowsItemText: 'Todos',
+  }
   // Columnas para la tabla
   const columnas = [
     {
-      name: "Nombre",
+      name: 'Nombre',
       selector: row => row.nombre,
       sortable: true,
     },
     {
-      name: "Correo",
+      name: 'Correo',
       selector: row => row.correo,
     },
     {
-      name: "Teléfono",
+      name: 'Teléfono',
       selector: row => row.telefono,
     },
     {
-      name: "Acciones",
+      name: 'Acciones',
       cell: row => (
         <button
           className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
@@ -69,7 +69,7 @@ export default function TecnicosActivos() {
         </button>
       ),
     },
-  ];
+  ]
 
   return (
     <AppLayout>
@@ -94,5 +94,5 @@ export default function TecnicosActivos() {
         </AdminTecnicosLayout>
       </AdminLayout>
     </AppLayout>
-  );
+  )
 }

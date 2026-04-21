@@ -1,90 +1,88 @@
-import React, { useEffect, useState } from "react";
-import AppLayout from "../../layouts/appLayout/AppLayout";
-import AdminLayout from "../../layouts/adminLayout/AdminLayout";
+import React, { useEffect, useState } from 'react'
+import AppLayout from '../../layouts/appLayout/AppLayout'
+import AdminLayout from '../../layouts/adminLayout/AdminLayout'
 import {
   getTecnicosPendientes,
   aprobarTecnico,
   denegarTecnico,
-} from "../../services/tecnicos.services";
-import { toast } from "react-toastify";
-import DataTable from "react-data-table-component";
-import AdminTecnicosLayout from "../../layouts/adminLayout/AdminTecnicosLayout";
+} from '../../services/tecnicos.services'
+import { toast } from 'react-toastify'
+import DataTable from 'react-data-table-component'
+import AdminTecnicosLayout from '../../layouts/adminLayout/AdminTecnicosLayout'
 
 export default function AdminTecnicos() {
-  const [tecnicos, setTecnicos] = useState([]);
-  const [loading, setLoading] = useState(true);
-
+  const [tecnicos, setTecnicos] = useState([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchTecnicos = async () => {
       try {
-        const { tecnicosFalse } = await getTecnicosPendientes();
-        setTecnicos(tecnicosFalse);   
+        const { tecnicosFalse } = await getTecnicosPendientes()
+        setTecnicos(tecnicosFalse)
       } catch (error) {
-        console.error("Error al obtener técnicos pendientes:", error);
-      }finally {
-        setLoading(false);
+        console.error('Error al obtener técnicos pendientes:', error)
+      } finally {
+        setLoading(false)
       }
-      
-    };
-
-    fetchTecnicos();
-  }, []);
-
-  const handleAprobar = async (id) => {
-    try {
-      await aprobarTecnico(id);
-      setTecnicos(tecnicos.filter((tecnico) => tecnico._id !== id));
-      toast.success("Técnico aprobado exitosamente.");
-    } catch (error) {
-      console.error("Error al aprobar técnico:", error);
-      toast.error("Hubo un error al aprobar el técnico.");
     }
-  };
 
-  const handleDenegar = async (id) => {
+    fetchTecnicos()
+  }, [])
+
+  const handleAprobar = async id => {
     try {
-      await denegarTecnico(id);
-      setTecnicos(tecnicos.filter((tecnico) => tecnico._id !== id));
-      toast.success("Técnico denegado exitosamente.");
+      await aprobarTecnico(id)
+      setTecnicos(tecnicos.filter(tecnico => tecnico._id !== id))
+      toast.success('Técnico aprobado exitosamente.')
     } catch (error) {
-      console.error("Error al denegar técnico:", error);
-      toast.error("Hubo un error al denegar el técnico.");
+      console.error('Error al aprobar técnico:', error)
+      toast.error('Hubo un error al aprobar el técnico.')
     }
-  };
+  }
+
+  const handleDenegar = async id => {
+    try {
+      await denegarTecnico(id)
+      setTecnicos(tecnicos.filter(tecnico => tecnico._id !== id))
+      toast.success('Técnico denegado exitosamente.')
+    } catch (error) {
+      console.error('Error al denegar técnico:', error)
+      toast.error('Hubo un error al denegar el técnico.')
+    }
+  }
 
   const paginationOptions = {
-    rowsPerPageText: "Filas por página",
-    rangeSeparatorText: "de",
+    rowsPerPageText: 'Filas por página',
+    rangeSeparatorText: 'de',
     noRowsPerPage: false,
     selectAllRowsItem: true,
-    selectAllRowsItemText: "Todos",
-  };
+    selectAllRowsItemText: 'Todos',
+  }
 
   const tecnicosColumns = [
     {
-      name: "NOMBRE",
-      selector: (row) => row.nombre,
+      name: 'NOMBRE',
+      selector: row => row.nombre,
       sortable: true,
     },
     {
-      name: "CORREO",
-      selector: (row) => row.correo,
+      name: 'CORREO',
+      selector: row => row.correo,
       sortable: true,
     },
     {
-      name: "TELEFONO",
-      selector: (row) => row.telefono,
+      name: 'TELEFONO',
+      selector: row => row.telefono,
       sortable: true,
     },
     {
-      name: "ESTADO",
-      selector: (row) => (row.estado ? "Aprovado" : "Pendiente"),
+      name: 'ESTADO',
+      selector: row => (row.estado ? 'Aprovado' : 'Pendiente'),
       sortable: true,
     },
     {
-      name: "OPCIONES",
-      cell: (row) => (
+      name: 'OPCIONES',
+      cell: row => (
         <>
           <button
             className="bg-green-500 text-white py-1 px-2 rounded mr-2 hover:bg-green-600"
@@ -101,7 +99,7 @@ export default function AdminTecnicos() {
         </>
       ),
     },
-  ];
+  ]
 
   return (
     <AppLayout>
@@ -120,12 +118,11 @@ export default function AdminTecnicos() {
                 striped
                 className="min-w-full border border-gray-300 rounded-lg "
                 noDataComponent="No hay técnicos por aprobar"
-
               />
             </div>
           </main>
         </AdminTecnicosLayout>
       </AdminLayout>
     </AppLayout>
-  );
+  )
 }

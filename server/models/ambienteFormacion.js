@@ -1,16 +1,19 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose')
 
-const ambienteSchema = new mongoose.Schema({
+const ambienteSchema = new mongoose.Schema(
+  {
     nombre: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
     activo: {
-        type: Boolean,
-        default: true,  // Por defecto, el ambiente está activo
-    }
-}, {
-    timestamps: true
-});
+      type: Boolean,
+      default: true, // Por defecto, el ambiente está activo
+    },
+  },
+  {
+    timestamps: true,
+  }
+)
 
-module.exports = mongoose.model('Ambiente', ambienteSchema);
+module.exports = mongoose.model('Ambiente', ambienteSchema)
