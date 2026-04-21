@@ -11,8 +11,8 @@ const {
   reactivarUsuarios,
 } = require('../controllers/usuarios')
 const { uploadMiddleware } = require('../utils/handleStorage')
-const checkRol = require('../middleware/rol')
-const authMiddleware = require('../middleware/session')
+const { checkRol } = require('../middleware/rol')
+const { authMiddleware } = require('../middleware/session')
 
 const { validatorUpdateUsuarios, validatorUsuariosId } = require('../validators/usuarios')
 

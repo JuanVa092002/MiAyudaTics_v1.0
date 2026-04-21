@@ -7,8 +7,8 @@ const {
   listaTecnicosAprobados,
 } = require('../controllers/tecnicos')
 const { uploadMiddleware } = require('../utils/handleStorage')
-const checkRol = require('../middleware/rol')
-const authMiddleware = require('../middleware/session')
+const { checkRol } = require('../middleware/rol')
+const { authMiddleware } = require('../middleware/session')
 
 // http://localhost:3010/api/tecnicos/
 

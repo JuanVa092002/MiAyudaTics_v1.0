@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
-const authMiddleware = require('../middleware/session')
-const checkRol = require('../middleware/rol')
+const { authMiddleware } = require('../middleware/session')
+const { checkRol } = require('../middleware/rol')
 const { solucionCaso } = require('../controllers/solucionCaso')
 const { uploadMiddleware } = require('../utils/handleStorage')
 

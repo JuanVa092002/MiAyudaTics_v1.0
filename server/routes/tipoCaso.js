@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
-const checkRol = require('../middleware/rol')
-const authMiddleware = require('../middleware/session')
+const { checkRol } = require('../middleware/rol')
+const { authMiddleware } = require('../middleware/session')
 
 const {
   getTipoCaso,

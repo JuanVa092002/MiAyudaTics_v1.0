@@ -2,7 +2,7 @@
 const express = require("express");
 const path = require('path');
 const cors = require("cors");
-const dbConnect = require('./config/mongo')
+const { dbConnect } = require('./config/mongo')
 const cookieParser = require('cookie-parser')
 const morgan = require("morgan");
 const { server } = require('./utils/handleSocket');
@@ -56,7 +56,7 @@ const express = require('express')
 const { app, server } = require('./utils/handleSocket') // Importa app y server
 const path = require('path')
 const cors = require('cors')
-const dbConnect = require('./config/mongo')
+const { dbConnect } = require('./config/mongo')
 const cookieParser = require('cookie-parser')
 const morgan = require('morgan')
 

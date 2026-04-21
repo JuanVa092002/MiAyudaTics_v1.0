@@ -1,8 +1,8 @@
 const express = require('express')
 const router = express.Router()
 const { getSolicitudesPorAmbientes } = require('../controllers/graficaSolicitudesPorAmbiente')
-const authMiddleware = require('../middleware/session')
-const checkRol = require('../middleware/rol')
+const { authMiddleware } = require('../middleware/session')
+const { checkRol } = require('../middleware/rol')
 
 /*  Ruta para obtener las solicitudes por ambiente
  http://localhost:3010/api/graficaSolicitudesPorAmbiente 
