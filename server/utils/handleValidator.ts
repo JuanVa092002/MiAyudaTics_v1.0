@@ -11,6 +11,14 @@ export const handleValidator =
       res.status(422).json({ errors: error.details })
       return
     }
-    req.body = result.data
+
+    // Mapear datos validados/transformados de vuelta a sus fuentes originales
+    const data = result.data as Record<string, any>
+    Object.keys(data).forEach((key) => {
+      if (key in req.body) req.body[key] = data[key]
+      if (key in req.params) req.params[key] = data[key]
+      if (key in req.query) req.query[key] = data[key]
+    })
+
     next()
   }
