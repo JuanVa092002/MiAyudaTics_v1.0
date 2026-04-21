@@ -1,11 +1,16 @@
+import { ZodSchema } from 'zod'
+import { fromZodError } from 'zod-validation-error'
 import { Request, Response, NextFunction } from 'express'
-import { validationResult } from 'express-validator'
 
-export const validateResults = (req: Request, res: Response, next: NextFunction): void => {
-  try {
-    validationResult(req).throw() // Lanza un error si hay resultados de validación
-    next() // Continúa con el siguiente middleware
-  } catch (error: any) {
-    res.status(403).json({ message: 'algo salió mal', errors: error.array() }) // Maneja el error de validación
+export const handleValidator =
+  (schema: ZodSchema) =>
+  (req: Request, res: Response, next: NextFunction): void => {
+    const result = schema.safeParse(req.body)
+    if (!result.success) {
+      const error = fromZodError(result.error)
+      res.status(422).json({ errors: error.details })
+      return
+    }
+    req.body = result.data
+    next()
   }
-}
