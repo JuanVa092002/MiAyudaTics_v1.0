@@ -33,7 +33,9 @@
     "nodemailer": "^8.0.5",
     "pdf-lib": "^1.17.1",
     "socket.io": "^4.8.3",
-    "socket.io-client": "^4.8.3"
+    "socket.io-client": "^4.8.3",
+    "zod": "^4.3.6",
+    "zod-validation-error": "^5.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
