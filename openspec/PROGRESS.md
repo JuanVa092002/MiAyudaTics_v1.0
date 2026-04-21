@@ -82,3 +82,45 @@
 - **Archivos de configuración creados:** 9 (`pnpm-lock.yaml`, `tsconfig.json`, `eslint.config.js`, `.prettierrc`, hooks, etc.)
 - **Deuda técnica registrada:** 3 items (`allowJs`, `Joi` runtime, Warnings temporales TS)
 - **Decisiones documentadas:** 6 (pnpm strict, Hooks estricto, TS fallback, etc.)
+
+---
+
+## [2026-04-21] Fase 2 — Grupo A: utils + validators → TypeScript
+- **Estado:** ✅ Completado
+- **Archivos migrados (13):**
+  - `tests/testServer.ts`, `utils/handleEmail.ts`, `utils/handleError.ts`, `utils/handleJwt.ts`
+  - `utils/handlePassword.ts`, `utils/handleSocket.ts`, `utils/handleStorage.ts`, `utils/handleValidator.ts`
+  - `utils/pdfReportes.ts`, `validators/auth.ts`, `validators/restablecerPassword.ts`
+  - `validators/solicitud.ts`, `validators/usuarios.ts`
+- **Resultado verification:** `tsc --noEmit` → 0 errores. Servidor levanta OK.
+- **Decisiones tomadas:**
+  - `handleStorage.ts` usa named export `export const uploadMiddleware` → todos los `require()` en routes actualizados con destructuring.
+  - Parámetros no usados renombrados con prefijo `_` para cumplir `noUnusedParameters`.
+- **Commit:** `chore(migration): remove empty js files after group-a migration`
+
+## [2026-04-21] Fase 2 — Grupo B: config + middlewares → TypeScript
+- **Estado:** ✅ Completado
+- **Archivos migrados (4):**
+  - `config/mongo.ts`, `middleware/customHeader.ts`, `middleware/rol.ts`, `middleware/session.ts`
+- **Nuevo:** `server/types/express.d.ts` — Declaration Merging para `req.usuario?: IUsuario`
+- **Resultado verification:** `tsc --noEmit` → 0 errores. Servidor levanta OK.
+- **Decisiones tomadas:**
+  - `middleware/session.ts` agrega guardia de null: si `usuarioModel.findById()` devuelve `null`, retorna 401 antes de asignar a `req.usuario`.
+  - `middleware/rol.ts` usa `roles.includes(usuario.rol)` — tipo union literal, no array.
+  - `express.d.ts` importa `IUsuario` desde `models/usuarios.ts` en lugar de definirlo inline.
+- **Commit:** `feat(migration): migrate group-b config and middlewares to typescript`
+
+## [2026-04-21] Fase 2 — Grupo C: modelos Mongoose → TypeScript
+- **Estado:** ✅ Completado
+- **Archivos migrados (8):**
+  - `models/index.ts`, `models/ambienteFormacion.ts`, `models/tipoCaso.ts`, `models/storage.ts`
+  - `models/consecutivoCaso.ts`, `models/solucionCaso.ts`, `models/solicitud.ts`, `models/usuarios.ts`
+- **Nueva dependencia:** `@types/luxon 3.7.1` (devDependency)
+- **Resultado verification:** `tsc --noEmit` → 0 errores. ESLint → 0 errores. Servidor levanta OK.
+- **Decisiones tomadas:**
+  - Patron usado: `interface IModelo { ... }` + `model<IModelo, Model<IModelo>>('Nombre', schema)`.
+  - Se descartó `interface IModeloModel extends Model<IModelo> {}` (vacía) — ESLint `no-empty-object-type` la rechaza como error.
+  - `IUsuario` exportada desde `models/usuarios.ts` y usada en `types/express.d.ts`.
+  - `solicitud.ts`: luxon usado solo en `toJSON.transform` (lógica), nunca en la interface — campos de fecha tipados como `Date`.
+  - `tipoSolucion` en `solucionCaso.ts` tipado como union literal `'pendiente' | 'finalizado'`.
+- **Commit:** `feat(migration): migrate group-c mongoose models to typescript`
