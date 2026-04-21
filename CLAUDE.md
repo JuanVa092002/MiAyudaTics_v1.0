@@ -36,3 +36,7 @@ Sistema de tickets para instituciones educativas centralizando reportes de hardw
 ## Comando Dev
 Frontend: `cd client && pnpm run dev`
 Backend: `cd server && pnpm run dev`
+
+## ?? Deuda Técnica Activa
+- allowJs: true ? eliminar al 100% de migración (Tarea 2.0)
+- SKIP_PRE_COMMIT bypass ? eliminar al terminar Tarea 1.3

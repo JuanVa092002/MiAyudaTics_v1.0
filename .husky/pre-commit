@@ -1,5 +1,4 @@
 #!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
 
 # Temporarily skip during migration to allow initial commits
 if [ "$SKIP_PRE_COMMIT" = "1" ]; then
