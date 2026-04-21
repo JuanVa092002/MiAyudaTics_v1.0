@@ -6,7 +6,7 @@ const {
   denegarTecnico,
   listaTecnicosAprobados,
 } = require('../controllers/tecnicos')
-const uploadMiddleware = require('../utils/handleStorage')
+const { uploadMiddleware } = require('../utils/handleStorage')
 const checkRol = require('../middleware/rol')
 const authMiddleware = require('../middleware/session')
 

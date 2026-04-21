@@ -1,10 +1,10 @@
-const { usuarioModel, storageModel, solicitudModel } = require('../models/index.js')
-const { handleHttpError } = require('../utils/handleError.js')
+const { usuarioModel, storageModel, solicitudModel } = require('../models/index')
+const { handleHttpError } = require('../utils/handleError')
 const PUBLIC_URL = process.env.PUBLIC_URL
 const fs = require('fs')
 const path = require('path')
 const transporter = require('../utils/handleEmail')
-const { tokenSign } = require('../utils/handleJwt.js')
+const { tokenSign } = require('../utils/handleJwt')
 
 // tecnicos que requieren aprobacion
 const listaTecnicosPendientes = async (req, res) => {

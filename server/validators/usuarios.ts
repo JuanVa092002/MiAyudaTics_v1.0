@@ -1,7 +1,8 @@
-const { check, body } = require('express-validator')
-const validateResults = require('../utils/handleValidator')
+import { check } from 'express-validator'
+import { validateResults } from '../utils/handleValidator'
+import { Request, Response, NextFunction } from 'express'
 
-const validatorUpdateUsuarios = [
+export const validatorUpdateUsuarios = [
   // No permite edición de 'nombre', 'correo' y 'rol' eliminando sus validaciones
   check('telefono')
     .optional()
@@ -18,27 +19,22 @@ const validatorUpdateUsuarios = [
     .escape()
     .withMessage('La contraseña debe tener al menos 6 caracteres'),
 
-  (req, res, next) => {
+  (req: Request, res: Response, next: NextFunction): void => {
     //  no se envíen `nombre`, `correo`, ni `rol`
     const camposDeshabilitados = ['nombre', 'correo', 'rol']
     for (const campo of camposDeshabilitados) {
       if (req.body[campo]) {
-        return res.status(400).send({ message: `No se permite actualizar el campo ${campo}` })
+        res.status(400).send({ message: `No se permite actualizar el campo ${campo}` })
+        return
       }
     }
     validateResults(req, res, next)
   },
 ]
 
-const validatorUsuariosId = [
+export const validatorUsuariosId = [
   check('id').isMongoId().exists().notEmpty().trim().escape().withMessage('El id es requerido'),
-  (req, res, next) => {
+  (req: Request, res: Response, next: NextFunction) => {
     validateResults(req, res, next)
   },
 ]
-
-module.exports = { validatorUpdateUsuarios, validatorUsuariosId }
-
-/* Las validaciones alidar y sanitizar los datos de las solicitudes HTTP. 
-Estas validaciones se aplican antes de que los datos lleguen a tu base 
-de datos o se procesen en tu controlador. */

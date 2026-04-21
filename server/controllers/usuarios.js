@@ -1,13 +1,13 @@
-const { usuarioModel, storageModel } = require('../models/index.js')
+const { usuarioModel, storageModel } = require('../models/index')
 const { encrypt, compare } = require('../utils/handlePassword')
-const { handleHttpError } = require('../utils/handleError.js')
+const { handleHttpError } = require('../utils/handleError')
 const PUBLIC_URL = process.env.PUBLIC_URL
 const RENDER_URL = process.env.RENDER_URL
 
 const fs = require('fs')
 const path = require('path')
 const transporter = require('../utils/handleEmail')
-const { tokenSign } = require('../utils/handleJwt.js')
+const { tokenSign } = require('../utils/handleJwt')
 
 const getUsuarios = async (req, res) => {
   try {

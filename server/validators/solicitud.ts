@@ -1,8 +1,7 @@
-const { check } = require('express-validator')
-const validateResults = require('../utils/handleValidator')
+import { check } from 'express-validator'
 
 // Validaciones con express-validator
-const validarSolicitud = [
+export const validarSolicitud = [
   check('usuario')
     .notEmpty()
     .withMessage('El campo usuario es obligatorio.')
@@ -21,9 +20,6 @@ const validarSolicitud = [
   check('telefono')
     .notEmpty()
     .withMessage('El campo teléfono es obligatorio.')
-    .isMobilePhone()
+    .isMobilePhone('any')
     .withMessage('Debe ser un número de teléfono válido.'),
-  // Puedes agregar más validaciones según los requisitos de los campos
 ]
-
-module.exports = { validarSolicitud }

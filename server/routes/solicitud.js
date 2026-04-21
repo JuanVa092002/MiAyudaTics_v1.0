@@ -14,7 +14,7 @@ const {
   getSolicitudesFinalizadas,
   deleteSolicitud,
 } = require('../controllers/solicitud')
-const uploadMiddleware = require('../utils/handleStorage')
+const { uploadMiddleware } = require('../utils/handleStorage')
 const { validarSolicitud } = require('../validators/solicitud')
 
 // http://localhost:3010/api/solicitud/  ver solicitudes

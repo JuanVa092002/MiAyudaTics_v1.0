@@ -1,4 +1,4 @@
-const { handleHttpError } = require('../utils/handleError.js')
+const { handleHttpError } = require('../utils/handleError')
 
 // array con los roles permitidos
 const checkRol = roles => (req, res, next) => {

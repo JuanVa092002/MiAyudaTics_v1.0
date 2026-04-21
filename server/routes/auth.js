@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const { validatorRegister, validatorLogin } = require('../validators/auth')
-const uploadMiddleware = require('../utils/handleStorage')
+const { uploadMiddleware } = require('../utils/handleStorage')
 const { registerCtrl, loginCtrl, verifyToken, createLogout } = require('../controllers/auth')
 
 router.post('/register', uploadMiddleware.single('foto'), validatorRegister, registerCtrl)

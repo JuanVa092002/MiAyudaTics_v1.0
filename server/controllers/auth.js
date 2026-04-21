@@ -3,7 +3,7 @@ const router = express.Router()
 const { encrypt, compare } = require('../utils/handlePassword')
 const { usuarioModel, storageModel } = require('../models') // Asegúrate de importar todos los modelos necesarios
 const { tokenSign } = require('../utils/handleJwt')
-const { handleHttpError } = require('../utils/handleError.js')
+const { handleHttpError } = require('../utils/handleError')
 const PUBLIC_URL = process.env.PUBLIC_URL || 'http://localhost:3010'
 const RENDER_URL = process.env.RENDER_URL
 

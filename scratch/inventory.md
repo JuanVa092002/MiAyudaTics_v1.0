@@ -1,0 +1,74 @@
+## Task Breakdown (Inventario de Migración)
+
+**Métricas del Inventario:**
+- **Total de archivos JS a migrar:** 52
+- **Líneas de código totales:** 2720
+- **Errores TS esperados (Estimado):** 
+  - Grupo A: ~30 (Mayormente tipado de helpers genéricos y schemas)
+  - Grupo B: ~20 (Middlewares con Custom Request typings)
+  - Grupo C: ~80 (Interfaces y Tipos estables para Mongoose schemas)
+  - Grupo D: ~200 (Controllers req/res y encadenamiento de validación runtime)
+
+### Grupo A — Migrar primero (sin dependencias internas)
+*Tipos, constantes, utilidades, helpers, middlewares simples, validadores*
+- `tests/testServer.js` | 8 líneas | Baja | express, supertest
+- `utils/handleEmail.js` | 28 líneas | Baja | dotenv, path, nodemailer
+- `utils/handleError.js` | 7 líneas | Baja | Ninguna
+- `utils/handleJwt.js` | 26 líneas | Baja | jsonwebtoken
+- `utils/handlePassword.js` | 15 líneas | Baja | bcryptjs
+- `utils/handleSocket.js` | 35 líneas | Baja | express, http, socket.io
+- `utils/handleStorage.js` | 34 líneas | Baja | path, multer
+- `utils/handleValidator.js` | 13 líneas | Baja | express-validator
+- `utils/pdfReportes.js` | 1 líneas | Baja | Ninguna
+- `validators/auth.js` | 76 líneas | Baja | express-validator
+- `validators/restablecerPassword.js` | 22 líneas | Baja | express-validator
+- `validators/solicitud.js` | 30 líneas | Baja | express-validator
+- `validators/usuarios.js` | 45 líneas | Baja | express-validator
+
+### Grupo B — Migrar segundo (dependen de A)
+*Configuraciones, conexión DB, middlewares de auth*
+- `config/mongo.js` | 19 líneas | Baja | mongoose
+- `middleware/customHeader.js` | 6 líneas | Baja | Ninguna
+- `middleware/rol.js` | 23 líneas | Baja | Ninguna
+- `middleware/session.js` | 43 líneas | Baja | Ninguna
+
+### Grupo C — Migrar tercero (dependen de A y B)
+*Modelos de Mongoose*
+- `models/ambienteFormacion.js` | 20 líneas | Baja | mongoose
+- `models/consecutivoCaso.js` | 22 líneas | Baja | mongoose
+- `models/index.js` | 12 líneas | Baja | Ninguna
+- `models/solicitud.js` | 73 líneas | Baja | mongoose, luxon
+- `models/solucionCaso.js` | 41 líneas | Baja | mongoose
+- `models/storage.js` | 15 líneas | Baja | mongoose
+- `models/tipoCaso.js` | 20 líneas | Baja | mongoose
+- `models/usuarios.js` | 60 líneas | Baja | mongoose
+
+### Grupo D — Migrar último (dependen de todo)
+*Servicios, controladores, rutas*
+- `app.js` | 113 líneas | Media | dotenv, express, path, cors, cookie-parser, morgan, dotenv, path, express, path, cors, cookie-parser, morgan
+- `controllers/ambienteFormacion.js` | 84 líneas | Baja | Ninguna
+- `controllers/auth.js` | 236 líneas | Alta | express, jsonwebtoken
+- `controllers/consecutivoCaso.js` | 34 líneas | Baja | luxon
+- `controllers/graficaSolicitudesPorAmbiente.js` | 57 líneas | Baja | Ninguna
+- `controllers/graficaSolicitudesPorMes.js` | 45 líneas | Baja | Ninguna
+- `controllers/recuperarPassword.js` | 54 líneas | Baja | crypto, bcryptjs
+- `controllers/restablecerPassword.js` | 44 líneas | Baja | crypto, bcryptjs
+- `controllers/solicitud.js` | 333 líneas | Alta | Ninguna
+- `controllers/solucionCaso.js` | 96 líneas | Baja | Ninguna
+- `controllers/storage.js` | 148 líneas | Media | fs, path
+- `controllers/tecnicos.js` | 136 líneas | Media | fs, path
+- `controllers/tipoCaso.js` | 66 líneas | Baja | Ninguna
+- `controllers/usuarios.js` | 236 líneas | Alta | fs, path
+- `routes/ambienteFormacion.js` | 23 líneas | Baja | express
+- `routes/auth.js` | 20 líneas | Baja | express
+- `routes/graficaSolicitudesPorAmbiente.js` | 19 líneas | Baja | express
+- `routes/graficaSolicitudesPorMes.js` | 19 líneas | Baja | express
+- `routes/index.js` | 32 líneas | Baja | express, fs
+- `routes/recuperarPassword.js` | 11 líneas | Baja | express
+- `routes/restablecerPassword.js` | 12 líneas | Baja | express
+- `routes/solicitud.js` | 54 líneas | Baja | express
+- `routes/solucionCaso.js` | 18 líneas | Baja | express
+- `routes/storage.js` | 29 líneas | Baja | express
+- `routes/tecnicos.js` | 21 líneas | Baja | express
+- `routes/tipoCaso.js` | 23 líneas | Baja | express
+- `routes/usuarios.js` | 63 líneas | Baja | express

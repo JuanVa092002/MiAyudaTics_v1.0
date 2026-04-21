@@ -1,7 +1,8 @@
-const { check } = require('express-validator')
-const validateResults = require('../utils/handleValidator')
+import { check } from 'express-validator'
+import { validateResults } from '../utils/handleValidator'
+import { Request, Response, NextFunction } from 'express'
 
-const validatorPassword = [
+export const validatorPassword = [
   check('password')
     .exists()
     .isLength({ min: 6 })
@@ -13,9 +14,7 @@ const validatorPassword = [
     .withMessage(
       'La contraseña debe tener una longitud mínima de 6 caracteres y contener al menos una letra y un número'
     ),
-  (req, res, next) => {
+  (req: Request, res: Response, next: NextFunction) => {
     validateResults(req, res, next) // Usa validateResults como middleware de validación
   },
 ]
-
-module.exports = { validatorPassword }

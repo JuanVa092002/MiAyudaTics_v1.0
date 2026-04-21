@@ -1,7 +1,8 @@
-const { check } = require('express-validator')
-const validateResults = require('../utils/handleValidator')
+import { check } from 'express-validator'
+import { validateResults } from '../utils/handleValidator'
+import { Request, Response, NextFunction } from 'express'
 
-const validatorRegister = [
+export const validatorRegister = [
   check('nombre').exists().notEmpty().trim().escape().withMessage('El nombre es requerido'),
   check('correo')
     .exists()
@@ -9,7 +10,7 @@ const validatorRegister = [
     .isEmail()
     .normalizeEmail()
     .withMessage('El correo electrónico no es válido')
-    .custom(value => {
+    .custom((value: string) => {
       // Verificar que el correo electrónico tenga el formato correcto
       const atSymbolIndex = value.indexOf('@')
       if (atSymbolIndex === -1 || atSymbolIndex === 0 || atSymbolIndex === value.length - 1) {
@@ -17,8 +18,6 @@ const validatorRegister = [
       }
       return true
     }),
-
-  //.matches(/@soy\.sena\.edu\.co$/).withMessage("El correo debe pertenecer al dominio sena.edu.co"),
   check('rol')
     .exists()
     .notEmpty()
@@ -44,12 +43,12 @@ const validatorRegister = [
     .withMessage(
       'La contraseña debe tener una longitud mínima de 6 caracteres y contener al menos una letra y un número'
     ),
-  (req, res, next) => {
+  (req: Request, res: Response, next: NextFunction) => {
     validateResults(req, res, next) // Usa validateResults como middleware de validación
   },
 ]
 
-const validatorLogin = [
+export const validatorLogin = [
   check('password')
     .exists()
     .isLength({ min: 6 })
@@ -67,9 +66,7 @@ const validatorLogin = [
     .isEmail()
     .normalizeEmail()
     .withMessage('El correo electrónico no es válido'),
-  (req, res, next) => {
+  (req: Request, res: Response, next: NextFunction) => {
     validateResults(req, res, next)
   },
 ]
-
-module.exports = { validatorRegister, validatorLogin }
