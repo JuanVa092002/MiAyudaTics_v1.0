@@ -89,7 +89,8 @@ app.set('views', path.join(__dirname, 'views'))
 app.use(express.static('storage'))
 
 // Invoca las rutas de la API
-app.use('/api', require('./routes'))
+const apiRoutes = require('./routes')
+app.use('/api', apiRoutes.default || apiRoutes)
 
 // Ruta para listar archivos en la carpeta storage
 /* app.get('/list-storage', (req, res) => {
