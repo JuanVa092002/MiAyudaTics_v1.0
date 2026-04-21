@@ -59,4 +59,15 @@
 - **Decisiones tomadas:** 
   - Se desactivaron/bajaron a 'warn' ciertas reglas muy restrictivas de TS y React Hooks RC (\`react-hooks/rules-of-hooks\`, \`preserve-caught-error\`, etc.) explícitamente en los \`eslint.config.js\` para que el hook no bloquee los commits de código legacy durante la Fase 1.
 - **Deuda técnica generada:** 
-  - Hay decenas de warnings de TS en consola al hacer commit, las cuales deberán ser limpiadas cuando se renombren los archivos a `.ts` en la Fase 2. El bypass \`SKIP_PRE_COMMIT\` ya no es necesario para temas de configuración básica.
+  - Hay decenas de warnings de TS en consola al hacer commit, las cuales deberán ser limpiadas cuando se renombren los archivos a `.ts` en la Fase 2. El bypass `SKIP_PRE_COMMIT` ya no es necesario para temas de configuración básica.
+
+## [2026-04-20] Tarea 1.5 — Preparación Estructural Feature-Based
+- **Estado:** ✅ Completada (Fase 1 casi completada — falta Tarea 1.6)
+- **Resultado verification:** 
+  - Estructura `features/` creada tanto en `/server` como en `/client/src`.
+  - Subdirectorios `auth`, `tickets`, `users` y `shared` creados con `.gitkeep` en ambas aplicaciones.
+  - Archivos `README.md` generados documentando exhaustivamente las reglas de arquitectura Feature-Based, convenciones de nomenclatura e interdependencias.
+  - **Commit sin bypass exitoso**: El pre-commit hook corrió `tsc` y `eslint` exitosamente sin trabas.
+- **Decisiones tomadas:** 
+  - Se estableció una arquitectura fuertemente encapsulada para mitigar el acoplamiento heredado en futuras Fases 2 y 3. Las features solo podrán comunicarse a través del export `index.ts` o la carpeta `shared/`.
+- **Deuda técnica generada:** Ninguna.

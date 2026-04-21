@@ -1,11 +1,5 @@
 #!/usr/bin/env sh
 
-# Temporarily skip during migration to allow initial commits
-if [ "$SKIP_PRE_COMMIT" = "1" ]; then
-  echo "⏩ Skipping pre-commit checks for this commit."
-  exit 0
-fi
-
 echo "⏳ Running pre-commit checks (TypeScript & ESLint)..."
 
 echo "1/4: Type-checking Server..."
