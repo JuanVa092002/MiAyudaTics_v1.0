@@ -39,21 +39,21 @@ Node.js, Express, TypeScript, Zod, Mongoose, Jest
 
 ### Grupo B — Migrar segundo (dependen de A)
 *Configuraciones, conexión DB, middlewares de auth*
-- [ ] `config/mongo.js` | 19 líneas | Baja | mongoose
-- [ ] `middleware/customHeader.js` | 6 líneas | Baja | Ninguna
-- [ ] `middleware/rol.js` | 23 líneas | Baja | Ninguna
-- [ ] `middleware/session.js` | 43 líneas | Baja | Ninguna
+- [x] `config/mongo.js` | 19 líneas | Baja | mongoose
+- [x] `middleware/customHeader.js` | 6 líneas | Baja | Ninguna
+- [x] `middleware/rol.js` | 23 líneas | Baja | Ninguna
+- [x] `middleware/session.js` | 43 líneas | Baja | Ninguna
 
 ### Grupo C — Migrar tercero (dependen de A y B)
 *Modelos de Mongoose*
-- [ ] `models/ambienteFormacion.js` | 20 líneas | Baja | mongoose
-- [ ] `models/consecutivoCaso.js` | 22 líneas | Baja | mongoose
-- [ ] `models/index.js` | 12 líneas | Baja | Ninguna
-- [ ] `models/solicitud.js` | 73 líneas | Baja | mongoose, luxon
-- [ ] `models/solucionCaso.js` | 41 líneas | Baja | mongoose
-- [ ] `models/storage.js` | 15 líneas | Baja | mongoose
-- [ ] `models/tipoCaso.js` | 20 líneas | Baja | mongoose
-- [ ] `models/usuarios.js` | 60 líneas | Baja | mongoose
+- [x] `models/ambienteFormacion.js` | 20 líneas | Baja | mongoose
+- [x] `models/consecutivoCaso.js` | 22 líneas | Baja | mongoose
+- [x] `models/index.js` | 12 líneas | Baja | Ninguna
+- [x] `models/solicitud.js` | 73 líneas | Baja | mongoose, luxon
+- [x] `models/solucionCaso.js` | 41 líneas | Baja | mongoose
+- [x] `models/storage.js` | 15 líneas | Baja | mongoose
+- [x] `models/tipoCaso.js` | 20 líneas | Baja | mongoose
+- [x] `models/usuarios.js` | 60 líneas | Baja | mongoose
 
 ### Grupo D — Migrar último (dependen de todo)
 *Servicios, controladores, rutas*

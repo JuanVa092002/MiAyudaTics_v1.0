@@ -1,15 +1,30 @@
-const mongoose = require('mongoose')
-const { DateTime } = require('luxon')
+import { Schema, model, Model, Types } from 'mongoose'
+import { DateTime } from 'luxon'
 
-const solicitudSchema = new mongoose.Schema(
+interface ISolicitud {
+  usuario: Types.ObjectId
+  ambiente: Types.ObjectId
+  descripcion: string
+  telefono: string
+  fecha: Date
+  codigoCaso: string
+  estado: 'solicitado' | 'asignado' | 'pendiente' | 'finalizado'
+  tecnico?: Types.ObjectId
+  solucion?: Types.ObjectId
+  foto?: Types.ObjectId
+  createdAt?: Date
+  updatedAt?: Date
+}
+
+const solicitudSchema = new Schema<ISolicitud>(
   {
     usuario: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'Usuario',
       required: true,
     },
     ambiente: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'Ambiente',
       required: true,
     },
@@ -25,34 +40,28 @@ const solicitudSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
-
     codigoCaso: {
       type: String,
       required: true,
     },
-
     estado: {
       type: String,
       enum: ['solicitado', 'asignado', 'pendiente', 'finalizado'],
       required: true,
       default: 'solicitado',
     },
-
     tecnico: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'Usuario',
       required: false,
     },
-
-    // Nuevo campo para enlazar la solución
     solucion: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'SolucionCaso',
       required: false,
     },
-
     foto: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'Storage',
       required: false,
     },
@@ -61,7 +70,7 @@ const solicitudSchema = new mongoose.Schema(
     timestamps: true,
     toJSON: {
       virtuals: true,
-      transform: function (doc, ret) {
+      transform: function (_doc, ret) {
         ret.fecha = DateTime.fromJSDate(ret.fecha).setLocale('es').toFormat('dd-MM-yyyy HH:mm')
         return ret
       },
@@ -69,4 +78,5 @@ const solicitudSchema = new mongoose.Schema(
   }
 )
 
-module.exports = mongoose.model('Solicitud', solicitudSchema)
+const Solicitud = model<ISolicitud, Model<ISolicitud>>('Solicitud', solicitudSchema)
+export default Solicitud
