@@ -1,25 +1,12 @@
-import { check } from 'express-validator'
+import { z } from 'zod'
+import { handleValidator } from '../utils/handleValidator'
 
-// Validaciones con express-validator
-export const validarSolicitud = [
-  check('usuario')
-    .notEmpty()
-    .withMessage('El campo usuario es obligatorio.')
-    .isMongoId()
-    .withMessage('El ID del usuario no es válido.'),
-  check('ambiente')
-    .notEmpty()
-    .withMessage('El campo ambiente es obligatorio.')
-    .isMongoId()
-    .withMessage('El ID del ambiente no es válido.'),
-  check('descripcion')
-    .notEmpty()
-    .withMessage('El campo descripción es obligatorio.')
-    .isLength({ min: 10 })
-    .withMessage('La descripción debe tener al menos 10 caracteres.'),
-  check('telefono')
-    .notEmpty()
-    .withMessage('El campo teléfono es obligatorio.')
-    .isMobilePhone('any')
-    .withMessage('Debe ser un número de teléfono válido.'),
-]
+export const solicitudSchema = z.object({
+  usuario: z.string().regex(/^[0-9a-fA-F]{24}$/, 'El ID del usuario no es válido'),
+  ambiente: z.string().regex(/^[0-9a-fA-F]{24}$/, 'El ID del ambiente no es válido'),
+  descripcion: z.string().min(10, 'La descripción debe tener al menos 10 caracteres'),
+  telefono: z.string().min(1, 'El campo teléfono es obligatorio'),
+})
+
+export type SolicitudDto = z.infer<typeof solicitudSchema>
+export const validarSolicitud = handleValidator(solicitudSchema)

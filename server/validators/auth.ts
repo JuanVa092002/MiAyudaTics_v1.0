@@ -1,72 +1,38 @@
-import { check } from 'express-validator'
-import { validateResults } from '../utils/handleValidator'
-import { Request, Response, NextFunction } from 'express'
+import { z } from 'zod'
+import { handleValidator } from '../utils/handleValidator'
 
-export const validatorRegister = [
-  check('nombre').exists().notEmpty().trim().escape().withMessage('El nombre es requerido'),
-  check('correo')
-    .exists()
-    .notEmpty()
-    .isEmail()
-    .normalizeEmail()
-    .withMessage('El correo electrónico no es válido')
-    .custom((value: string) => {
-      // Verificar que el correo electrónico tenga el formato correcto
-      const atSymbolIndex = value.indexOf('@')
-      if (atSymbolIndex === -1 || atSymbolIndex === 0 || atSymbolIndex === value.length - 1) {
-        throw new Error('El correo electrónico debe contener un símbolo @ y un dominio válido.')
-      }
-      return true
-    }),
-  check('rol')
-    .exists()
-    .notEmpty()
-    .trim()
-    .escape()
-    .isIn(['funcionario', 'lider', 'tecnico'])
-    .withMessage('El rol no es válido'),
-  check('telefono')
-    .exists()
-    .notEmpty()
-    .trim()
-    .escape()
-    .isNumeric()
-    .withMessage('El teléfono debe ser un número'),
-  check('password')
-    .exists()
-    .isLength({ min: 6 })
-    .notEmpty()
-    .trim()
-    .escape()
-    .withMessage('La contraseña debe tener al menos 6 caracteres')
-    .matches(/^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{6,}$/)
-    .withMessage(
+export const registerSchema = z.object({
+  nombre: z.string().min(1, 'El nombre es requerido'),
+  correo: z.string().email('El correo electrónico no es válido'),
+  rol: z.enum(['funcionario', 'lider', 'tecnico'], {
+    message: 'El rol no es válido',
+  }),
+  telefono: z
+    .string()
+    .min(1, 'El teléfono es requerido')
+    .regex(/^\d+$/, 'El teléfono debe ser un número'),
+  password: z
+    .string()
+    .min(6, 'La contraseña debe tener al menos 6 caracteres')
+    .regex(
+      /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{6,}$/,
       'La contraseña debe tener una longitud mínima de 6 caracteres y contener al menos una letra y un número'
     ),
-  (req: Request, res: Response, next: NextFunction) => {
-    validateResults(req, res, next) // Usa validateResults como middleware de validación
-  },
-]
+})
 
-export const validatorLogin = [
-  check('password')
-    .exists()
-    .isLength({ min: 6 })
-    .notEmpty()
-    .trim()
-    .escape()
-    .withMessage('La contraseña es requerida')
-    .matches(/^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{6,}$/)
-    .withMessage(
+export type RegisterDto = z.infer<typeof registerSchema>
+export const validatorRegister = handleValidator(registerSchema)
+
+export const loginSchema = z.object({
+  correo: z.string().email('El correo electrónico no es válido'),
+  password: z
+    .string()
+    .min(6, 'La contraseña es requerida')
+    .regex(
+      /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{6,}$/,
       'La contraseña debe tener una longitud mínima de 6 caracteres y contener al menos una letra y un número'
     ),
-  check('correo')
-    .exists()
-    .notEmpty()
-    .isEmail()
-    .normalizeEmail()
-    .withMessage('El correo electrónico no es válido'),
-  (req: Request, res: Response, next: NextFunction) => {
-    validateResults(req, res, next)
-  },
-]
+})
+
+export type LoginDto = z.infer<typeof loginSchema>
+export const validatorLogin = handleValidator(loginSchema)

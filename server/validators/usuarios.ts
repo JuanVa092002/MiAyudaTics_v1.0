@@ -1,40 +1,25 @@
-import { check } from 'express-validator'
-import { validateResults } from '../utils/handleValidator'
-import { Request, Response, NextFunction } from 'express'
+import { z } from 'zod'
+import { handleValidator } from '../utils/handleValidator'
 
-export const validatorUpdateUsuarios = [
-  // No permite edición de 'nombre', 'correo' y 'rol' eliminando sus validaciones
-  check('telefono')
-    .optional()
-    .notEmpty()
-    .trim()
-    .escape()
-    .isNumeric()
-    .withMessage('El teléfono debe ser un número'),
-  check('password')
-    .optional()
-    .isLength({ min: 6 })
-    .notEmpty()
-    .trim()
-    .escape()
-    .withMessage('La contraseña debe tener al menos 6 caracteres'),
+export const updateUsuariosSchema = z
+  .object({
+    telefono: z
+      .string()
+      .regex(/^\d+$/, 'El teléfono debe ser un número')
+      .optional(),
+    password: z
+      .string()
+      .min(6, 'La contraseña debe tener al menos 6 caracteres')
+      .optional(),
+  })
+  .strict()
 
-  (req: Request, res: Response, next: NextFunction): void => {
-    //  no se envíen `nombre`, `correo`, ni `rol`
-    const camposDeshabilitados = ['nombre', 'correo', 'rol']
-    for (const campo of camposDeshabilitados) {
-      if (req.body[campo]) {
-        res.status(400).send({ message: `No se permite actualizar el campo ${campo}` })
-        return
-      }
-    }
-    validateResults(req, res, next)
-  },
-]
+export type UpdateUsuariosDto = z.infer<typeof updateUsuariosSchema>
+export const validatorUpdateUsuarios = handleValidator(updateUsuariosSchema)
 
-export const validatorUsuariosId = [
-  check('id').isMongoId().exists().notEmpty().trim().escape().withMessage('El id es requerido'),
-  (req: Request, res: Response, next: NextFunction) => {
-    validateResults(req, res, next)
-  },
-]
+export const usuariosIdSchema = z.object({
+  id: z.string().regex(/^[0-9a-fA-F]{24}$/, 'El id es requerido'),
+})
+
+export type UsuariosIdDto = z.infer<typeof usuariosIdSchema>
+export const validatorUsuariosId = handleValidator(usuariosIdSchema)

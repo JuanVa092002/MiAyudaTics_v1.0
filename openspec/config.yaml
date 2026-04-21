@@ -32,7 +32,8 @@ phases:
     status: completed
   - name: Phase 2
     spec: openspec/specs/phase-2-backend-migration.md
-    status: pending
+    status: completed
+    closedAt: 2026-04-21
   - name: Phase 3
     spec: openspec/specs/phase-3-frontend-migration.md
     status: pending
