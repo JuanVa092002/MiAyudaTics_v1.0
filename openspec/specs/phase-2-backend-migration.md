@@ -56,7 +56,10 @@ Node.js, Express, TypeScript, Zod, Mongoose, Jest
 - [x] `models/usuarios.js` | 60 líneas | Baja | mongoose
 
 ### Grupo D — Migrar último (dependen de todo)
-*Servicios, controladores, rutas*
+*Entry point, controladores, rutas — solo migración TS, sin cambios en validación runtime*
+
+> **ADR-002 DEFERRED:** Zod migration is explicitly excluded from Grupo D to avoid scope explosion.
+> Validators remain in `express-validator` (already strict-typed TS). Zod refactor → Fase 2.5.
 - [ ] `app.js` | 113 líneas | Media | dotenv, express, path, cors, cookie-parser, morgan
 - [ ] `controllers/ambienteFormacion.js` | 84 líneas | Baja | Ninguna
 - [ ] `controllers/auth.js` | 236 líneas | Alta | express, jsonwebtoken
@@ -86,12 +89,14 @@ Node.js, Express, TypeScript, Zod, Mongoose, Jest
 - [ ] `routes/usuarios.js` | 63 líneas | Baja | express
 
 ## Acceptance Criteria
-- 100% de los archivos del backend son `.ts`.
-- Ningún endpoint pierde funcionalidad durante la migración (verificable vía endpoints manuales/automáticos).
-- Zod valida todos los esquemas correctamente.
+- 100% de los archivos del backend son `.ts` (sin `.js` en rutas principales).
+- Ningún endpoint pierde funcionalidad durante la migración.
+- `tsc --noEmit` → 0 errores al finalizar cada grupo.
+- ESLint → 0 errores al commitear cada grupo.
+- ~~Zod valida todos los esquemas correctamente~~ → **DEFERRED to Fase 2.5** (ver DECISIONS_LOG.md).
 
 ## Definition of Done
 - No quedan archivos `.js` en `server/src` o rutas principales (solo en configuraciones raíz).
 - El servidor arranca sin errores de compilación (`tsc --noEmit` exitoso) y sin warnings temporales de eslint.
 
-## Estado: 🔜 Pendiente
+## Estado: 🔄 En progreso (Grupos A ✅ B ✅ C ✅ — Grupo D pendiente)

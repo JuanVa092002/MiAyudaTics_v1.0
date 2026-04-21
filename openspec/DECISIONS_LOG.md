@@ -13,3 +13,10 @@
 
 - **Vitest Globals Config (2026-04-21):**
   Vitest globals requieren types: ['vitest/globals'] en tsconfig.json del client. Sin esto, tsc --noEmit reporta errores falsos en archivos de test. Regla: siempre incluir esta config al configurar Vitest.
+
+- **Zod migration deferred (2026-04-21):**
+  Zod migration deferred to separate phase to avoid scope explosion during controller/router TypeScript migration.
+  The current validators (Grupo A) are already typed in strict TS using express-validator. Migrating to Zod requires rewriting all validator logic AND updating every controller that reads validated data — this doubles the risk surface during the most complex group (Group D).
+  Decision: Keep express-validator in all existing validators. Zod will be introduced in Fase 2.5/Fase 3 as a dedicated refactor phase, one endpoint at a time, with full test coverage per endpoint.
+  Impact on Grupo D: Migrate controllers and routes to TypeScript only. Do NOT touch validation runtime logic.
+  Referenced ADR: ADR-002 (Zod for runtime contracts) — status changed from active to deferred.
