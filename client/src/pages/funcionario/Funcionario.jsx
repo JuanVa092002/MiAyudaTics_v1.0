@@ -1,17 +1,19 @@
 import { useState, useEffect } from 'react'
-import { obtenerAmbientes, crearSolicitud, HistorialSolicitudesFuncionario } from '../../services/solicitud.services'
+import { obtenerAmbientes, crearSolicitud, HistorialSolicitudesFuncionario, obtenerTiposCaso } from '../../services/solicitud.services'
 import AppLayout from '../../layouts/appLayout/AppLayout'
 import { toast } from 'react-toastify'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import HistorialFuncionario from './HistorialFuncionario'
+import CustomSelect from '../../components/ui/CustomSelect'
 
 import { AuthContext } from '../../context/Auth.context'
 import { useContext } from 'react'
 
 export default function Funcionario() {
   const { user } = useContext(AuthContext)
-  const { register, handleSubmit, reset, watch } = useForm()
+  const { register, handleSubmit, reset, watch, control } = useForm()
   const [ambientes, setAmbientes] = useState([])
+  const [tiposCaso, setTiposCaso] = useState([])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [formData, setFormData] = useState(null)
   const [previewImage, setPreviewImage] = useState(null) // Estado para la vista previa de la imagen
@@ -21,23 +23,26 @@ export default function Funcionario() {
   const watchFoto = watch('foto') // Verifica el cambio en el input de la foto
 
   useEffect(() => {
-    const fetchAmbientes = async () => {
+    const fetchInitialData = async () => {
       try {
-        const response = await obtenerAmbientes()
-        const data = response.data
-
-        if (Array.isArray(data)) {
-          setAmbientes(data)
-        } else {
-          setAmbientes([])
+        const [ambResponse, tiposResponse] = await Promise.all([
+          obtenerAmbientes(),
+          obtenerTiposCaso()
+        ])
+        
+        if (Array.isArray(ambResponse.data)) {
+          setAmbientes(ambResponse.data)
+        }
+        
+        if (Array.isArray(tiposResponse.data)) {
+          setTiposCaso(tiposResponse.data)
         }
       } catch (error) {
-        console.error('Error al cargar los ambientes:', error)
-        setAmbientes([])
+        console.error('Error al cargar datos iniciales:', error)
       }
     }
 
-    fetchAmbientes()
+    fetchInitialData()
   }, [])
 
   // Actualiza la vista previa de la imagen cuando se selecciona un archivo
@@ -66,6 +71,7 @@ export default function Funcionario() {
       submissionData.append('descripcion', formData.descripcion)
       submissionData.append('telefono', formData.telefono)
       submissionData.append('ambiente', formData.ambiente)
+      submissionData.append('tipoCaso', formData.tipoCaso)
       submissionData.append('usuario', user._id)
       submissionData.append('foto', formData.foto[0])
 
@@ -122,17 +128,34 @@ export default function Funcionario() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12">
-          <div className="solid-card rounded-3xl p-6 flex flex-col items-center justify-center text-center">
-             <span className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">Total Solicitudes</span>
-             <span className="text-4xl font-black text-primary-container">{stats.total.toString().padStart(2, '0')}</span>
+          <div className="solid-card rounded-3xl p-6 flex items-center gap-5 transition-all hover:translate-y-[-2px] hover:shadow-lg group">
+             <div className="w-14 h-14 rounded-2xl bg-primary-container/10 flex items-center justify-center text-primary-container group-hover:bg-primary-container group-hover:text-white transition-all duration-300">
+                <span className="material-symbols-outlined !text-[28px] font-variation-['FILL'_1,'wght'_300]">analytics</span>
+             </div>
+             <div className="flex flex-col">
+               <span className="text-[11px] font-bold uppercase tracking-[0.1em] text-on-surface-variant opacity-60">Total Solicitudes</span>
+               <span className="text-3xl font-black text-primary-container leading-none">{stats.total.toString().padStart(2, '0')}</span>
+             </div>
           </div>
-          <div className="solid-card rounded-3xl p-6 flex flex-col items-center justify-center text-center">
-             <span className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">Pendientes</span>
-             <span className="text-4xl font-black text-orange-600">{stats.pendientes.toString().padStart(2, '0')}</span>
+
+          <div className="solid-card rounded-3xl p-6 flex items-center gap-5 transition-all hover:translate-y-[-2px] hover:shadow-lg group">
+             <div className="w-14 h-14 rounded-2xl bg-orange-50 flex items-center justify-center text-orange-600 group-hover:bg-orange-600 group-hover:text-white transition-all duration-300">
+                <span className="material-symbols-outlined !text-[28px] font-variation-['FILL'_1,'wght'_300]">pending_actions</span>
+             </div>
+             <div className="flex flex-col">
+               <span className="text-[11px] font-bold uppercase tracking-[0.1em] text-on-surface-variant opacity-60">Pendientes</span>
+               <span className="text-3xl font-black text-orange-600 leading-none">{stats.pendientes.toString().padStart(2, '0')}</span>
+             </div>
           </div>
-          <div className="solid-card rounded-3xl p-6 flex flex-col items-center justify-center text-center">
-             <span className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">Resueltas</span>
-             <span className="text-4xl font-black text-verde-sena">{stats.resueltas.toString().padStart(2, '0')}</span>
+
+          <div className="solid-card rounded-3xl p-6 flex items-center gap-5 transition-all hover:translate-y-[-2px] hover:shadow-lg group">
+             <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300">
+                <span className="material-symbols-outlined !text-[28px] font-variation-['FILL'_1,'wght'_300]">verified</span>
+             </div>
+             <div className="flex flex-col">
+               <span className="text-[11px] font-bold uppercase tracking-[0.1em] text-on-surface-variant opacity-60">Resueltas</span>
+               <span className="text-3xl font-black text-verde-sena leading-none">{stats.resueltas.toString().padStart(2, '0')}</span>
+             </div>
           </div>
         </div>
 
@@ -141,31 +164,44 @@ export default function Funcionario() {
           <div className="lg:col-span-3">
             <section className="solid-card rounded-3xl p-6 sm:p-8 flex flex-col sticky top-24">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-8 h-8 rounded-lg bg-primary-container/10 flex items-center justify-center text-primary-container">
-                  <span className="material-symbols-outlined !text-[20px]">add_circle</span>
+                <div className="w-9 h-9 rounded-xl bg-primary-container/10 flex items-center justify-center text-primary-container">
+                  <span className="material-symbols-outlined !text-[20px] font-variation-['FILL'_1,'wght'_300]">add_circle</span>
                 </div>
                 <h2 className="text-lg font-bold text-on-surface">Nueva Solicitud</h2>
               </div>
               
               <form onSubmit={handleSubmit(openModal)} className="space-y-5">
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant ml-1" htmlFor="ambiente">Ambiente</label>
-                  <div className="relative">
-                    <select 
-                      className="w-full appearance-none solid-input rounded-xl px-4 py-2.5 text-sm font-medium text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-container/10 transition-all cursor-pointer" 
-                      id="ambiente"
-                      {...register('ambiente')}
-                    >
-                      <option value="">Selecciona ubicación</option>
-                      {ambientes.map(amb => (
-                        <option key={amb._id} value={amb._id}>
-                          {amb.nombre}
-                        </option>
-                      ))}
-                    </select>
-                    <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant/50">unfold_more</span>
-                  </div>
-                </div>
+                <Controller
+                  name="ambiente"
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field }) => (
+                    <CustomSelect 
+                      label="Ambiente"
+                      placeholder="Selecciona ubicación"
+                      options={ambientes}
+                      value={field.value}
+                      onChange={field.onChange}
+                      icon="unfold_more"
+                    />
+                  )}
+                />
+
+                <Controller
+                  name="tipoCaso"
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field }) => (
+                    <CustomSelect 
+                      label="Tipo de Caso"
+                      placeholder="Selecciona categoría"
+                      options={tiposCaso}
+                      value={field.value}
+                      onChange={field.onChange}
+                      icon="category"
+                    />
+                  )}
+                />
 
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant ml-1" htmlFor="descripcion">Descripción</label>
@@ -191,7 +227,7 @@ export default function Funcionario() {
                 <div className="pt-3 space-y-3">
                   <div className="flex items-center gap-2">
                     <label className="flex items-center justify-center gap-2 flex-1 py-2.5 px-3 rounded-xl border hairline-border border-slate-200 text-on-surface-variant font-bold text-[11px] hover:bg-slate-50 transition-all cursor-pointer whitespace-nowrap">
-                      <span className="material-symbols-outlined !text-[16px]">cloud_upload</span>
+                      <span className="material-symbols-outlined !text-[16px] font-variation-['wght'_300]">cloud_upload</span>
                       {watchFoto && watchFoto[0] ? 'Cambiar' : 'Foto'}
                       <input type="file" className="hidden" {...register('foto')} accept="image/*" />
                     </label>
@@ -206,10 +242,10 @@ export default function Funcionario() {
                   </div>
                   
                   <button 
-                    className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-xl bg-primary-container text-white font-bold text-sm hover:translate-y-[-1px] active:translate-y-[0px] transition-all shadow-md shadow-primary-container/20" 
+                    className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-xl bg-primary-container text-white font-bold text-sm hover:translate-y-[-1px] active:translate-y-[0px] transition-all shadow-md shadow-primary-container/20 group" 
                     type="submit"
                   >
-                    <span className="material-symbols-outlined !text-[18px]">send</span>
+                    <span className="material-symbols-outlined !text-[18px] transition-transform group-hover:translate-x-1 font-variation-['FILL'_1,'wght'_300]">send</span>
                     Enviar reporte
                   </button>
                 </div>

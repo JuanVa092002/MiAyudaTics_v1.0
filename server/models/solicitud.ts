@@ -4,6 +4,7 @@ import { DateTime } from 'luxon'
 interface ISolicitud {
   usuario: Types.ObjectId
   ambiente: Types.ObjectId
+  tipoCaso: Types.ObjectId
   descripcion: string
   telefono: string
   fecha: Date
@@ -26,6 +27,11 @@ const solicitudSchema = new Schema<ISolicitud>(
     ambiente: {
       type: Schema.Types.ObjectId,
       ref: 'Ambiente',
+      required: true,
+    },
+    tipoCaso: {
+      type: Schema.Types.ObjectId,
+      ref: 'TipoCaso',
       required: true,
     },
     descripcion: {

@@ -224,5 +224,23 @@
   - **Checker UI:** Lista de requisitos en tiempo real (8 caracteres, mayúscula, número, coincidencia).
   - **Flujo E2E:** Verificado flujo completo desde solicitud de recuperación hasta establecimiento de nueva contraseña y login.
 - **Decisiones tomadas:** Aumento de seguridad mínima a 8 caracteres y feedback visual preventivo para reducir errores de usuario.
+
+## [2026-04-21] Dashboard Funcionario Redesign — COMPLETO ✅
+- **Estado:** ✅ Completado
+- **Propósito:** Rediseño premium "AyudaTIC 2026" para el módulo de funcionarios.
+- **Logros:**
+  - **Premium UI:** Implementación de filosofía "Zero Noise" con bordes hairline, sombras suaves y layout limpio.
+  - **Navbar Funcional:** Enrutamiento dinámico por rol, menús desplegables para notificaciones y perfil con lógica de click-outside.
+  - **Paginación Estricta:** Implementación de límite de 5 items por página en el historial, con controles de navegación y contador de registros.
+  - **Custom Selects:** Reemplazo de selectores nativos por componentes personalizados con glassmorphism (`backdrop-blur`) y animaciones de escala/opacidad.
+  - **Categorización (Tipo de Caso):** Integración de campo "Tipo de Caso" (Hardware, Software, etc.) sincronizado con el backend, permitiendo al funcionario clasificar sus solicitudes.
+  - **Iconometría Avanzada:** Refinamiento de iconos usando Material Symbols con pesos ligeros (300) y relleno dinámico.
+- **Backend Sync:**
+  - Actualización del modelo `Solicitud` para soportar `tipoCaso` como referencia.
+  - Habilitación de permisos en rutas de `tipoCaso` para el rol `funcionario`.
+  - Populate de categorías en las consultas de historial.
+- **Decisiones tomadas:**
+  - Uso de `Controller` de `react-hook-form` para integrar componentes UI personalizados sin perder validación reactiva.
+  - Implementación de `hairline-scrollbar` y `sticky-header` para gestionar desbordamientos de datos sin sacrificar la estética.
 - **Próxima tarea:** Fase 3 Testing.
 

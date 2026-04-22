@@ -91,3 +91,21 @@ export const HistorialSolicitudesLider = async () => {
     throw error
   }
 }
+
+export const obtenerTiposCaso = async () => {
+  const token = document.cookie
+    .split('; ')
+    .find(row => row.startsWith('token='))
+    .split('=')[1]
+  try {
+    const response = await axiosConfig.get('/tipoCaso', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    return response.data
+  } catch (error) {
+    console.error('Error al obtener los tipos de caso:', error)
+    throw error
+  }
+}

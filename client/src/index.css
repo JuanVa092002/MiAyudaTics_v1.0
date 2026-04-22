@@ -111,3 +111,59 @@ body, * {
   to { transform: rotate(360deg); }
 }
 
+/* ── Premium Layout Utilities ── */
+
+/* Hairline Scrollbar for Premium UX */
+.hairline-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.hairline-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.hairline-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 43, 64, 0.1);
+  border-radius: 10px;
+}
+
+.hairline-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 43, 64, 0.2);
+}
+
+/* Sticky Header Helper */
+.sticky-header th {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background-color: #f8fafc; /* bg-slate-50 */
+}
+
+/* Modern UI Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes zoomIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-in {
+  animation-duration: 200ms;
+  animation-fill-mode: both;
+}
+
+.fade-in {
+  animation-name: fadeIn;
+}
+
+.zoom-in {
+  animation-name: zoomIn;
+}
+
+.origin-top {
+  transform-origin: top;
+}

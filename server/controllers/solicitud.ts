@@ -161,6 +161,7 @@ export const historialSolicitudesCreadas = async (req: Request, res: Response): 
       .find({ usuario: usuarioId })
       .select('descripcion fecha estado codigoCaso')
       .populate('ambiente', 'nombre')
+      .populate('tipoCaso', 'nombre')
       .populate('tecnico', 'nombre')
       .populate('foto', 'url')
       .populate({ path: 'solucion', select: 'descripcionSolucion' })
