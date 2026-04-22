@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import { HistorialSolicitudesFuncionario } from '../../services/solicitud.services'
-import DataTablePkg from 'react-data-table-component'
-const DataTable = DataTablePkg.default ?? DataTablePkg
 
 export default function HistorialFuncionario({ refreshKey }) {
   const [historial, setHistorial] = useState([])

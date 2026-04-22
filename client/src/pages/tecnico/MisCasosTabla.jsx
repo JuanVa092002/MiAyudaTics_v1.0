@@ -1,13 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import axiosConfig from '../.././services/axios'
-import DataTablePkg from 'react-data-table-component'
-const DataTable = DataTablePkg.default ?? DataTablePkg
 import AppLayout from '../../layouts/appLayout/AppLayout'
 import TecnicoLayout from '../../layouts/tecnicoLayout/TecnicoLayout'
 
 const MisCasosTabla = () => {
   const [cases, setCases] = useState([])
-  // const printRef = useRef();
+  const [searchTerm, setSearchTerm] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 5
 
   useEffect(() => {
     const fetchCases = async () => {
@@ -21,100 +22,135 @@ const MisCasosTabla = () => {
             Authorization: `Bearer ${token}`,
           },
         })
-        console.log('Respuesta completa:', response.data)
         setCases(response.data.solicitudesAsignadas)
       } catch (error) {
         console.error('Error al obtener mis casos:', error.response || error)
+      } finally {
+        setLoading(false)
       }
     }
-
     fetchCases()
   }, [])
 
-  const columns = [
-    // { name: 'Nombre', selector: row => row.usuario.nombre, sortable: true },
-    {
-      name: 'Nombre',
-      selector: row => (row.usuario && row.usuario.nombre ? row.usuario.nombre : 'Sin nombre'),
-      sortable: true,
-    },
-    { name: 'Descripción', selector: row => row.descripcion, sortable: true },
-    { name: 'Estado', selector: row => row.estado, sortable: true },
-    {
-      name: 'Fecha Creación',
-      selector: row => new Date(row.fecha).toLocaleDateString(),
-      sortable: true,
-    },
-  ]
+  const filteredData = cases.filter(c =>
+    (c.codigoCaso || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    c.descripcion.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (c.usuario?.nombre || '').toLowerCase().includes(searchTerm.toLowerCase())
+  )
+
+  const totalItems = filteredData.length
+  const totalPages = Math.ceil(totalItems / itemsPerPage)
+  const currentItems = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
 
   return (
     <AppLayout>
       <TecnicoLayout>
-        <DataTable columns={columns} data={cases} pagination />
+        <main className="p-8 animate-in fade-in duration-700">
+          <section className="premium-card rounded-3xl overflow-hidden flex flex-col h-full shadow-xl">
+            {/* Header */}
+            <div className="p-6 sm:p-8 border-b hairline-border border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 bg-white">
+              <div>
+                <h2 className="text-2xl font-bold text-on-surface tracking-tight">Mis Asignaciones</h2>
+                <p className="text-sm text-on-surface-variant font-medium mt-1">Gestión activa de casos bajo tu responsabilidad técnica.</p>
+              </div>
+              <div className="relative w-full sm:w-80 group">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/60 text-[18px]">search</span>
+                <input 
+                  className="w-full pl-11 pr-4 py-3 solid-input rounded-2xl text-xs font-semibold text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-container/10 transition-all shadow-sm" 
+                  placeholder="Buscar en mis casos activos..." 
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* Table */}
+            <div className="premium-table-container max-h-[calc(100vh-320px)]">
+              <table className="premium-table">
+                <thead className="premium-thead">
+                  <tr>
+                    <th className="premium-th min-w-[140px]">Registro</th>
+                    <th className="premium-th min-w-[150px]">Ubicación</th>
+                    <th className="premium-th min-w-[200px]">Funcionario</th>
+                    <th className="premium-th min-w-[350px]">Descripción del Problema</th>
+                    <th className="premium-th text-center min-w-[140px]">Estado Actual</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white">
+                  {loading ? (
+                    <tr><td colSpan="5" className="py-20 text-center"><span className="animate-pulse font-bold text-slate-300 uppercase tracking-widest">Sincronizando casos...</span></td></tr>
+                  ) : currentItems.length > 0 ? (
+                    currentItems.map((row) => (
+                      <tr key={row._id} className="premium-tr">
+                        <td className="premium-td">
+                          <div className="flex flex-col gap-1.5">
+                            <div className="flex items-center gap-2 text-[13px] font-bold text-primary-container">
+                              <span className="material-symbols-outlined !text-[16px] opacity-40">calendar_today</span>
+                              {new Date(row.fecha).toLocaleDateString()}
+                            </div>
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-6">ID: {row.codigoCaso || row._id.slice(-6)}</span>
+                          </div>
+                        </td>
+                        <td className="premium-td">
+                           <div className="flex items-center gap-2 text-[13px] font-semibold text-on-surface">
+                             <span className="material-symbols-outlined !text-[18px] text-emerald-500 font-variation-['FILL'_1]">pin_drop</span>
+                             {row.ambiente?.nombre || 'Sede Principal'}
+                           </div>
+                        </td>
+                        <td className="premium-td">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-black text-slate-500">
+                              {row.usuario?.nombre?.substring(0, 2).toUpperCase() || '??'}
+                            </div>
+                            <span className="text-[13px] font-bold text-on-surface">{row.usuario?.nombre || 'No asignado'}</span>
+                          </div>
+                        </td>
+                        <td className="premium-td">
+                          <p className="text-[13px] font-medium text-on-surface leading-relaxed line-clamp-2">
+                            {row.descripcion}
+                          </p>
+                        </td>
+                        <td className="premium-td text-center">
+                          <span className={`status-badge ${row.estado === 'pendiente' ? 'status-pendiente' : 'status-proceso'}`}>
+                            {row.estado}
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="5" className="py-24 text-center">
+                        <div className="flex flex-col items-center gap-4 opacity-20">
+                          <span className="material-symbols-outlined !text-[64px]">task_alt</span>
+                          <p className="text-sm font-black uppercase tracking-[0.2em]">No tienes casos activos asignados</p>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Footer */}
+            <div className="pagination-footer">
+              <div className="flex flex-col">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Carga de Trabajo — Página {currentPage}</span>
+                <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">{totalItems} casos asignados</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} className="pagination-btn">
+                  <span className="material-symbols-outlined">chevron_left</span>
+                </button>
+                <button onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages || totalPages === 0} className="pagination-btn">
+                  <span className="material-symbols-outlined">chevron_right</span>
+                </button>
+              </div>
+            </div>
+          </section>
+        </main>
       </TecnicoLayout>
     </AppLayout>
   )
 }
 
 export default MisCasosTabla
-
-// import React, { useState, useEffect } from 'react';
-// import axiosConfig from '../../services/axios';
-// import DataTable from 'react-data-table-component';
-// import AppLayout from "../../layouts/appLayout/AppLayout";
-// import TecnicoLayout from '../../layouts/tecnicoLayout/tecnicoLayout';
-
-// const MisCasosTabla = () => {
-//   const [cases, setCases] = useState([]);
-
-//   useEffect(() => {
-//     const fetchCases = async () => {
-//       try {
-//         const token = document.cookie.split('; ').find(row => row.startsWith('token=')).split('=')[1];
-//         const response = await axiosConfig.get('http://localhost:3010/api/solicitud/asignadas', {
-//           headers: {
-//             'Authorization': `Bearer ${token}`,
-//           },
-//         });
-
-//         // Debugging: Muestra la respuesta completa en la consola
-//         console.log('Respuesta completa:', response.data);
-
-//         // Verifica que la propiedad exista y sea un array
-//         if (response.data.solicitudesAsignadas && Array.isArray(response.data.solicitudesAsignadas)) {
-//           console.log('Casos obtenidos:', response.data.solicitudesAsignadas);  // Muestra los casos obtenidos
-//           setCases(response.data.solicitudesAsignadas);
-//         } else {
-//           console.error('La propiedad solicitudesAsignadas no es un array o no existe.');
-//           setCases([]);
-//         }
-//       } catch (error) {
-//         console.error('Error al obtener mis casos:', error.response?.data || error.message);
-//       }
-//     };
-
-//     fetchCases();
-//   }, []);
-
-//   const columns = [
-//     { name: 'Nombre', selector: row => row.usuario?.nombre || 'N/A', sortable: true },  // Protección en caso de que no haya usuario
-//     { name: 'Descripción', selector: row => row.descripcion || 'N/A', sortable: true },
-//     { name: 'Estado', selector: row => row.estado || 'N/A', sortable: true },
-//     { name: 'Fecha Creación', selector: row => new Date(row.fecha).toLocaleDateString() || 'N/A', sortable: true },
-//   ];
-
-//   return (
-//     <AppLayout>
-//       <TecnicoLayout>
-//         <DataTable
-//           columns={columns}
-//           data={cases}
-//           pagination
-//           noDataComponent="No hay casos disponibles"  // Mensaje cuando no hay datos
-//         />
-//       </TecnicoLayout>
-//     </AppLayout>
-//   );
-// };
-
-// export default MisCasosTabla;

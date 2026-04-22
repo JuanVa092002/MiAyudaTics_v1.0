@@ -167,3 +167,45 @@ body, * {
 .origin-top {
   transform-origin: top;
 }
+
+/* Premium Table System - AyudaTIC 2026 */
+.premium-card {
+  @apply bg-white border hairline-border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all duration-300;
+}
+
+.premium-table-container {
+  @apply w-full overflow-auto hairline-scrollbar;
+}
+
+.premium-table {
+  @apply w-full text-left border-separate border-spacing-y-0;
+}
+
+.premium-thead {
+  @apply sticky top-0 z-10 bg-slate-50/80 backdrop-blur-md;
+}
+
+.premium-th {
+  @apply py-4 px-6 text-[10px] font-bold uppercase tracking-[0.15em] text-on-surface-variant/70 border-b hairline-border border-slate-200;
+}
+
+.premium-tr {
+  @apply hover:bg-slate-50/50 transition-colors group;
+}
+
+.premium-td {
+  @apply py-6 px-6 align-top border-b hairline-border border-slate-50;
+}
+
+.badge-base {
+  @apply inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold border hairline-border transition-all;
+}
+
+/* Pagination Utilities */
+.pagination-btn {
+  @apply w-9 h-9 rounded-xl flex items-center justify-center border hairline-border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm;
+}
+
+.pagination-footer {
+  @apply p-6 border-t hairline-border border-slate-100 flex items-center justify-between mt-auto bg-slate-50/50;
+}
