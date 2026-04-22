@@ -244,3 +244,24 @@
   - Implementación de `hairline-scrollbar` y `sticky-header` para gestionar desbordamientos de datos sin sacrificar la estética.
 - **Próxima tarea:** Fase 3 Testing.
 
+## [2026-04-22] Dashboards Técnico & Admin Redesign — COMPLETO ✅
+- **Estado:** ✅ Completado
+- **Propósito:** Extensión del sistema de diseño premium "AyudaTIC 2026" a los roles operativo (Técnico) y directivo (Líder TIC).
+- **Logros:**
+  - **Módulo Técnico:**
+    - `CasosPorResolverTabla`: Rediseñado para diagnóstico rápido.
+    - `CasosResueltosTabla`: Convertido en base de conocimientos técnica con visualización de evidencias.
+    - `MisCasosTabla`: Panel operativo enfocado en la ejecución y prioridad de tareas.
+  - **Módulo Líder TIC (Admin):**
+    - `AdminCasos`: Supervisión global de alta densidad informativa.
+    - `AdminSolicitud`: Optimización del flujo de asignación con modal premium de selección de técnicos.
+    - `AdminTecnicos`: Interfaz de gestión de talento y control de accesos (moderación).
+- **Mejoras Técnicas Transversales:**
+  - **Zero Noise UI:** Unificación estética total: bordes hairline, glassmorphism, sombras sutiles y tipografía premium (`Plus Jakarta Sans`).
+  - **Custom Tables:** Eliminación definitiva de `react-data-table-component` en favor de tablas HTML de alta fidelidad con control total de estilos.
+  - **Paginación & UX:** Implementación de paginación custom (5 items) y buscadores en tiempo real en todos los módulos intervenidos.
+  - **Clean Code:** Limpieza masiva de importaciones obsoletas, hooks sin uso y código legado (comentado) en 7 archivos principales.
+- **Decisiones tomadas:**
+  - Adaptación de la jerarquía informativa según el caso de uso real de cada rol (Estatus para Admin, Solución para Técnico).
+  - Uso de Material Symbols con configuración estandarizada para mantener coherencia visual.
+- **Estado del Proyecto:** Interfaz unificada al 100% bajo el nuevo estándar AyudaTIC 2026.

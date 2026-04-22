@@ -1,6 +1,21 @@
 # Changelog
 Todos los cambios notables en el proyecto **AyudaTIC** serán documentados en este archivo.
 
+## [2026-04-22] - Dashboards Técnico & Admin Redesign
+### Añadido
+- **UI Premium (AyudaTIC 2026)**: Extensión del lenguaje visual "Zero Noise" a los roles de Técnico y Admin.
+- **Paginación & UX**: Sistema de navegación por páginas (límite 5) y buscadores reactivos en todos los módulos operativos.
+- **Iconometría**: Estandarización de Material Symbols (peso 300) para una estética profesional.
+
+### Cambios
+- **Refactorización de Tablas**: Eliminación de `react-data-table-component` en favor de implementaciones HTML de alta fidelidad.
+- **Workflow TIC**: Rediseño del panel de supervisión y el flujo de asignación de especialistas.
+- **Workflow Técnico**: Reorientación hacia la base de conocimientos y la resolución ágil de tareas.
+
+### Corregido
+- **Clean Code**: Eliminación de warnings de ESLint y dependencias obsoletas en 7 componentes core.
+- **Consistencia Visual**: Unificación total de la plataforma bajo un único estándar institucional.
+
 ## [2026-04-21] - Auth Hardening & Funcionario Redesign
 
 ### Añadido
