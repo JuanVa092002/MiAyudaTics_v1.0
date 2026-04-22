@@ -7,7 +7,8 @@ import { getTecnicosAprobados } from '../../services/tecnicos.services'
 import AppLayout from '../../layouts/appLayout/AppLayout'
 import AdminLayout from '../../layouts/adminLayout/AdminLayout'
 import { toast } from 'react-toastify'
-import DataTable from 'react-data-table-component'
+import DataTablePkg from 'react-data-table-component'
+const DataTable = DataTablePkg.default ?? DataTablePkg
 import AdminSolicitudLayout from '../../layouts/adminLayout/AdminSolicitudLayout'
 
 export default function AdminSolicitud() {

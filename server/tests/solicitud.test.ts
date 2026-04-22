@@ -30,25 +30,21 @@ describe('Caso Feliz Crtico - Solicitudes', () => {
   it('debe permitir a un funcionario crear una solicitud exitosamente (Mocked)', async () => {
     // 1. Mockear Auth
     const findByIdSpy = vi.spyOn(models.usuarioModel, 'findById')
-    // @ts-ignore
     findByIdSpy.mockResolvedValue(dummyUser)
 
     // 2. Mockear Ambiente Activo
     const findOneAmbienteSpy = vi.spyOn(models.ambienteModel, 'findOne')
-    // @ts-ignore
     findOneAmbienteSpy.mockResolvedValue(dummyAmbiente)
 
     // 3. Mockear Creacin de Solicitud y Consecutivo
     const createSolicitudSpy = vi.spyOn(models.solicitudModel, 'create')
-    // @ts-ignore
+    // @ts-expect-error: Mocking specific return type for create method
     createSolicitudSpy.mockResolvedValue({ _id: 'new-sol-id', codigoCaso: 'SOL-001' })
 
     const findOneConsecutivoSpy = vi.spyOn(models.consecutivoCasoModel, 'findOne')
-    // @ts-ignore
     findOneConsecutivoSpy.mockResolvedValue({ yearMonth: '2024-04', sequence: 1, save: vi.fn() })
 
     const findOneStorageSpy = vi.spyOn(models.storageModel, 'findOne')
-    // @ts-ignore
     findOneStorageSpy.mockResolvedValue({ _id: 'storage-id', filename: 'test.png' })
 
     // 4. Token

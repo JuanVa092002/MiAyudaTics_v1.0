@@ -4,37 +4,55 @@ import axios from './axios.js'
 
 export const register = async credentials => {
   try {
-    const response = await axios.post('api/auth/register', credentials)
+    const response = await axios.post('auth/register', credentials)
     return response.data
   } catch (error) {
-    return error
+    console.error('Error al registrar usuario:', error)
+    throw error
   }
 }
 
 export const login = async credentials => {
   try {
-    const response = await axios.post('api/auth/login', credentials)
-    return response
+    const response = await axios.post('auth/login', credentials)
+    return response.data
   } catch (error) {
-    return error
+    console.error('Error al iniciar sesión:', error)
+    throw error
   }
 }
 
 export const verifyToken = async () => {
   try {
-    const response = await axios.get('api/auth/verify-token')
-    return response
+    const response = await axios.get('auth/verify-token')
+    return response.data
   } catch (error) {
-    console.log(error)
-    return error.message
+    console.error('Error al verificar token:', error)
+    throw error
   }
 }
 
 export const logout = async () => {
   try {
-    const response = await axios.post('api/auth/logout')
-    return response
+    const response = await axios.post('auth/logout')
+    return response.data
   } catch (error) {
-    console.log('Error al cerrar sesion!')
+    console.error('Error al cerrar sesión:', error)
+    throw error
   }
 }
+
+export const resetPassword = async (token, password, confirmPassword) => {
+  try {
+    const response = await axios.post(`restablecerPassword/${token}`, {
+      password,
+      confirmPassword,
+    })
+    return response.data
+  } catch (error) {
+    console.error('Error al restablecer contraseña:', error)
+    throw error
+  }
+}
+
+

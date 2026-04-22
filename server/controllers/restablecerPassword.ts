@@ -7,7 +7,8 @@ const { usuarioModel } = models
 
 export const resetPassword = async (req: Request, res: Response): Promise<void> => {
   const token = req.params.token as string
-  const { password, confirmPassword } = req.body
+  const password = (req.body.password || '').trim()
+  const confirmPassword = (req.body.confirmPassword || '').trim()
 
   try {
     if (password !== confirmPassword) {

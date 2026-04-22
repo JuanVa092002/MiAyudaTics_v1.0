@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react'
-import { obtenerAmbientes, crearSolicitud } from '../../services/solicitud.services'
+import { obtenerAmbientes, crearSolicitud, HistorialSolicitudesFuncionario } from '../../services/solicitud.services'
 import AppLayout from '../../layouts/appLayout/AppLayout'
 import { toast } from 'react-toastify'
 import { useForm } from 'react-hook-form'
 import HistorialFuncionario from './HistorialFuncionario'
 
+import { AuthContext } from '../../context/Auth.context'
+import { useContext } from 'react'
+
 export default function Funcionario() {
+  const { user } = useContext(AuthContext)
   const { register, handleSubmit, reset, watch } = useForm()
   const [ambientes, setAmbientes] = useState([])
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -13,6 +17,7 @@ export default function Funcionario() {
   const [previewImage, setPreviewImage] = useState(null) // Estado para la vista previa de la imagen
   const [isImageModalOpen, setIsImageModalOpen] = useState(false) // Estado para el modal de la imagen ampliada
 
+  const [refreshKey, setRefreshKey] = useState(0)
   const watchFoto = watch('foto') // Verifica el cambio en el input de la foto
 
   useEffect(() => {
@@ -61,11 +66,13 @@ export default function Funcionario() {
       submissionData.append('descripcion', formData.descripcion)
       submissionData.append('telefono', formData.telefono)
       submissionData.append('ambiente', formData.ambiente)
+      submissionData.append('usuario', user._id)
       submissionData.append('foto', formData.foto[0])
 
       const response = await crearSolicitud(submissionData)
       console.log('Solicitud enviada con éxito:', response)
       toast.success('La solicitud ha sido realizada.')
+      setRefreshKey(prev => prev + 1)
       reset() // Limpia el formulario después de enviarlo
       closeModal() // Cierra el modal después de enviar
     } catch (error) {
@@ -85,90 +92,180 @@ export default function Funcionario() {
     setIsImageModalOpen(false)
   }
 
+  const [stats, setStats] = useState({ total: 0, pendientes: 0, resueltas: 0 })
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const solicitudes = await HistorialSolicitudesFuncionario()
+        const total = solicitudes.length
+        const pendientes = solicitudes.filter(s => s.estado === 'solicitado' || s.estado === 'asignado' || s.estado === 'pendiente').length
+        const resueltas = solicitudes.filter(s => s.estado === 'finalizado').length
+        setStats({ total, pendientes, resueltas })
+      } catch (error) {
+        console.error('Error al cargar estadísticas:', error)
+      }
+    }
+    fetchStats()
+  }, [refreshKey])
+
   return (
     <AppLayout>
-      <main className="w-full flex justify-center">
-        <div className="w-full max-w-[90%] pl-4  flex gap-8 py-8">
-          <div className="w-full max-w-[20%] p-4 border rounded-md">
-            <h2 className="text-2xl font-bold mb-6 text-gray-800">Crear Solicitud</h2>
-            <form onSubmit={handleSubmit(openModal)} className="flex flex-col space-y-4">
-              <textarea
-                className="p-3 border border-gray-300 rounded focus:outline-none"
-                placeholder="Descripción"
-                {...register('descripcion')}
-              ></textarea>
-              <input
-                type="tel"
-                placeholder="Teléfono"
-                className="p-3 border border-gray-300 rounded focus:outline-none"
-                {...register('telefono')}
-              />
-              <select
-                className="p-3 border border-gray-300 rounded focus:outline-none"
-                {...register('ambiente')}
-              >
-                <option value="">Ambiente de formación</option>
-                {ambientes.map(amb => (
-                  <option key={amb._id} value={amb._id}>
-                    {amb.nombre}
-                  </option>
-                ))}
-              </select>
-              <div className=" flex items-center mt-3 justify-between">
-                <div className="flex gap-4">
-                  <label className="cursor-pointer bg-gray-300 text-gray-800 py-2 px-4 rounded flex items-center">
-                    Agregar Foto
-                    <input type="file" className="hidden" {...register('foto')} accept="image/*" />
-                  </label>
-                  {previewImage && (
-                    <img
-                      src={previewImage}
-                      alt="Vista previa"
-                      className="w-12 h-12 object-cover rounded cursor-pointer"
-                      onClick={openImageModal} // Evento onClick para abrir modal
-                    />
-                  )}
+      <main className="flex-grow w-full max-w-[1800px] mx-auto px-6 sm:px-10 lg:px-12 py-8 sm:py-12">
+        {/* Welcome Section */}
+        <div className="mb-12">
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-primary-container tracking-tight mb-2 text-glow">Panel de Gestión</h1>
+          <p className="text-base sm:text-lg text-on-surface-variant font-medium">
+            Hola {user?.nombre || 'Funcionario'}, gestiona tus incidentes tecnológicos aquí.
+          </p>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12">
+          <div className="solid-card rounded-3xl p-6 flex flex-col items-center justify-center text-center">
+             <span className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">Total Solicitudes</span>
+             <span className="text-4xl font-black text-primary-container">{stats.total.toString().padStart(2, '0')}</span>
+          </div>
+          <div className="solid-card rounded-3xl p-6 flex flex-col items-center justify-center text-center">
+             <span className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">Pendientes</span>
+             <span className="text-4xl font-black text-orange-600">{stats.pendientes.toString().padStart(2, '0')}</span>
+          </div>
+          <div className="solid-card rounded-3xl p-6 flex flex-col items-center justify-center text-center">
+             <span className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1">Resueltas</span>
+             <span className="text-4xl font-black text-verde-sena">{stats.resueltas.toString().padStart(2, '0')}</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* New Request Form Card - Narrower for more table space */}
+          <div className="lg:col-span-3">
+            <section className="solid-card rounded-3xl p-6 sm:p-8 flex flex-col sticky top-24">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-8 h-8 rounded-lg bg-primary-container/10 flex items-center justify-center text-primary-container">
+                  <span className="material-symbols-outlined !text-[20px]">add_circle</span>
+                </div>
+                <h2 className="text-lg font-bold text-on-surface">Nueva Solicitud</h2>
+              </div>
+              
+              <form onSubmit={handleSubmit(openModal)} className="space-y-5">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant ml-1" htmlFor="ambiente">Ambiente</label>
+                  <div className="relative">
+                    <select 
+                      className="w-full appearance-none solid-input rounded-xl px-4 py-2.5 text-sm font-medium text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-container/10 transition-all cursor-pointer" 
+                      id="ambiente"
+                      {...register('ambiente')}
+                    >
+                      <option value="">Selecciona ubicación</option>
+                      {ambientes.map(amb => (
+                        <option key={amb._id} value={amb._id}>
+                          {amb.nombre}
+                        </option>
+                      ))}
+                    </select>
+                    <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant/50">unfold_more</span>
+                  </div>
                 </div>
 
-                <button type="submit" className="bg-azul-sena text-white py-2 px-4 rounded">
-                  Enviar
-                </button>
-              </div>
-            </form>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant ml-1" htmlFor="descripcion">Descripción</label>
+                  <textarea 
+                    className="w-full solid-input rounded-xl px-4 py-2.5 text-sm font-medium text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-container/10 transition-all resize-none min-h-[100px]" 
+                    id="descripcion" 
+                    placeholder="Detalles del incidente"
+                    {...register('descripcion')}
+                  ></textarea>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant ml-1" htmlFor="telefono">Contacto</label>
+                  <input 
+                    className="w-full solid-input rounded-xl px-4 py-2.5 text-sm font-medium text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-container/10 transition-all" 
+                    id="telefono" 
+                    placeholder="Ext / Teléfono" 
+                    type="tel"
+                    {...register('telefono')}
+                  />
+                </div>
+
+                <div className="pt-3 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <label className="flex items-center justify-center gap-2 flex-1 py-2.5 px-3 rounded-xl border hairline-border border-slate-200 text-on-surface-variant font-bold text-[11px] hover:bg-slate-50 transition-all cursor-pointer whitespace-nowrap">
+                      <span className="material-symbols-outlined !text-[16px]">cloud_upload</span>
+                      {watchFoto && watchFoto[0] ? 'Cambiar' : 'Foto'}
+                      <input type="file" className="hidden" {...register('foto')} accept="image/*" />
+                    </label>
+                    {previewImage && (
+                      <img
+                        src={previewImage}
+                        alt="Vista previa"
+                        className="w-10 h-10 object-cover rounded-lg cursor-pointer border hairline-border border-slate-200"
+                        onClick={openImageModal}
+                      />
+                    )}
+                  </div>
+                  
+                  <button 
+                    className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-xl bg-primary-container text-white font-bold text-sm hover:translate-y-[-1px] active:translate-y-[0px] transition-all shadow-md shadow-primary-container/20" 
+                    type="submit"
+                  >
+                    <span className="material-symbols-outlined !text-[18px]">send</span>
+                    Enviar reporte
+                  </button>
+                </div>
+              </form>
+            </section>
           </div>
-          <div className="w-full">
-            <h3 className="text-lg font-semibold">Historial de solicitudes creadas</h3>
-            <HistorialFuncionario />
+
+          {/* History List Section - Much wider now (9/12) */}
+          <div className="lg:col-span-9">
+            <HistorialFuncionario refreshKey={refreshKey} />
           </div>
         </div>
       </main>
+
+      {/* Confirmation Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm">
-          <div className="bg-white p-6 rounded-md shadow-md">
-            <h3 className="text-lg font-bold mb-4">¿Estás seguro de enviar esta solicitud?</h3>
-            <div className="flex justify-end space-x-4">
-              <button onClick={closeModal} className="px-4 py-2 bg-gray-300 text-gray-800 rounded">
-                Editar
+        <div className="fixed inset-0 flex items-center justify-center bg-primary-container/20 backdrop-blur-md z-[100]">
+          <div className="solid-card p-8 rounded-3xl max-w-md w-full mx-4 animate-in fade-in zoom-in duration-200">
+            <div className="w-12 h-12 rounded-2xl bg-primary-container/10 flex items-center justify-center text-primary-container mb-6">
+              <span className="material-symbols-outlined !text-[28px]">contact_support</span>
+            </div>
+            <h3 className="text-xl font-bold text-on-surface mb-2">¿Confirmar envío?</h3>
+            <p className="text-on-surface-variant text-sm mb-8">Se creará un nuevo ticket con la información proporcionada para su pronta atención.</p>
+            <div className="flex gap-3">
+              <button 
+                onClick={closeModal} 
+                className="flex-1 py-3 px-4 rounded-2xl border hairline-border border-slate-200 text-on-surface-variant font-bold text-sm hover:bg-slate-50 transition-all"
+              >
+                Revisar
               </button>
-              <button onClick={onSubmit} className="px-4 py-2 bg-azul-sena text-white rounded">
-                Enviar
+              <button 
+                onClick={onSubmit} 
+                className="flex-1 py-3 px-4 rounded-2xl bg-primary-container text-white font-bold text-sm hover:opacity-90 transition-all shadow-lg"
+              >
+                Sí, enviar
               </button>
             </div>
           </div>
         </div>
       )}
-      {/* Modal para la imagen expandida */}
+
+      {/* Expanded Image Modal */}
       {isImageModalOpen && (
         <div
-          className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm z-50"
-          onClick={closeImageModal} // Cierra el modal cuando se haga clic fuera de la imagen
+          className="fixed inset-0 flex items-center justify-center bg-black/90 backdrop-blur-sm z-[200] p-4 cursor-zoom-out"
+          onClick={closeImageModal}
         >
           <img
             src={previewImage}
             alt="Vista previa ampliada"
-            className="max-w-full max-h-full rounded"
-            onClick={e => e.stopPropagation()} // Evita que el clic en la imagen cierre el modal
+            className="max-w-full max-h-[90vh] rounded-3xl shadow-2xl animate-in fade-in zoom-in duration-200"
+            onClick={e => e.stopPropagation()}
           />
+          <button className="absolute top-8 right-8 text-white hover:scale-110 transition-transform">
+            <span className="material-symbols-outlined !text-[32px]">close</span>
+          </button>
         </div>
       )}
     </AppLayout>

@@ -7,7 +7,8 @@ import {
   denegarTecnico,
 } from '../../services/tecnicos.services'
 import { toast } from 'react-toastify'
-import DataTable from 'react-data-table-component'
+import DataTablePkg from 'react-data-table-component'
+const DataTable = DataTablePkg.default ?? DataTablePkg
 import AdminTecnicosLayout from '../../layouts/adminLayout/AdminTecnicosLayout'
 
 export default function AdminTecnicos() {

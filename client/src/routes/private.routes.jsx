@@ -5,10 +5,10 @@ import Loaders from '../components/loaders/Loaders'
 import { AuthContext } from '../context/Auth.context'
 
 export default function PrivateRoutes() {
-  const { isAuthenticated, loading } = useContext(AuthContext)
+  const { isAuthenticated, loading, user } = useContext(AuthContext)
 
   if (loading) return <Loaders />
-  if (!isAuthenticated) return <Navigate to="/loginMain" replace />
+  if (!user) return <Navigate to="/loginMain" replace />
 
   return <Outlet />
 }

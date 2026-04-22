@@ -75,7 +75,7 @@ export const loginCtrl = async (req: Request, res: Response): Promise<void> => {
 
     const user = await usuarioModel
       .findOne({ correo })
-      .select('password correo rol estado activo nombre')
+      .select('password correo rol estado activo nombre foto')
       .populate('foto', 'url')
 
     if (!user) {
@@ -140,7 +140,7 @@ export const verifyToken = async (req: Request, res: Response): Promise<void> =>
         return
       }
       const payload = user as { _id: string }
-      const foundUser = await usuarioModel.findOne({ _id: payload._id })
+      const foundUser = await usuarioModel.findOne({ _id: payload._id }).populate('foto')
       if (!foundUser) {
         res.status(400).json({ message: 'Usuario no encontrado.' })
         return

@@ -1,8 +1,113 @@
-@import url('https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800&family=Public+Sans:wght@300;400;500;600;700;800;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-* {
-  font-family: 'Work Sans', sans-serif;
+:root {
+  --color-primary: #04324d;
+  --color-accent:  #39a900;
+  --surface-color: #FFFFFF;
+  --background-color: #F1F5F9;
+  --border-color: #E2E8F0;
+  --hairline: 0.5px;
 }
+
+body, * {
+  font-family: 'Public Sans', 'Plus Jakarta Sans', sans-serif;
+}
+
+/* ── New Mockup 2026 Classes ── */
+.solid-card {
+  background: var(--surface-color);
+  border: var(--hairline) solid var(--border-color);
+  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+
+.solid-input {
+  background: #F8FAFC;
+  border: var(--hairline) solid var(--border-color);
+}
+
+.solid-input:focus {
+  background: #FFFFFF;
+  border-color: #002b40;
+}
+
+.hairline-border {
+  border-width: var(--hairline);
+}
+
+.text-glow {
+  text-shadow: 0 0 20px rgba(0, 50, 77, 0.05);
+}
+
+
+/* ── Input states ── */
+.input-error {
+  border-color: #e53e3e !important;
+  background-color: #fff5f5;
+}
+.input-error:focus {
+  border-color: #e53e3e !important;
+  box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.15) !important;
+  outline: none;
+}
+
+/* ── Mensaje de error inline ── */
+.field-error {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #c53030;
+  font-size: 0.75rem;       /* 12px — discreto, no alarma */
+  margin-top: 4px;
+  line-height: 1.4;
+  animation: errorFadeIn 0.18s ease-out;
+}
+.field-error svg {
+  flex-shrink: 0;
+  width: 12px;
+  height: 12px;
+}
+
+/* ── Banner error servidor ── */
+.server-error-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff5f5;
+  border: 1px solid #fed7d7;
+  border-radius: 8px;
+  color: #c53030;
+  font-size: 0.8125rem;     /* 13px */
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  animation: errorFadeIn 0.2s ease-out;
+}
+
+/* ── Loading spinner en botón ── */
+.btn-loading {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 0.85;
+  cursor: not-allowed;
+}
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255,255,255,0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes errorFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+

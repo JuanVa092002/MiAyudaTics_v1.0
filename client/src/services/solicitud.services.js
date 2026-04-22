@@ -6,6 +6,7 @@ export const crearSolicitud = async formData => {
     .find(row => row.startsWith('token='))
     .split('=')[1]
   try {
+
     const response = await axiosConfig.post('/solicitud', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',

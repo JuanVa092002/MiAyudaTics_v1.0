@@ -12,30 +12,33 @@ export default function AuthContextProvider({ children }) {
 
   useEffect(() => {
     const checkLogin = async () => {
+      setLoading(true)
       const cookies = Cookies.get()
 
       if (!cookies.token) {
         setIsAuthenticated(false)
         setUser(null)
+        setLoading(false)
+        return
       }
 
       try {
         const response = await verifyToken(cookies.token)
         console.log(response)
 
-        if (!response.data) {
+        if (!response) {
           setIsAuthenticated(false)
           setUser(null)
-          setLoading(false)
+          return
         }
 
         setIsAuthenticated(true)
-        setUser(response.data)
-        setLoading(false)
+        setUser(response)
       } catch (error) {
         console.log(error)
         setIsAuthenticated(false)
         setUser(null)
+      } finally {
         setLoading(false)
       }
     }

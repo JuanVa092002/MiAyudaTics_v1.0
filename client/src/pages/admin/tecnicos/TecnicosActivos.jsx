@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import AppLayout from '../../../layouts/appLayout/AppLayout'
 import AdminLayout from '../../../layouts/adminLayout/AdminLayout'
-import DataTable from 'react-data-table-component'
+import DataTablePkg from 'react-data-table-component'
+const DataTable = DataTablePkg.default ?? DataTablePkg
 import { getTecnicosActivos, inactivarTecnico } from '../../../services/tecnicos.services'
 import { toast } from 'react-toastify' // Si ya tienes Toastify configurado
 import AdminTecnicosLayout from '../../../layouts/adminLayout/AdminTecnicosLayout'

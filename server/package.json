@@ -14,7 +14,8 @@
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "test:integration": "vitest run -c vitest.integration.config.ts"
   },
   "keywords": [],
   "author": "",
@@ -26,6 +27,7 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.3.2",
     "joi": "^17.13.1",
     "jsonwebtoken": "^9.0.3",
     "luxon": "^3.7.2",

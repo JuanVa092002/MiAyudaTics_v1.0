@@ -1,16 +1,13 @@
 import { React, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom'
-import logoSena from '../../assets/logoSena.png'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faEye, faEyeSlash } from '@fortawesome/free-regular-svg-icons'
 import { toast } from 'react-toastify'
 
 //axios
 import { register as registerService } from '../../services/auth.services.js'
+import ErrorMessage from '../ui/ErrorMessage'
 
 export default function RegisterForm() {
-  //funcionalidad de mostrar u ocultar contraseña
   const [showPwd, setShowPwd] = useState(false)
   const changeShowPwd = () => setShowPwd(!showPwd)
   const changeTypePwd = showPwd ? 'Text' : 'password'
@@ -19,188 +16,306 @@ export default function RegisterForm() {
   const ChangeShowCfrmPwd = () => setShowCfrmPwd(!showCfrmPwd)
   const changeTypeCfrmPwd = showCfrmPwd ? 'Text' : 'password'
 
-  //validacion de los inputs de el formulario
+  const [serverError, setServerError] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+
   const {
     register,
     handleSubmit,
     formState: { errors },
     watch,
     reset,
-  } = useForm()
+  } = useForm({ mode: 'onTouched', reValidateMode: 'onChange' })
+
+  const password = watch('password')
 
   const onSubmit = handleSubmit(async data => {
+    setServerError('')
+    setIsLoading(true)
     try {
-      const registerResponse = await registerService(data)
+      await registerService(data)
       reset()
-
-      // Notificación de éxito dependiendo del rol del usuario
       if (data.rol === 'tecnico') {
         toast.info('Registro exitoso. Su cuenta de técnico está pendiente de aprobación.')
       } else {
         toast.success('Registro exitoso. Ahora puede iniciar sesión.')
       }
     } catch (error) {
-      // Mostrar error en caso de fallo en el registro
-      toast.error('Error en el registro. Por favor, intente de nuevo.')
+      const msg =
+        error.response?.data?.errors?.[0]?.message ||
+        error.response?.data?.message ||
+        'Error en el registro. Intenta de nuevo.'
+      setServerError(msg)
+
+      if (error.response?.status >= 500) {
+        toast.error('Error del servidor. Intenta más tarde.')
+      }
       console.error(error)
+    } finally {
+      setIsLoading(false)
     }
   })
 
   return (
-    <div className="w-[22rem]">
-      <div className="border mb-4 pt-8 pb-4 px-8 flex items-center justify-center flex-col">
-        <div className="flex items-center justify-center mb-8">
-          <img className="w-32 border-r mr-4" src={logoSena} alt="logosimbolo Sena" />
-          <p className="text-verde-sena text-xl font-semibold">MiAyudaTIC</p>
+    <div className="w-full max-w-[520px] bg-white rounded-2xl border border-gray-200 shadow-md overflow-hidden">
+      {/* Header Section */}
+      <div className="px-8 pt-8 pb-6 border-b border-gray-100 text-center">
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl mb-4">
+          <span className="material-symbols-outlined filled text-[32px] text-gray-900">
+            person_add
+          </span>
         </div>
-        <div className="mb-8 text-sm text-slate-500">
-          <p className="text-center">
-            Registrate para tener acceso al servicio mesa de ayuda, su trabajo es importante para
-            nosotros
-          </p>
-        </div>
-        <form className="flex flex-col w-full" onSubmit={onSubmit}>
-          <select
-            className="bg-gray-300 p-2 rounded-lg text-center focus:outline-none"
-            {...register('rol', {
-              required: { value: true, message: '*Debe seleccionar un rol' },
-            })}
-          >
-            <option value="" className="text-slate-600">
-              Seleccione su rol
-            </option>
-            <option value="funcionario">Funcionario</option>
-            <option value="tecnico">Técnico</option>
-            <option value="lider">Líder TICS</option>
-          </select>
-          {errors.rol && <span className="text-red-500 text-xs">{errors.rol.message}</span>}
+        <h1 className="text-2xl font-bold text-gray-900 mb-1">Crear cuenta en AyudaTIC</h1>
+        <p className="text-sm text-gray-500">
+          Acceso seguro y exclusivo para la comunidad institucional.
+        </p>
+      </div>
 
-          <input
-            className="border w-full mt-6 p-2 rounded-[3px] bg-slate-100 focus:outline-double focus:outline-slate-300"
-            placeholder="Nombre completo"
-            type="text"
-            {...register('nombre', {
-              required: {
-                value: true,
-                message: '*El nombre es requerido',
-              },
-              minLength: {
-                value: 5,
-                message: `*Debe escribir más de 5 caracteres`,
-              },
-              maxLength: {
-                value: 50,
-                message: 'Debe tener menos de 50 caracteres',
-              },
-              pattern: {
-                value: /^[A-Za-z\s]+$/,
-                message: 'El nombre solo debe contener letras y espacios',
-              },
-            })}
-          />
-          {errors.nombre && <span className="text-red-500 text-xs">{errors.nombre.message}</span>}
-
-          <input
-            className="border w-full mt-3 p-2 rounded-[3px] bg-slate-100 focus:outline-double focus:outline-slate-300"
-            placeholder="Número de teléfono"
-            type="tel"
-            {...register('telefono', {
-              required: {
-                value: true,
-                message: '*El número es requerido',
-              },
-              pattern: {
-                value: /^3\d{9}$/,
-                message: 'El número de teléfono debe comenzar con 3 y tener 9 dígitos más',
-              },
-            })}
-          />
-          {errors.telefono && (
-            <span className="text-red-500 text-xs">{errors.telefono.message}</span>
+      {/* Form Section */}
+      <div className="p-8">
+        <form onSubmit={onSubmit} className="space-y-5">
+          {/* Server Error Banner */}
+          {serverError && (
+            <div className="server-error-banner" role="alert">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                <path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zm.75 11.5h-1.5v-1.5h1.5v1.5zm0-4h-1.5v-4h1.5v4z" />
+              </svg>
+              {serverError}
+            </div>
           )}
 
-          <input
-            className="border w-full mt-3 p-2 rounded-[3px] bg-slate-100 focus:outline-double focus:outline-slate-300"
-            placeholder="Email"
-            type="email"
-            {...register('correo', {
-              required: {
-                value: true,
-                message: '*El email es requerido',
-              },
-              pattern: {
-                value: /^\w+([.-_+]?\w+)*@\w+([.-]?\w+)*(\.\w{2,10})+$/,
-                message: 'Por favor ingrese un correo válido',
-              },
-            })}
-          />
-          {errors.correo && <span className="text-red-500 text-xs">{errors.correo.message}</span>}
+          {/* Role Selection */}
+          <fieldset>
+            <legend className="block text-sm font-semibold text-gray-700 mb-3">
+              Rol en la institución
+            </legend>
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { val: 'funcionario', label: 'Funcionario' },
+                { val: 'tecnico', label: 'Técnico' },
+                { val: 'lider', label: 'Líder TICS' },
+              ].map(r => (
+                <label key={r.val} className="cursor-pointer">
+                  <input
+                    type="radio"
+                    value={r.val}
+                    className="peer sr-only"
+                    {...register('rol', { required: '*Debe seleccionar un rol' })}
+                  />
+                  <div className="rounded-lg border border-gray-200 px-2 py-3 text-center hover:bg-gray-50 peer-checked:border-[#04324d] peer-checked:bg-[#04324d] peer-checked:text-white transition-all">
+                    <span className="block text-xs font-bold">{r.label}</span>
+                  </div>
+                </label>
+              ))}
+            </div>
+            <ErrorMessage message={errors.rol?.message} />
+          </fieldset>
 
-          <div className="w-full flex items-center">
-            <input
-              className="border w-full mt-3 p-2 rounded-[3px] bg-slate-100 focus:outline-double focus:outline-slate-300"
-              placeholder="Contraseña"
-              type={changeTypePwd}
-              {...register('password', {
-                required: {
-                  value: true,
-                  message: '*La contraseña es requerida',
-                },
-                pattern: {
-                  value: /^(?=.*\d).{6,}$/,
-                  message:
-                    'La contraseña debe tener al menos 6 caracteres, un número y un carácter especial.',
-                },
-              })}
-            />
-            <span onClick={changeShowPwd} className="mt-3 -ml-7 z-10">
-              {showPwd ? (
-                <FontAwesomeIcon className="cursor-pointer text-slate-600" icon={faEye} />
-              ) : (
-                <FontAwesomeIcon className="cursor-pointer text-slate-600" icon={faEyeSlash} />
-              )}
-            </span>
-          </div>
-          {errors.password && (
-            <span className="text-red-500 text-xs">{errors.password.message}</span>
-          )}
-
+          {/* Full Name */}
           <div>
-            <input
-              className="border w-full mt-3 p-2 rounded-[3px] bg-slate-100 focus:outline-double focus:outline-slate-300"
-              placeholder="Confirmar contraseña"
-              type={changeTypeCfrmPwd}
-              {...register('confirmPassword', {
-                required: {
-                  value: true,
-                  message: '*Confirmar la contraseña es requerido',
-                },
-                validate: value => value === watch('password') || 'La contraseña no coincide',
-              })}
-            />
-            <span onClick={ChangeShowCfrmPwd} className="mt-3 -ml-7 z-10">
-              {showCfrmPwd ? (
-                <FontAwesomeIcon className="cursor-pointer text-slate-600" icon={faEye} />
-              ) : (
-                <FontAwesomeIcon className="cursor-pointer text-slate-600" icon={faEyeSlash} />
-              )}
-            </span>
+            <label className="block text-sm font-semibold text-gray-700 mb-1.5" htmlFor="nombre">
+              Nombre completo
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <span className="material-symbols-outlined text-gray-400 text-[20px]">person</span>
+              </div>
+              <input
+                id="nombre"
+                type="text"
+                placeholder="Ej. Juan Pérez"
+                className={`block w-full pl-11 pr-4 py-3 bg-white border ${
+                  errors.nombre ? 'input-error' : 'border-gray-200'
+                } rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#39a900] focus:border-[#39a900] transition-all outline-none`}
+                {...register('nombre', {
+                  required: '*El nombre es requerido',
+                  minLength: { value: 5, message: '*Mínimo 5 caracteres' },
+                  pattern: {
+                    value: /^[A-Za-z\s]+$/,
+                    message: 'Solo letras y espacios',
+                  },
+                })}
+              />
+            </div>
+            <ErrorMessage message={errors.nombre?.message} />
           </div>
-          {errors.confirmPassword && (
-            <span className="text-red-500 text-xs">{errors.confirmPassword.message}</span>
-          )}
 
-          <div className="border-t mt-6">
-            <button className="bg-azul-sena text-white p-2 rounded-lg mt-4 w-full">
-              Regístrate
+          {/* Contact Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            {/* Institutional Email */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5" htmlFor="correo">
+                Correo institucional
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <span className="material-symbols-outlined text-gray-400 text-[20px]">mail</span>
+                </div>
+                <input
+                  id="correo"
+                  type="email"
+                  placeholder="usuario@sena.edu.co"
+                  className={`block w-full pl-11 pr-4 py-3 bg-white border ${
+                    errors.correo ? 'input-error' : 'border-gray-200'
+                  } rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#39a900] focus:border-[#39a900] transition-all outline-none`}
+                  {...register('correo', {
+                    required: '*El email es requerido',
+                    pattern: {
+                      value: /^\w+([.-_+]?\w+)*@\w+([.-]?\w+)*(\.\w{2,10})+$/,
+                      message: 'Correo inválido',
+                    },
+                  })}
+                />
+              </div>
+              <ErrorMessage message={errors.correo?.message} />
+            </div>
+
+            {/* Phone */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5" htmlFor="telefono">
+                Teléfono
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <span className="material-symbols-outlined text-gray-400 text-[20px]">call</span>
+                </div>
+                <input
+                  id="telefono"
+                  type="tel"
+                  placeholder="3001234567"
+                  className={`block w-full pl-11 pr-4 py-3 bg-white border ${
+                    errors.telefono ? 'input-error' : 'border-gray-200'
+                  } rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#39a900] focus:border-[#39a900] transition-all outline-none`}
+                  {...register('telefono', {
+                    required: 'El teléfono es requerido',
+                    pattern: {
+                      value: /^3\d{9}$/,
+                      message: 'Debe ser un celular colombiano (ej: 3001234567)',
+                    },
+                  })}
+                />
+              </div>
+              <ErrorMessage message={errors.telefono?.message} />
+            </div>
+          </div>
+
+          {/* Password Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            {/* Password */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5" htmlFor="password">
+                Contraseña
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <span className="material-symbols-outlined text-gray-400 text-[20px]">lock</span>
+                </div>
+                <input
+                  id="password"
+                  type={changeTypePwd}
+                  placeholder="••••••••"
+                  className={`block w-full pl-11 pr-11 py-3 bg-white border ${
+                    errors.password ? 'input-error' : 'border-gray-200'
+                  } rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#39a900] focus:border-[#39a900] transition-all outline-none`}
+                  {...register('password', {
+                    required: 'La contraseña es requerida',
+                    minLength: { value: 8, message: 'Mínimo 8 caracteres' },
+                    pattern: {
+                      value: /^(?=.*[a-zA-Z])(?=.*\d).{8,}$/,
+                      message: 'Debe incluir letras y números',
+                    },
+                  })}
+                />
+                <button
+                  type="button"
+                  onClick={changeShowPwd}
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-900 focus:outline-none"
+                >
+                  <span className="material-symbols-outlined text-[20px]">
+                    {showPwd ? 'visibility' : 'visibility_off'}
+                  </span>
+                </button>
+              </div>
+              <ErrorMessage message={errors.password?.message} />
+            </div>
+
+            {/* Confirm Password */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5" htmlFor="confirmPassword">
+                Confirmar contraseña
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <span className="material-symbols-outlined text-gray-400 text-[20px]">lock_reset</span>
+                </div>
+                <input
+                  id="confirmPassword"
+                  type={changeTypeCfrmPwd}
+                  placeholder="••••••••"
+                  className={`block w-full pl-11 pr-4 py-3 bg-white border ${
+                    errors.confirmPassword ? 'input-error' : 'border-gray-200'
+                  } rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#39a900] focus:border-[#39a900] transition-all outline-none`}
+                  {...register('confirmPassword', {
+                    required: '*Confirmación requerida',
+                    validate: value => value === password || 'Las contraseñas no coinciden',
+                  })}
+                />
+                <button
+                  type="button"
+                  onClick={ChangeShowCfrmPwd}
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-900 focus:outline-none"
+                >
+                  <span className="material-symbols-outlined text-[20px]">
+                    {showCfrmPwd ? 'visibility' : 'visibility_off'}
+                  </span>
+                </button>
+              </div>
+              <ErrorMessage message={errors.confirmPassword?.message} />
+            </div>
+          </div>
+
+          {/* Trust Microcopy */}
+          <div className="flex items-start gap-2 pt-2">
+            <span className="material-symbols-outlined text-[18px]" style={{ color: '#39a900' }}>shield</span>
+            <p className="text-xs text-gray-500 leading-tight">
+              Tu información está protegida por políticas de seguridad institucionales. No compartiremos tus datos con terceros.
+            </p>
+          </div>
+
+          {/* Submit Action */}
+          <div className="pt-4">
+            <button
+              type="submit"
+              disabled={isLoading}
+              className={`w-full flex justify-center py-3.5 px-6 border border-transparent rounded-lg shadow-sm text-base font-bold text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#39a900] transition-all ${
+                isLoading ? 'btn-loading' : ''
+              }`}
+              style={{ background: '#04324d' }}
+              onMouseOver={e => !isLoading && (e.currentTarget.style.background = '#032d45')}
+              onMouseOut={e => !isLoading && (e.currentTarget.style.background = '#04324d')}
+            >
+              {isLoading ? (
+                <>
+                  <span className="spinner" aria-hidden="true" />
+                  Registrando...
+                </>
+              ) : (
+                'Crear cuenta'
+              )}
             </button>
           </div>
         </form>
       </div>
-      <div className="border p-5 flex justify-center items-center mb-6">
-        <p className="text-slate-500">
-          ¿Tienes una cuenta?{' '}
-          <Link className="text-verde-sena cursor-pointer" to="/login">
+
+      {/* Footer Action */}
+      <div className="px-8 py-5 bg-gray-50 border-t border-gray-100 text-center">
+        <p className="text-sm text-gray-500">
+          ¿Ya tienes una cuenta?
+          <Link
+            to="/loginMain"
+            className="font-bold hover:underline underline-offset-4 ml-1.5 transition-all"
+            style={{ color: '#04324d' }}
+          >
             Iniciar sesión
           </Link>
         </p>

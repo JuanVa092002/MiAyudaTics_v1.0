@@ -1,8 +1,10 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import LoginMain from '../pages/loginMain/LoginMain'
 import JustLogin from '../pages/justLogin/JustLogin'
 import RegisterLogin from '../pages/register/RegisterLogin'
 import ForgotPassword from '../pages/forgotPassword/ForgotPassword'
+import ResetPassword from '../pages/resetPassword/ResetPassword'
+
 
 import PrivateRoutes from './private.routes'
 import Funcionario from '../pages/funcionario/Funcionario'
@@ -28,8 +30,9 @@ export default function Allroutes() {
       <Route path="/loginMain" element={<LoginMain />} />
       <Route path="/register" element={<RegisterLogin />} />
       <Route path="/forgot" element={<ForgotPassword />} />
+      <Route path="/restablecerPassword/:token" element={<ResetPassword />} />
       <Route path="/login" element={<JustLogin />} />
-      <Route path="/" element={<Home />} />
+      <Route path="/" element={<Navigate to="/loginMain" replace />} />
 
       {/* rutas privadas */}
       <Route element={<PrivateRoutes />}>

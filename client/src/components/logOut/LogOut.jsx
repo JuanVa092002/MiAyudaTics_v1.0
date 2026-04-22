@@ -22,10 +22,12 @@ export default function LogOut() {
     }
   }
   return (
-    <FontAwesomeIcon
-      icon={faArrowRightFromBracket}
-      className="cursor-pointer text-white  text-3xl"
+    <button 
       onClick={handleLogout}
-    />
+      className="w-10 h-10 text-on-surface-variant hover:bg-red-50 hover:text-red-600 rounded-2xl transition-all flex items-center justify-center border border-transparent hover:border-red-100"
+      title="Cerrar Sesión"
+    >
+      <span className="material-symbols-outlined !text-[24px]">logout</span>
+    </button>
   )
 }

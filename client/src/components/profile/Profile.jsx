@@ -5,7 +5,7 @@ export default function Profile() {
   const { user } = useContext(AuthContext)
 
   // Usa la URL de la foto directamente desde el campo user.foto.url
-  const imageUrl = user.foto.url
+  const imageUrl = user?.foto?.url || ''
 
   console.log(user)
 

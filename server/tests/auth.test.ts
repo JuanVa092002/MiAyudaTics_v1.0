@@ -21,7 +21,6 @@ describe('Auth & RBAC Logic', () => {
     
     // Spying on the model method
     const findByIdSpy = vi.spyOn(models.usuarioModel, 'findById')
-    // @ts-ignore - simplificando el mock para el test
     findByIdSpy.mockResolvedValue(dummyUser)
 
     // 2. Generar token para funcionario

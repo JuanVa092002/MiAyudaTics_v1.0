@@ -1,13 +1,10 @@
 import React from 'react'
-import LoginLayout from '../../layouts/loginLayout/LoginLayout'
 import LoginForm from '../../components/loginForm/LoginForm'
 
 export default function JustLogin() {
   return (
-    <LoginLayout>
-      <div>
-        <LoginForm />
-      </div>
-    </LoginLayout>
+    <main className="bg-background min-h-screen flex flex-col justify-center items-center px-6 font-public-sans text-on-background">
+      <LoginForm />
+    </main>
   )
 }

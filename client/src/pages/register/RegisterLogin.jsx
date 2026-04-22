@@ -1,11 +1,10 @@
 import React from 'react'
-import LoginLayout from '../../layouts/loginLayout/LoginLayout'
 import RegisterForm from '../../components/registerForm/RegisterForm'
 
 export default function RegisterLogin() {
   return (
-    <LoginLayout>
+    <main className="bg-[#f1f5f9] min-h-screen flex flex-col justify-center items-center px-6">
       <RegisterForm />
-    </LoginLayout>
+    </main>
   )
 }

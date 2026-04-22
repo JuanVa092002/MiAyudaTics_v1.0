@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react'
 import AppLayout from '../../../layouts/appLayout/AppLayout'
 import AdminLayout from '../../../layouts/adminLayout/AdminLayout'
 import AdminSolicitudLayout from '../../../layouts/adminLayout/AdminSolicitudLayout'
-import DataTable from 'react-data-table-component'
+import DataTablePkg from 'react-data-table-component'
+const DataTable = DataTablePkg.default ?? DataTablePkg
 import { HistorialSolicitudesLider } from '../../../services/solicitud.services'
 
 export default function SeguimientoSolicitud() {
