@@ -1,6 +1,6 @@
 import { BrowserRouter } from 'react-router-dom'
-import Allroutes from './routes/Allroutes'
-import AuthContextProvider from './context/Auth.context'
+import Allroutes from './app/router/Allroutes'
+import AuthContextProvider from './app/providers/Auth.context'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 

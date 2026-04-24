@@ -113,7 +113,7 @@ export default function AdminSolicitud() {
                       <tr><td colSpan="6" className="py-20 text-center"><span className="animate-pulse font-bold text-slate-300 uppercase tracking-widest">Cargando datos...</span></td></tr>
                     ) : currentItems.length > 0 ? (
                       currentItems.map((row) => (
-                        <tr key={row._id} className="premium-tr">
+                        <tr key={row._id} className="premium-tr group">
                           <td className="premium-td">
                             <div className="flex flex-col gap-1.5">
                               <div className="flex items-center gap-2 text-[13px] font-bold text-primary-container">

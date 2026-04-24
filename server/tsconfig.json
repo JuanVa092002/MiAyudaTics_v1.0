@@ -4,7 +4,7 @@
     "module": "CommonJS",
     "lib": ["ES2022"],
     "outDir": "./dist",
-    "rootDir": "./",
+    "rootDir": "./src",
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
@@ -16,6 +16,6 @@
     "allowJs": false,
     "resolveJsonModule": true
   },
-  "include": ["**/*"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "src/tests/**/*", "**/*.spec.ts", "**/*.test.ts"]
 }

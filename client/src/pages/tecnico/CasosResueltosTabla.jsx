@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
+import axiosConfig from '../../services/axios'
 import AppLayout from '../../layouts/appLayout/AppLayout'
 import TecnicoLayout from '../../layouts/tecnicoLayout/TecnicoLayout'
 
@@ -13,15 +13,18 @@ const CasosResueltosTabla = () => {
   useEffect(() => {
     const fetchCases = async () => {
       try {
-        const token = document.cookie
+        // Mantener alineado con el resto del frontend: axiosConfig + token (localStorage/cookie)
+        const tokenFromStorage = localStorage.getItem('token')
+        const tokenFromCookie = document.cookie
           .split('; ')
           .find(row => row.startsWith('token='))
-          .split('=')[1]
-        const response = await axios.get('http://localhost:3010/api/solicitud/finalizadas', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
+          ?.split('=')[1]
+        const token = tokenFromStorage || tokenFromCookie
+
+        const response = await axiosConfig.get('/solicitud/finalizadas', token
+          ? { headers: { Authorization: `Bearer ${token}` } }
+          : undefined
+        )
 
         if (response.data && response.data.solicitudesFinalizadas) {
           setCases(response.data.solicitudesFinalizadas)

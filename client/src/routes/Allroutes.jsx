@@ -22,6 +22,7 @@ import CasosPorResolverTabla from '../pages/tecnico/CasosPorResolverTabla'
 import MisCasosTabla from '../pages/tecnico/MisCasosTabla'
 import CasosResueltosTabla from '../pages/tecnico/CasosResueltosTabla'
 import SeguimientoSolicitud from '../pages/admin/solicitud/SeguimientoSolicitud'
+import Perfil from '../pages/shared/Perfil'
 
 export default function Allroutes() {
   return (
@@ -45,6 +46,7 @@ export default function Allroutes() {
         <Route path="/tecnicosActivos" element={<TecnicosActivos />} />
         <Route path="/tecnicosInactivos" element={<TecnicosInactivos />} />
         <Route path="/seguimiento" element={<SeguimientoSolicitud />} />
+        <Route path="/perfil" element={<Perfil />} />
 
         {/* tecnico */}
         <Route path="/casos-por-resolver" element={<CasosPorResolverTabla />} />

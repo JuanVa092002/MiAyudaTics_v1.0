@@ -2,19 +2,26 @@
 Todos los cambios notables en el proyecto **AyudaTIC** serán documentados en este archivo.
 
 ## [2026-04-22] - Dashboards Técnico & Admin Redesign
-### Añadido
+### Added
 - **UI Premium (AyudaTIC 2026)**: Extensión del lenguaje visual "Zero Noise" a los roles de Técnico y Admin.
-- **Paginación & UX**: Sistema de navegación por páginas (límite 5) y buscadores reactivos en todos los módulos operativos.
 - **Iconometría**: Estandarización de Material Symbols (peso 300) para una estética profesional.
 
-### Cambios
-- **Refactorización de Tablas**: Eliminación de `react-data-table-component` en favor de implementaciones HTML de alta fidelidad.
-- **Workflow TIC**: Rediseño del panel de supervisión y el flujo de asignación de especialistas.
-- **Workflow Técnico**: Reorientación hacia la base de conocimientos y la resolución ágil de tareas.
+### Changed
+- /seguimiento, /tecnicosActivos, /tecnicosInactivos,
+  /adminAmbientes: tablas nativas premium, sin react-data-table
+- /adminAmbientes: layout dos columnas formulario/tabla
+- Paginación manual y buscadores reactivos en módulos admin
+- Iconometría unificada con Material Symbols
 
-### Corregido
-- **Clean Code**: Eliminación de warnings de ESLint y dependencias obsoletas en 7 componentes core.
-- **Consistencia Visual**: Unificación total de la plataforma bajo un único estándar institucional.
+### Fixed
+- CORS local ahora acepta `localhost:*` y `127.0.0.1:*` de forma dinámica en desarrollo.
+- Eliminado el mantenimiento manual de puertos 5173/5174/5175.
+- **Vite Build**: Error de compilación por uso de `group` en @apply (index.css).
+- **Interactividad**: Restaurada la clase `group` en JSX para efectos hover en todas las tablas administrativas.
+- **Clean Code**: Eliminación de warnings de ESLint y dependencias obsoletas en componentes core.
+
+### Removed
+- Dependencia react-data-table-component eliminada
 
 ## [2026-04-21] - Auth Hardening & Funcionario Redesign
 

@@ -16,16 +16,11 @@ const CasosPorResolverTabla = () => {
   useEffect(() => {
     const fetchCases = async () => {
       try {
-        const token = document.cookie
-          .split('; ')
-          .find(row => row.startsWith('token='))
-          .split('=')[1]
-        const response = await axiosConfig.get('http://localhost:3010/api/solicitud/asignadas', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        const filteredCases = response.data.solicitudesAsignadas.filter(
+        const response = await axiosConfig.get('/solicitud/asignadas')
+        const solicitudesAsignadas = Array.isArray(response?.data?.solicitudesAsignadas)
+          ? response.data.solicitudesAsignadas
+          : []
+        const filteredCases = solicitudesAsignadas.filter(
           c => c.estado !== 'finalizado'
         )
         setCases(filteredCases)
@@ -36,15 +31,7 @@ const CasosPorResolverTabla = () => {
 
     const fetchCaseTypes = async () => {
       try {
-        const token = document.cookie
-          .split('; ')
-          .find(row => row.startsWith('token='))
-          .split('=')[1]
-        const response = await axiosConfig.get('http://localhost:3010/api/tipoCaso', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
+        const response = await axiosConfig.get('/tipoCaso')
 
         const caseTypesData = response.data.data
         if (Array.isArray(caseTypesData)) {
@@ -61,7 +48,7 @@ const CasosPorResolverTabla = () => {
 
   // Search and Pagination Logic
   const filteredData = cases.filter(row =>
-    row.codigoCaso.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (row.codigoCaso || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     row.descripcion.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (row.usuario?.nombre || '').toLowerCase().includes(searchTerm.toLowerCase())
   )
@@ -120,7 +107,7 @@ const CasosPorResolverTabla = () => {
       }
 
       await axiosConfig.post(
-        `http://localhost:3010/api/solucionCaso/${selectedCase._id}`,
+        `/solucionCaso/${selectedCase._id}`,
         updatedCase,
         {
           headers: {
@@ -142,14 +129,15 @@ const CasosPorResolverTabla = () => {
   return (
     <AppLayout>
       <TecnicoLayout>
-        <section className="premium-card rounded-3xl overflow-hidden flex flex-col h-full animate-in slide-in-from-bottom-4 duration-500">
+        <main className="py-4 sm:py-6 lg:py-8 px-3 animate-in fade-in duration-500">
+          <section className="premium-card rounded-3xl overflow-hidden flex flex-col h-full w-[min(96vw,1560px)] ml-auto mr-auto xl:ml-[clamp(24px,4vw,72px)] xl:mr-auto animate-in slide-in-from-bottom-4 duration-500">
           {/* Header */}
           <div className="p-6 sm:p-8 border-b hairline-border border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 bg-white">
             <div>
               <h2 className="text-xl font-bold text-on-surface">Casos por Resolver</h2>
               <p className="text-sm text-on-surface-variant font-medium mt-1">Gestión operativa y resolución técnica de solicitudes.</p>
             </div>
-            <div className="relative w-full sm:w-72 group">
+            <div className="relative w-full sm:w-80 lg:w-96 group">
               <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/60 text-[18px] group-focus-within:text-primary-container transition-colors">search</span>
               <input 
                 className="w-full pl-11 pr-4 py-2.5 solid-input rounded-2xl text-xs font-semibold text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-container/10 transition-all" 
@@ -172,18 +160,18 @@ const CasosPorResolverTabla = () => {
                   <th className="premium-th min-w-[300px]">Detalle del Problema</th>
                   <th className="premium-th text-center w-[80px]">Evidencia</th>
                   <th className="premium-th min-w-[140px]">Estado</th>
-                  <th className="premium-th text-right min-w-[160px]">Acciones</th>
+                  <th className="premium-th text-center w-[120px] min-w-[110px]">Acciones</th>
                 </tr>
               </thead>
               <tbody className="bg-white">
                 {currentItems.length > 0 ? (
                   currentItems.map((row) => (
-                    <tr key={row._id} className="premium-tr">
+                    <tr key={row._id} className="premium-tr group">
                       <td className="premium-td">
                         <div className="flex flex-col gap-1.5">
                           <div className="flex items-center gap-2">
                             <span className="material-symbols-outlined !text-[16px] text-primary-container/40 font-variation-['wght'_300]">confirmation_number</span>
-                            <span className="text-[13px] font-bold text-primary-container leading-none">#{row.codigoCaso}</span>
+                            <span className="text-[13px] font-bold text-primary-container leading-none">#{row.codigoCaso || row._id?.slice(-6) || 'N/A'}</span>
                           </div>
                           <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider pl-6">ID Interno</span>
                         </div>
@@ -241,13 +229,15 @@ const CasosPorResolverTabla = () => {
                       <td className="premium-td">
                         {getStatusBadge(row.estado)}
                       </td>
-                      <td className="premium-td text-right">
-                        <button 
-                          onClick={() => openModal(row)}
-                          className="px-4 py-2 rounded-xl bg-primary-container text-white text-[11px] font-bold uppercase tracking-widest hover:bg-primary transition-all shadow-sm active:scale-95"
-                        >
-                          Resolver
-                        </button>
+                      <td className="premium-td align-middle">
+                        <div className="flex items-center justify-center">
+                          <button 
+                            onClick={() => openModal(row)}
+                            className="inline-flex items-center justify-center px-3.5 py-2 rounded-xl bg-primary-container text-white text-xs font-bold uppercase tracking-[0.12em] leading-none hover:bg-primary transition-all shadow-sm active:scale-95"
+                          >
+                            Resolver
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -281,6 +271,7 @@ const CasosPorResolverTabla = () => {
             </div>
           </div>
         </section>
+        </main>
 
         {selectedCase && (
           <SolutionModal

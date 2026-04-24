@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node ./app.ts",
-    "dev": "ts-node-dev --respawn --transpile-only ./app.ts",
+    "start": "node dist/index.js",
+    "dev": "ts-node-dev --respawn --transpile-only ./src/index.ts",
     "build": "tsc",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",

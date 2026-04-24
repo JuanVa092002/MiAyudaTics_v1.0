@@ -4,13 +4,13 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
-    include: ['tests/**/*.test.ts'],
+    include: ['src/tests/**/*.test.ts'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
-      include: ['controllers/**/*.ts', 'routes/**/*.ts', 'middleware/**/*.ts'],
+      include: ['src/features/**/controllers/*.ts', 'src/features/**/routes/*.ts', 'src/shared/middleware/*.ts'],
     },
     // Mocking global settings if needed
-    setupFiles: ['./tests/setup.ts'],
+    setupFiles: ['./src/tests/setup.ts'],
   },
 })

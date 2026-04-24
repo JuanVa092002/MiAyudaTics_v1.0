@@ -39,36 +39,46 @@ const SolutionModal = ({
       overlayClassName="modal-overlay"
       ariaHideApp={false} // Para desactivar advertencias si no usas setAppElement
     >
-      <h2 className="text-xl font-semibold mb-4">Solucionar Caso</h2>
+      <div className="modal-header">
+        <div>
+          <h2 className="modal-title">Solucionar Caso</h2>
+          <p className="modal-subtitle">Registra el avance y estado final del ticket seleccionado.</p>
+        </div>
+        <button type="button" onClick={onRequestClose} className="modal-close-btn" aria-label="Cerrar modal">
+          <span className="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
       <form
+        className="modal-form"
         onSubmit={e => {
           e.preventDefault()
           onSubmit() // Llama a la función de envío con los datos actuales del formulario
         }}
       >
-        <div className="mb-4">
-          <label htmlFor="solutionDescription" className="block text-sm font-medium text-gray-700">
-            Descripción de la Solución:
+        <div className="modal-field">
+          <label htmlFor="solutionDescription" className="modal-label">
+            Descripción de la solución
           </label>
           <textarea
             id="solutionDescription"
             value={solutionDescription} // Asegúrate de que tenga un valor definido
             onChange={e => setSolutionDescription(e.target.value)}
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm resize-y" // Agregamos 'resize-y' para permitir ajuste vertical
+            className="modal-textarea"
             rows={2} // Establece el número de filas visibles
             required
           />
         </div>
 
-        <div className="mb-4">
-          <label htmlFor="caseType" className="block text-sm font-medium text-gray-700">
-            Tipo de Caso:
+        <div className="modal-field">
+          <label htmlFor="caseType" className="modal-label">
+            Tipo de caso
           </label>
           <select
             id="caseType"
             value={caseType} // Asegúrate de que tenga un valor definido
             onChange={e => setCaseType(e.target.value)}
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            className="modal-input"
             required
           >
             <option value="">Seleccionar tipo</option>
@@ -80,15 +90,15 @@ const SolutionModal = ({
           </select>
         </div>
 
-        <div className="mb-4">
-          <label htmlFor="solutionType" className="block text-sm font-medium text-gray-700">
-            Tipo de Solución:
+        <div className="modal-field">
+          <label htmlFor="solutionType" className="modal-label">
+            Tipo de solución
           </label>
           <select
             id="solutionType"
             value={solutionType} // Asegúrate de que tenga un valor definido
             onChange={e => setSolutionType(e.target.value)}
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            className="modal-input"
             required
           >
             <option value="">Seleccionar tipo</option>
@@ -97,43 +107,39 @@ const SolutionModal = ({
           </select>
         </div>
 
-        <div className="mb-4">
-          <label htmlFor="imageUpload" className="block text-sm font-medium text-gray-700">
-            Cargar Imagen:
+        <div className="modal-field">
+          <label htmlFor="imageUpload" className="modal-label">
+            Cargar imagen
           </label>
           <input
             id="imageUpload"
             type="file"
             accept="image/*"
             onChange={handleImageChange}
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            className="modal-input modal-file-input"
           />
         </div>
 
         {selectedImage && (
-          <div className="mb-4">
-            <h3 className="text-sm font-medium text-gray-700">Previsualización de la Imagen:</h3>
+          <div className="modal-preview">
+            <h3 className="modal-preview-title">Previsualización de imagen</h3>
             <img
               src={selectedImage}
               alt="Previsualización"
-              className="mt-2 w-full h-auto border border-gray-300 rounded-md"
+              className="modal-preview-image"
             />
           </div>
         )}
 
-        <div className="flex justify-end gap-4">
-          <button
-            type="submit"
-            className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
-          >
-            Guardar
+        <div className="modal-actions">
+          <button type="button" onClick={onRequestClose} className="modal-btn modal-btn-secondary">
+            Cancelar
           </button>
           <button
-            type="button"
-            onClick={onRequestClose}
-            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+            type="submit"
+            className="modal-btn modal-btn-primary"
           >
-            Cancelar
+            Guardar
           </button>
         </div>
       </form>

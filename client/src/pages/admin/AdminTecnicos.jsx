@@ -100,7 +100,7 @@ export default function AdminTecnicos() {
                       <tr><td colSpan="4" className="py-20 text-center"><span className="animate-pulse font-bold text-slate-300 uppercase tracking-widest">Cargando base de datos...</span></td></tr>
                     ) : currentItems.length > 0 ? (
                       currentItems.map((row) => (
-                        <tr key={row._id} className="premium-tr">
+                        <tr key={row._id} className="premium-tr group">
                           <td className="premium-td">
                             <div className="flex items-center gap-4">
                               <div className="w-10 h-10 rounded-2xl bg-primary-container/10 flex items-center justify-center text-primary-container font-black">

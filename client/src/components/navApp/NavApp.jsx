@@ -1,13 +1,17 @@
 import React, { useContext, useState, useRef, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { AuthContext } from '../../context/Auth.context'
-import LogOut from '../logOut/LogOut'
+import { logout as logoutService } from '../../services/auth.services'
+import { useNotificaciones } from '../../hooks/useNotificaciones'
 
 export default function NavApp() {
-  const { user } = useContext(AuthContext)
+  const { user, setUser, setIsAuthenticated } = useContext(AuthContext)
+  const { notificaciones, noLeidas, marcarLeida, marcarTodas } = useNotificaciones()
   const [showNotifications, setShowNotifications] = useState(false)
   const [showProfileMenu, setShowProfileMenu] = useState(false)
   
+  const navigate = useNavigate()
+  const location = useLocation()
   const notificationsRef = useRef(null)
   const profileRef = useRef(null)
 
@@ -25,11 +29,52 @@ export default function NavApp() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  // Close dropdowns on route change
+  useEffect(() => {
+    setShowNotifications(false)
+    setShowProfileMenu(false)
+  }, [location])
+
   const getDashboardLink = () => {
     const rol = user?.rol?.toLowerCase()
-    if (rol === 'administrador') return '/adminSolicitud'
+    if (rol === 'administrador' || rol === 'líder' || rol === 'lider') return '/adminSolicitud'
     if (rol === 'tecnico') return '/casos-por-resolver'
     return '/funcionario'
+  }
+
+  const handleLogout = async () => {
+    try {
+      await logoutService()
+      setUser(null)
+      setIsAuthenticated(false)
+      navigate('/loginMain')
+    } catch (error) {
+      console.error('Error al cerrar sesión', error)
+    }
+  }
+
+  const getRoleBadgeStyles = (rol) => {
+    const r = rol?.toUpperCase()
+    if (r === 'LÍDER' || r === 'LIDER' || r === 'ADMINISTRADOR') return 'bg-[#F5F3FF] text-[#5B21B6]'
+    if (r === 'TÉCNICO' || r === 'TECNICO') return 'bg-[#EFF6FF] text-[#1D4ED8]'
+    return 'bg-[#F0FDF4] text-[#166534]'
+  }
+
+  const getInitials = (name) => {
+    return name ? name.charAt(0).toUpperCase() : 'U'
+  }
+
+  const formatRelativeTime = (dateString) => {
+    const date = new Date(dateString)
+    const now = new Date()
+    const diffInSeconds = Math.floor((now - date) / 1000)
+    
+    if (diffInSeconds < 60) return 'hace un momento'
+    const diffInMinutes = Math.floor(diffInSeconds / 60)
+    if (diffInMinutes < 60) return `hace ${diffInMinutes} min`
+    const diffInHours = Math.floor(diffInMinutes / 60)
+    if (diffInHours < 24) return `hace ${diffInHours} ${diffInHours === 1 ? 'hora' : 'horas'}`
+    return date.toLocaleDateString()
   }
 
   return (
@@ -55,26 +100,58 @@ export default function NavApp() {
               className={`group w-10 h-10 rounded-full transition-all flex items-center justify-center relative ${showNotifications ? 'bg-primary-container text-white shadow-md' : 'text-on-surface-variant hover:bg-primary-container/5'}`}
             >
               <span className="material-symbols-outlined !text-[22px] transition-all group-hover:font-variation-['FILL'_1]">notifications</span>
-              <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-red-500 rounded-full ring-2 ring-white"></span>
+              {noLeidas > 0 && (
+                <span className="absolute top-2.5 right-2.5 min-w-[14px] h-[14px] px-1 bg-red-500 text-white text-[8px] font-black rounded-full ring-2 ring-white flex items-center justify-center">
+                  {noLeidas}
+                </span>
+              )}
             </button>
 
-            {/* Notifications Dropdown */}
+            {/* Notifications Dropdown - Redesigned */}
             {showNotifications && (
-              <div className="absolute right-0 top-full mt-2 w-80 bg-white solid-card rounded-2xl p-4 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200 z-[60]">
-                <div className="flex items-center justify-between mb-4 pb-2 border-b hairline-border border-slate-100">
-                  <h4 className="text-sm font-bold text-on-surface">Notificaciones</h4>
-                  <span className="text-[10px] font-bold text-primary-container uppercase cursor-pointer hover:underline">Marcar leídas</span>
+              <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-[12px] shadow-[0_8px_24px_rgba(27,42,74,0.12)] border border-[#E8ECF2] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200 z-[60]">
+                <div className="p-4 border-b border-[#E8ECF2] flex items-center justify-between bg-slate-50/50">
+                  <h4 className="text-[13px] font-bold text-[#1B2A4A] tracking-tight">Notificaciones</h4>
+                  {noLeidas > 0 && (
+                    <button 
+                      onClick={marcarTodas}
+                      className="text-[10px] font-bold text-primary-container uppercase tracking-wider hover:underline"
+                    >
+                      Leer todas
+                    </button>
+                  )}
                 </div>
-                <div className="flex flex-col items-center py-8 opacity-40">
-                  <span className="material-symbols-outlined !text-[48px] mb-2 font-variation-['wght'_300]">notifications_off</span>
-                  <p className="text-xs font-bold uppercase tracking-widest text-center leading-relaxed">Sin avisos pendientes</p>
+                
+                <div className="max-h-[320px] overflow-y-auto">
+                  {notificaciones.length > 0 ? (
+                    notificaciones.map((notif) => (
+                      <div 
+                        key={notif._id} 
+                        onClick={() => marcarLeida(notif._id)}
+                        className="p-4 border-b border-[#F1F5F9] last:border-0 hover:bg-[#F8FAFF] cursor-pointer transition-colors group/notif"
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="w-2 h-2 rounded-full bg-primary-container mt-1.5 flex-shrink-0"></div>
+                          <div className="flex flex-col min-w-0">
+                            <p className="text-[13px] font-medium text-[#1B2A4A] leading-snug mb-1">{notif.mensaje}</p>
+                            <span className="text-[10px] font-bold text-[#A0AABF] uppercase tracking-wide">
+                              {formatRelativeTime(notif.createdAt)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="flex flex-col items-center py-12 px-6">
+                      <div className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-slate-300 mb-3">
+                        <span className="material-symbols-outlined !text-[28px] font-variation-['wght'_300]">notifications_off</span>
+                      </div>
+                      <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-[#A0AABF] text-center">Sin notificaciones nuevas</p>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
-
-            <button className="group w-10 h-10 text-on-surface-variant hover:bg-primary-container/5 rounded-full transition-all flex items-center justify-center">
-              <span className="material-symbols-outlined !text-[22px] transition-all group-hover:rotate-45 group-hover:font-variation-['FILL'_1]">settings</span>
-            </button>
           </div>
           
           {/* User Profile - Zero Borders, Tonal Hover */}
@@ -88,32 +165,56 @@ export default function NavApp() {
                 <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-on-surface-variant opacity-40 leading-tight">{user?.rol || 'Funcionario'}</span>
               </div>
               <div className="relative">
-                <img 
-                  alt="Avatar" 
-                  className="w-10 h-10 rounded-full object-cover shadow-sm ring-2 ring-transparent group-hover:ring-primary-container/10 transition-all bg-slate-100" 
-                  src={user?.foto?.url || "https://ui-avatars.com/api/?name=" + (user?.nombre || "U") + "&background=002b40&color=fff"}
-                />
+                <div className="w-10 h-10 rounded-full flex items-center justify-center shadow-sm ring-2 ring-transparent group-hover:ring-primary-container/10 transition-all bg-[#EEF0F5] overflow-hidden">
+                  {user?.foto?.url ? (
+                    <img src={user.foto.url} alt="Avatar" className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-sm font-bold text-[#1B2A4A]">{getInitials(user?.nombre)}</span>
+                  )}
+                </div>
                 <span className="absolute bottom-0 right-0 w-3 h-3 bg-verde-sena border-2 border-white rounded-full shadow-sm"></span>
               </div>
             </div>
 
-            {/* Profile Dropdown */}
+            {/* Profile Dropdown - AyudaTIC 2026 Redesign */}
             {showProfileMenu && (
-              <div className="absolute right-0 top-full mt-2 w-56 bg-white solid-card rounded-2xl p-2 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200 z-[60]">
-                <div className="p-3 border-b hairline-border border-slate-100 mb-1">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Conectado como</p>
-                  <p className="text-xs font-bold text-on-surface truncate">{user?.correo || 'correo@ejemplo.com'}</p>
+              <div 
+                className="absolute right-0 top-full mt-2 min-w-[220px] bg-white rounded-[12px] shadow-[0_8px_24px_rgba(27,42,74,0.12)] border border-[#E8ECF2] overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150 z-[60]"
+              >
+                {/* Identity Section */}
+                <div className="p-4 border-b border-[#E8ECF2] flex items-start gap-3">
+                  <div className="w-9 h-9 rounded-full bg-[#EEF0F5] flex items-center justify-center flex-shrink-0">
+                    <span className="text-xs font-bold text-[#1B2A4A]">{getInitials(user?.nombre)}</span>
+                  </div>
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-[14px] font-semibold text-[#1B2A4A] leading-tight truncate">{user?.nombre || 'Usuario'}</span>
+                    <span className="text-[12px] text-[#A0AABF] leading-tight truncate mt-0.5">{user?.correo || 'correo@ejemplo.com'}</span>
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider mt-2 w-fit ${getRoleBadgeStyles(user?.rol)}`}>
+                      {user?.rol || 'Funcionario'}
+                    </span>
+                  </div>
                 </div>
-                <button className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-slate-50 transition-colors text-left group">
-                  <span className="material-symbols-outlined !text-[20px] text-slate-400 group-hover:text-primary-container transition-colors font-variation-['wght'_300]">account_circle</span>
-                  <span className="text-xs font-bold text-on-surface-variant group-hover:text-primary-container">Mi Perfil</span>
-                </button>
-                <button className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-slate-50 transition-colors text-left group border-b hairline-border border-slate-100 pb-3 mb-1">
-                  <span className="material-symbols-outlined !text-[20px] text-slate-400 group-hover:text-primary-container transition-colors font-variation-['wght'_300]">verified_user</span>
-                  <span className="text-xs font-bold text-on-surface-variant group-hover:text-primary-container">Seguridad</span>
-                </button>
-                <div className="p-1">
-                  <LogOut />
+
+                {/* Options Section */}
+                <div className="p-2">
+                  <button 
+                    onClick={() => navigate('/perfil')}
+                    className="flex items-center gap-3 w-full px-3 py-2.5 rounded-[8px] hover:bg-[#F8FAFC] transition-all duration-120 group/item"
+                  >
+                    <span className="material-symbols-outlined !text-[18px] text-[#6B7A99] group-hover/item:text-[#1B2A4A]">person</span>
+                    <span className="text-[14px] font-medium text-[#1B2A4A]">Mi Perfil</span>
+                  </button>
+                </div>
+
+                {/* Logout Section */}
+                <div className="p-2 border-t border-[#E8ECF2]">
+                  <button 
+                    onClick={handleLogout}
+                    className="flex items-center gap-3 w-full px-3 py-2.5 rounded-[8px] hover:bg-[#F8FAFC] transition-all duration-120 group/item"
+                  >
+                    <span className="material-symbols-outlined !text-[18px] text-[#6B7A99] group-hover/item:text-[#DC2626]">logout</span>
+                    <span className="text-[14px] font-medium text-[#1B2A4A] group-hover/item:text-[#DC2626]">Cerrar sesión</span>
+                  </button>
                 </div>
               </div>
             )}

@@ -190,7 +190,7 @@ body, * {
 }
 
 .premium-tr {
-  @apply hover:bg-slate-50/50 transition-colors group;
+  @apply hover:bg-slate-50/50 transition-colors;
 }
 
 .premium-td {
