@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import AppLayout from '../../../layouts/appLayout/AppLayout'
-import AdminLayout from '../../../layouts/adminLayout/AdminLayout'
-import { getTecnicosInactivos, reactivarTecnico } from '../../../services/tecnicos.services'
+import AppLayout from '@/layouts/appLayout/AppLayout'
+import AdminLayout from '@/layouts/adminLayout/AdminLayout'
+import { getTecnicosInactivos, reactivarTecnico } from '@/services/tecnicos.services'
 import { toast } from 'react-toastify'
-import AdminTecnicosLayout from '../../../layouts/adminLayout/AdminTecnicosLayout'
+import AdminTecnicosLayout from '@/layouts/adminLayout/AdminTecnicosLayout'
 
 export default function TecnicosInactivos() {
   const [tecnicosInactivos, setTecnicosInactivos] = useState([])

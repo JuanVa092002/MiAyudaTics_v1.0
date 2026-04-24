@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react'
-import AppLayout from '../../layouts/appLayout/AppLayout'
-import AdminLayout from '../../layouts/adminLayout/AdminLayout'
+import AppLayout from '@/layouts/appLayout/AppLayout'
+import AdminLayout from '@/layouts/adminLayout/AdminLayout'
 import {
   getAmbientes,
   createAmbiente,
   updateAmbiente,
   inactivarAmbiente,
-} from '../../services/ambiente.services'
+} from '@/services/ambiente.services'
 import { toast } from 'react-toastify'
 
 export default function AdminAmbientes() {

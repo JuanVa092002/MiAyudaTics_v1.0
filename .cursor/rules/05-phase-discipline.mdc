@@ -1,0 +1,33 @@
+---
+description: "Agent-requested. Load when planning phases, reviewing specs, or orchestrating multi-step implementation."
+globs: []
+alwaysApply: false
+---
+
+# Phase & Spec Discipline
+
+> Phase tracker (source of truth): `openspec/config.yaml`
+> Phase specs: `openspec/specs/` | SDD workflow: `docs/agentic-os.md`
+
+## Before Starting Any Phase Work
+1. Read current state from `openspec/config.yaml` — do not assume phase from memory
+2. Read the relevant spec in `openspec/specs/`
+3. Declare scope explicitly and get human approval for any destructive step
+4. Create a git checkpoint commit before any apply batch
+
+## Spec Format
+- Use Given/When/Then for scenarios
+- Use RFC 2119 keywords: MUST, SHALL, SHOULD, MAY
+- Every spec includes a rollback plan for risky changes
+
+## Task Granularity
+- Tasks small enough to complete in one session
+- Hierarchical numbering: 1.1, 1.2, etc.
+- Order: infrastructure → implementation → testing
+
+## Active Technical Decisions (Do Not Override)
+| Decision | Reason |
+|----------|--------|
+| `allowJs: true` in client | Temporary — `.jsx` → `.tsx` migration in progress |
+| No `@miayuda/types` shared package | Simplicity for dual Vercel/Render deploy. Review at Phase 4. |
+| `pages/` is official FSD layer | Routing intent separate from domain capability |

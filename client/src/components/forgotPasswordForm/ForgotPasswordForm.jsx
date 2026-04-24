@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
-import axiosConfig from '../../services/axios'
+import axiosConfig from '@/services/axios'
 
 export default function ForgotPasswordForm() {
   const [enviado, setEnviado] = useState(false)

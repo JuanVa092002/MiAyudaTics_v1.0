@@ -1,9 +1,9 @@
 import { useContext } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowRightFromBracket } from '@fortawesome/free-solid-svg-icons'
-import { logout } from '../../services/auth.services'
+import { logout } from '@/services/auth.services'
 import { useNavigate } from 'react-router-dom'
-import { AuthContext } from '../../context/Auth.context'
+import { AuthContext } from '@/app/providers/Auth.context'
 
 export default function LogOut() {
   const { setUser, setIsAuthenticated } = useContext(AuthContext)

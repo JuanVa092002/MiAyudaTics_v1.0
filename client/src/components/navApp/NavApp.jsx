@@ -1,7 +1,7 @@
 import React, { useContext, useState, useRef, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { AuthContext } from '../../context/Auth.context'
-import { logout as logoutService } from '../../services/auth.services'
+import { AuthContext } from '@/app/providers/Auth.context'
+import { logout as logoutService } from '@/services/auth.services'
 import { useNotificaciones } from '../../hooks/useNotificaciones'
 
 export default function NavApp() {

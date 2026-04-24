@@ -1,0 +1,61 @@
+import 'dotenv/config'
+import express from 'express'
+import path from 'path'
+import cors from 'cors'
+import cookieParser from 'cookie-parser'
+import morgan from 'morgan'
+import { app, server } from '../shared/utils/handleSocket'
+import router from './routes'
+
+// Configuración de Express en la app
+const allowedProdOrigins = [
+  'https://frontend-miayudatics-v1-0-1.onrender.com'
+]
+
+// Permite cualquier puerto en localhost/127.0.0.1 para que Vite pueda cambiar libremente en desarrollo local
+const isLocalDevOrigin = (origin: string) =>
+  /^http:\/\/localhost:\d+$/.test(origin) ||
+  /^http:\/\/127\.0\.0\.1:\d+$/.test(origin)
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true)
+
+      if (isLocalDevOrigin(origin) || allowedProdOrigins.includes(origin)) {
+        return callback(null, true)
+      }
+
+      return callback(new Error(`CORS blocked for origin: ${origin}`))
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    optionsSuccessStatus: 200,
+  })
+)
+
+app.use(morgan('dev'))
+app.use(express.json())
+
+// Middleware para analizar cuerpos de formularios URL-encoded
+app.use(express.urlencoded({ extended: true }))
+app.use(cookieParser())
+
+// Configuración de archivos estáticos y motor de plantillas
+app.use(express.static(path.join(__dirname, 'public')))
+app.use('/media', express.static(path.join(__dirname, 'media')))
+app.set('view engine', 'ejs')
+app.set('views', path.join(__dirname, 'views'))
+
+// Los recursos públicos salen de la carpeta storage
+app.use(express.static('storage'))
+
+// Invoca las rutas de la API
+app.use('/api', router)
+
+// Iniciar el servidor se movió a src/index.ts
+
+// Exportar para pruebas
+export { app, server }
+

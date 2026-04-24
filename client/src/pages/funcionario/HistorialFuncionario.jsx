@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { HistorialSolicitudesFuncionario } from '../../services/solicitud.services'
+import { HistorialSolicitudesFuncionario } from '@/services/solicitud.services'
 
 export default function HistorialFuncionario({ refreshKey }) {
   const [historial, setHistorial] = useState([])

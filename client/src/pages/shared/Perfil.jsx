@@ -1,7 +1,7 @@
 import React, { useContext } from 'react'
-import AppLayout from '../../layouts/appLayout/AppLayout'
-import AdminLayout from '../../layouts/adminLayout/AdminLayout'
-import { AuthContext } from '../../context/Auth.context'
+import AppLayout from '@/layouts/appLayout/AppLayout'
+import AdminLayout from '@/layouts/adminLayout/AdminLayout'
+import { AuthContext } from '@/app/providers/Auth.context'
 
 export default function Perfil() {
   const { user } = useContext(AuthContext)

@@ -2,8 +2,8 @@ import { React, useState, useContext } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 
-import { login as loginService } from '../../services/auth.services'
-import { AuthContext } from '../../context/Auth.context'
+import { login as loginService } from '@/services/auth.services'
+import { AuthContext } from '@/app/providers/Auth.context'
 import logoSena from '../../assets/logoSena.png'
 import ErrorMessage from '../ui/ErrorMessage'
 

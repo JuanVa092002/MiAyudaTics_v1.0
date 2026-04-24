@@ -1,5 +1,5 @@
 import React from 'react'
-import NavLoginMain from '../../components/navLoginMain/NavLoginMain'
+import NavLoginMain from '@/components/navLoginMain/NavLoginMain'
 
 export default function LoginLayout({ children }) {
   return (

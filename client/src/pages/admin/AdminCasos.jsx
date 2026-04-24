@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import AppLayout from '../../layouts/appLayout/AppLayout'
-import AdminLayout from '../../layouts/adminLayout/AdminLayout'
-import { getCasos, createCaso, updateCaso } from '../../services/caso.services'
+import AppLayout from '@/layouts/appLayout/AppLayout'
+import AdminLayout from '@/layouts/adminLayout/AdminLayout'
+import { getCasos, createCaso, updateCaso } from '@/services/caso.services'
 import { toast } from 'react-toastify'
 
 export default function AdminCasos() {

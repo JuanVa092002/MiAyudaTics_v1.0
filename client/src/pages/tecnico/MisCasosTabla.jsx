@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import axiosConfig from '../.././services/axios'
-import AppLayout from '../../layouts/appLayout/AppLayout'
-import TecnicoLayout from '../../layouts/tecnicoLayout/TecnicoLayout'
+import AppLayout from '@/layouts/appLayout/AppLayout'
+import TecnicoLayout from '@/layouts/tecnicoLayout/TecnicoLayout'
 
 const MisCasosTabla = () => {
   const [cases, setCases] = useState([])

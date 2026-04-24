@@ -1,5 +1,5 @@
 import React from 'react'
-import NavAdmin from '../../components/navAdmin/NavAdmin'
+import NavAdmin from '@/components/navAdmin/NavAdmin'
 
 export default function AdminLayout({ children }) {
   return (

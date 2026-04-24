@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import axiosConfig from '../../services/axios'
-import AppLayout from '../../layouts/appLayout/AppLayout'
-import TecnicoLayout from '../../layouts/tecnicoLayout/TecnicoLayout'
+import axiosConfig from '@/services/axios'
+import AppLayout from '@/layouts/appLayout/AppLayout'
+import TecnicoLayout from '@/layouts/tecnicoLayout/TecnicoLayout'
 import SolutionModal from './modal'
 
 const CasosPorResolverTabla = () => {

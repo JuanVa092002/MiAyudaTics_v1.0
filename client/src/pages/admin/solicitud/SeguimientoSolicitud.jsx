@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import AppLayout from '../../../layouts/appLayout/AppLayout'
-import AdminLayout from '../../../layouts/adminLayout/AdminLayout'
-import AdminSolicitudLayout from '../../../layouts/adminLayout/AdminSolicitudLayout'
-import { HistorialSolicitudesLider } from '../../../services/solicitud.services'
+import AppLayout from '@/layouts/appLayout/AppLayout'
+import AdminLayout from '@/layouts/adminLayout/AdminLayout'
+import AdminSolicitudLayout from '@/layouts/adminLayout/AdminSolicitudLayout'
+import { HistorialSolicitudesLider } from '@/services/solicitud.services'
 
 export default function SeguimientoSolicitud() {
   const [solicitudes, setSolicitudes] = useState([])

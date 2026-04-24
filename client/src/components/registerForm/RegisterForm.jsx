@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
 
 //axios
-import { register as registerService } from '../../services/auth.services.js'
+import { register as registerService } from '@/services/auth.services.js'
 import ErrorMessage from '../ui/ErrorMessage'
 
 export default function RegisterForm() {

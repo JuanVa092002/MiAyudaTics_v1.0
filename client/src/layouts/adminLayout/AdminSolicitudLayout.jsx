@@ -1,5 +1,5 @@
 import React from 'react'
-import NavSolicitud from '../../components/navAdmin/NavSolicitud'
+import NavSolicitud from '@/components/navAdmin/NavSolicitud'
 
 export default function AdminSolicitudLayout({ children }) {
   return (

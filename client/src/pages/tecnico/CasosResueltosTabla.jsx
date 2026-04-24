@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import axiosConfig from '../../services/axios'
-import AppLayout from '../../layouts/appLayout/AppLayout'
-import TecnicoLayout from '../../layouts/tecnicoLayout/TecnicoLayout'
+import axiosConfig from '@/services/axios'
+import AppLayout from '@/layouts/appLayout/AppLayout'
+import TecnicoLayout from '@/layouts/tecnicoLayout/TecnicoLayout'
 
 const CasosResueltosTabla = () => {
   const [cases, setCases] = useState([])
@@ -176,8 +176,8 @@ export default CasosResueltosTabla
 // import React, { useState, useEffect, useRef } from 'react';
 // import axios from 'axios';
 // import DataTable from 'react-data-table-component';
-// import AppLayout from '../../layouts/appLayout/AppLayout';
-// import TecnicoLayout from '../../layouts/tecnicoLayout/TecnicoLayout';
+// import AppLayout from '@/layouts/appLayout/AppLayout';
+// import TecnicoLayout from '@/layouts/tecnicoLayout/TecnicoLayout';
 
 // const CasosResueltosTabla = () => {
 //   const [cases, setCases] = useState([]);

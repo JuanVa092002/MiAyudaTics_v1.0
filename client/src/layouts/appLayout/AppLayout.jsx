@@ -1,5 +1,5 @@
 import React from 'react'
-import NavApp from '../../components/navApp/NavApp'
+import NavApp from '@/components/navApp/NavApp'
 
 export default function AppLayout({ children }) {
   return (

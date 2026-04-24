@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react'
-import AppLayout from '../../layouts/appLayout/AppLayout'
-import AdminLayout from '../../layouts/adminLayout/AdminLayout'
+import AppLayout from '@/layouts/appLayout/AppLayout'
+import AdminLayout from '@/layouts/adminLayout/AdminLayout'
 import {
   getTecnicosPendientes,
   aprobarTecnico,
   denegarTecnico,
-} from '../../services/tecnicos.services'
+} from '@/services/tecnicos.services'
 import { toast } from 'react-toastify'
-import AdminTecnicosLayout from '../../layouts/adminLayout/AdminTecnicosLayout'
+import AdminTecnicosLayout from '@/layouts/adminLayout/AdminTecnicosLayout'
 
 export default function AdminTecnicos() {
   const [tecnicos, setTecnicos] = useState([])

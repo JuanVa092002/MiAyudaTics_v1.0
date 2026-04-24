@@ -1,5 +1,5 @@
 import React from 'react'
-import NavTecnicos from '../../components/navTecnicos/NavTecnicos'
+import NavTecnicos from '@/components/navTecnicos/NavTecnicos'
 
 export default function AdminTecnicosLayout({ children }) {
   return (

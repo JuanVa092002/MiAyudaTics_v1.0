@@ -1,0 +1,49 @@
+---
+description: "Auto-attached when working on client/ files. Frontend FSD-lite rules."
+globs: ["client/**/*"]
+alwaysApply: false
+---
+
+# Frontend Rules — Client Layer
+
+> Full contract: `docs/ARCHITECTURE.md`
+
+## Layer Import Policy (strict)
+```
+app → pages → features → shared
+```
+
+| You are in | You can import from | You CANNOT import from |
+|------------|--------------------|-----------------------|
+| `shared/` | (nothing) | features, pages, app |
+| `features/` | shared | other features, pages, app |
+| `pages/` | features, shared | other pages, app |
+| `app/` | pages, features, shared | (no business logic) |
+
+## Import Syntax
+- **Always use `@/`** path alias. Example: `import { Foo } from '@/shared/components/Foo'`
+- Never use relative paths with more than 1 level: forbidden `../../`
+- Never use `../../../` or deeper
+
+## TypeScript
+- All NEW files: `.tsx` extension mandatory
+- Never use `any`
+- Existing `.jsx` files: do not migrate unless the current mission explicitly requires it
+
+## Component Rules
+- `app/`: only providers, router setup, global CSS imports. Zero JSX business logic.
+- `pages/`: compose layouts + features for a route. No data fetching directly in page root.
+- `features/`: self-contained domain slices. Each feature owns its own state, API calls, components.
+- `shared/`: generic, reusable, domain-agnostic only.
+
+## Style Rules
+- Colors: Primary `#1B2A4A`, Accent `#39A900`, Background `#EEF0F5`, Surface `#FFFFFF`
+- Never use `group`, `peer`, `has-[]` inside `@apply`
+- Use Tailwind classes directly in JSX
+- Prefer inline feedback. Toasts only for global network errors/success.
+
+## Build Validation
+```bash
+pnpm -C client run build   # must exit 0
+pnpm -C client run lint    # must exit 0
+```

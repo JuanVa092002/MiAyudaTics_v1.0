@@ -1,0 +1,27 @@
+---
+description: "Core identity and operational constants. Always active."
+globs: ["**/*"]
+alwaysApply: true
+---
+
+# MiAyudaTIC — Always-On Core
+
+> Neutral OS: `docs/agentic-os.md` | Architecture: `docs/ARCHITECTURE.md`
+
+## Identity
+- Monorepo: `client/` (React/Vite → Vercel) + `server/` (Node/Express/TS → Render)
+- Package manager: **pnpm only**. Never npm or yarn.
+
+## Architecture
+Frontend uses **FSD-lite** (`app → pages → features → shared`), backend uses **Feature-modules** (`core/` + `features/` + `shared/`).
+Full rules auto-injected when you open `client/` or `server/` files.
+
+## HITL Gates — Ask before proceeding
+- Auth, Authorization, or DB schema changes
+- Moving files between FSD layers
+- Structural refactoring of `client/src/` or `server/src/` root
+- Deployment configuration changes
+- Installing new dependencies
+
+## Zero Noise Rule
+Task is done only when `pnpm build` → 0 errors, 0 unresolved imports, TypeScript clean.

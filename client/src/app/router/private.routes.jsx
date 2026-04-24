@@ -1,8 +1,8 @@
 import { useContext } from 'react'
 import { Outlet, Navigate } from 'react-router-dom'
-import Loaders from '../components/loaders/Loaders'
+import Loaders from '@/components/loaders/Loaders'
 
-import { AuthContext } from '../context/Auth.context'
+import { AuthContext } from '@/app/providers/Auth.context'
 
 export default function PrivateRoutes() {
   const { isAuthenticated, loading, user } = useContext(AuthContext)

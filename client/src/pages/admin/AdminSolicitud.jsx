@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faShare } from '@fortawesome/free-solid-svg-icons'
-import { asignarSolicitudTecnico } from '../../services/solicitud.services'
-import { getSolicitudesPendientes } from '../../services/solicitudList.services'
-import { getTecnicosAprobados } from '../../services/tecnicos.services'
-import AppLayout from '../../layouts/appLayout/AppLayout'
-import AdminLayout from '../../layouts/adminLayout/AdminLayout'
+import { asignarSolicitudTecnico } from '@/services/solicitud.services'
+import { getSolicitudesPendientes } from '@/services/solicitudList.services'
+import { getTecnicosAprobados } from '@/services/tecnicos.services'
+import AppLayout from '@/layouts/appLayout/AppLayout'
+import AdminLayout from '@/layouts/adminLayout/AdminLayout'
 import { toast } from 'react-toastify'
-import AdminSolicitudLayout from '../../layouts/adminLayout/AdminSolicitudLayout'
+import AdminSolicitudLayout from '@/layouts/adminLayout/AdminSolicitudLayout'
 
 export default function AdminSolicitud() {
   const [solicitudes, setSolicitudes] = useState([])

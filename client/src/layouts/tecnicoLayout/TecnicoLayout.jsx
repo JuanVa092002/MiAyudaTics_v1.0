@@ -1,5 +1,5 @@
 import React from 'react'
-import NavTecnico from '../../components/tecnico/NavTecnico'
+import NavTecnico from '@/components/tecnico/NavTecnico'
 
 export default function TecnicoLayout({ children }) {
   return (

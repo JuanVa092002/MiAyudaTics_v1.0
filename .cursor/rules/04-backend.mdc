@@ -1,0 +1,48 @@
+---
+description: "Auto-attached when working on server/ files. Backend TS and feature-based rules."
+globs: ["server/**/*"]
+alwaysApply: false
+---
+
+# Backend Rules — Server Layer
+
+> Full contract: `docs/ARCHITECTURE.md`
+
+## Structure (Non-Negotiable)
+```
+server/src/
+├── core/        → Express app factory + route registry only
+├── features/    → domain modules: controllers, models, routes (grouped by feature)
+├── shared/      → middleware, utils, validators, config, types
+└── index.ts     → server entrypoint (boots express + connects DB)
+```
+
+- New domain logic always goes in `server/src/features/<feature-name>/`
+- Cross-feature shared logic goes in `server/src/shared/`
+- `core/` contains only wire-up, never business logic
+
+## TypeScript Standards
+- 100% TypeScript. `allowJs: false` in tsconfig.
+- Never use `any`. Use proper interfaces or `unknown` + type guards.
+- All Zod schemas must be co-located with the feature that owns them.
+
+## Validation
+- Zod is mandatory for all request body/param/query contracts
+- Always validate before touching DB or calling services
+
+## Auth & Security
+- JWT stored in `HttpOnly` cookies — never `localStorage`
+- Reset tokens: raw in email, SHA-256 hash in DB
+- CORS dev: dynamic `localhost:*` + `127.0.0.1:*` regex
+- CORS prod: explicit whitelist only. Never `origin: *` with `credentials: true`
+
+## Testing
+- `strict_tdd: true` — write test before implementation
+- Framework: Jest + Supertest
+- Run: `pnpm test` from monorepo root
+
+## Build Validation
+```bash
+pnpm -C server run build   # tsc compile → dist/. Must exit 0.
+pnpm test                  # must pass
+```

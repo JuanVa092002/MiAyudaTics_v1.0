@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react'
-import { obtenerAmbientes, crearSolicitud, HistorialSolicitudesFuncionario, obtenerTiposCaso } from '../../services/solicitud.services'
-import AppLayout from '../../layouts/appLayout/AppLayout'
+import { obtenerAmbientes, crearSolicitud, HistorialSolicitudesFuncionario, obtenerTiposCaso } from '@/services/solicitud.services'
+import AppLayout from '@/layouts/appLayout/AppLayout'
 import { toast } from 'react-toastify'
 import { useForm, Controller } from 'react-hook-form'
 import HistorialFuncionario from './HistorialFuncionario'
-import CustomSelect from '../../components/ui/CustomSelect'
+import CustomSelect from '@/components/ui/CustomSelect'
 
-import { AuthContext } from '../../context/Auth.context'
+import { AuthContext } from '@/app/providers/Auth.context'
 import { useContext } from 'react'
 
 export default function Funcionario() {
