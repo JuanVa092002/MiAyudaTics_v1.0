@@ -16,13 +16,21 @@ Al configurar `Root Directory` como `server`, el comando `pnpm install` leerá e
 
 ## Variables de Entorno
 
-Asegúrate de configurar las siguientes variables de entorno en Render:
+Configura en Render (Dashboard → Environment) las mismas claves que en `server/.env.example`:
 
-*   `PORT`: `8000` (o el puerto que utilices).
-*   `MONGO_URI`: Tu cadena de conexión a MongoDB.
-*   `JWT_SECRET`: Tu secreto de autenticación.
-*   `CORS_ORIGIN`: La URL de tu frontend en Vercel (ej. `https://mi-ayuda-tics.vercel.app`).
-*   Cualquier otra variable de entorno definida en tu `.env` de producción.
+| Variable | Ejemplo producción |
+|----------|-------------------|
+| `NODE_ENV` | `production` |
+| `PORT` | `8000` |
+| `DB_URI` | `mongodb+srv://...` |
+| `PUBLIC_URL` | `https://miayudatics-api.onrender.com` |
+| `RENDER_URL` | `https://miayudatics-api.onrender.com` |
+| `CLIENT_URL` | `https://tu-app.vercel.app` |
+| `CORS_ORIGINS` | `https://tu-app.vercel.app` |
+| `JWT_SECRET` | Secreto largo aleatorio |
+| `BREVO_API_KEY` | Clave API de Brevo |
+
+`CLIENT_URL` y `CORS_ORIGINS` deben coincidir con la URL del frontend en Vercel.
 
 ## Detalles Adicionales
 

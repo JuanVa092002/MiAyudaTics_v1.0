@@ -16,10 +16,16 @@ Vercel detectará el archivo `pnpm-lock.yaml` en la raíz del repositorio. Dado 
 
 ## Variables de Entorno
 
-Asegúrate de configurar las siguientes variables de entorno en Vercel:
+Configura en Vercel (Settings → Environment Variables):
 
-*   `VITE_API_URL`: La URL de tu backend en Render (ej. `https://mi-ayuda-tics-backend.onrender.com/api`).
-*   Otras variables que tengas en tu archivo `.env` local del cliente.
+| Variable | Ejemplo producción |
+|----------|-------------------|
+| `VITE_BACKEND_URL` | `https://miayudatics-api.onrender.com` |
+
+Alternativa compatible: `VITE_API_URL` con `/api` al final  
+(`https://miayudatics-api.onrender.com/api`).
+
+Copia `client/.env.example` para local y `client/.env.production.example` como referencia.
 
 ## Rewrite Rules (Si usas React Router)
 
