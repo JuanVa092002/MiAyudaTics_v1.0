@@ -1,0 +1,5 @@
+export * from './api/tecnicos.service'
+export { default as NavTecnicos } from './components/NavTecnicos'
+export { default as NavAdmin } from './components/NavAdmin'
+export { default as NavSolicitud } from './components/NavSolicitud'
+export { default as Profile } from './components/Profile'

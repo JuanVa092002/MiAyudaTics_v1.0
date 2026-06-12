@@ -1,0 +1,4 @@
+export * from './api/solicitud.service'
+export * from './api/solucion.service'
+export { default as ResolutionModal } from './components/ResolutionModal'
+export { default as NavTecnico } from './components/NavTecnico'

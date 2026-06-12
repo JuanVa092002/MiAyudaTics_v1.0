@@ -1,38 +1,43 @@
-# Feature-Based Architecture
+# Feature-Based Architecture (Frontend)
 
-## Regla principal
-Cada feature es un módulo completamente encapsulado.
-Todo lo que pertenece a una feature vive dentro de su carpeta.
+Cada feature es un módulo encapsulado. Todo lo que pertenece a un dominio vive dentro de su carpeta.
 
-## Estructura interna de cada feature
+## Estructura
 
-### Backend (/server/features/nombre-feature/)
-nombre-feature/
-├── nombre-feature.routes.ts    ← endpoints Express
-├── nombre-feature.controller.ts ← lógica HTTP (request/response)
-├── nombre-feature.service.ts   ← lógica de negocio
-├── nombre-feature.model.ts     ← schema Mongoose
-├── nombre-feature.schema.ts    ← schema Zod (validación)
-├── nombre-feature.types.ts     ← interfaces y tipos TS
-└── nombre-feature.test.ts      ← tests unitarios e integración
+```
+features/nombre-feature/
+├── api/           # Llamadas HTTP (usa @/shared/api/axios)
+├── components/    # UI del dominio
+├── context/       # Estado local del dominio (opcional)
+├── hooks/         # Hooks del dominio
+├── types.ts       # Tipos específicos (opcional; preferir @/shared/types)
+└── index.ts       # Barrel export — API pública de la feature
+```
 
-### Frontend (/client/src/features/nombre-feature/)
-nombre-feature/
-├── components/     ← componentes React de esta feature
-├── hooks/          ← custom hooks
-├── services/       ← llamadas a la API
-├── types.ts        ← interfaces TS
-└── index.ts        ← barrel export (exportaciones públicas)
+## Features actuales
 
-## Regla de dependencias
-- Una feature PUEDE importar desde features/shared/
-- Una feature NO PUEDE importar directamente de otra feature
-- Si dos features necesitan algo en común → va a shared/
-- Los imports siempre van por el index.ts (barrel), nunca directos
+| Feature | Responsabilidad |
+|---------|-----------------|
+| `auth` | Login, registro, sesión, recuperación de contraseña |
+| `tickets` | Solicitudes, resolución de casos, nav técnico |
+| `users` | Técnicos, nav admin, perfil |
+| `ambientes` | Ambientes de formación |
+| `estadisticas` | Gráficas admin |
+| `notifications` | Notificaciones y hook `useNotificaciones(enabled)` |
 
-## Por qué esta arquitectura
-Cuando quieras agregar una nueva feature, creas su carpeta,
-sigues la estructura y no tocas nada de las demás features.
-Cuando quieras eliminar una feature, borras su carpeta y listo.
-Esto hace que el proyecto sea extremadamente fácil de extender
-y de entender para alguien nuevo.
+## Reglas de dependencias (FSD-lite)
+
+```
+app → pages → features → shared
+```
+
+- Una feature **solo** importa de `shared/`
+- **Prohibido** cross-import entre features
+- Lógica compartida entre features → sube a `shared/` o se orquesta en `app/`
+- Imports públicos vía `index.ts` (barrel)
+
+## Capas hermanas
+
+- `shared/` — UI kit, axios, tipos globales
+- `pages/` — Composición por ruta (sin lógica de negocio pesada)
+- `app/` — Router, layouts, providers globales
