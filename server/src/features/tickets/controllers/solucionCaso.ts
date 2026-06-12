@@ -1,6 +1,7 @@
 import { Request, Response } from 'express'
 import { handleHttpError } from '../../../shared/utils/handleError'
 import { sendMail } from '../../../shared/utils/handleEmail'
+import { buildCasoCerradoEmail, getEmailFrom } from '../../../shared/emails'
 import { io } from '../../../shared/utils/handleSocket'
 import models from '../../../core/models'
 import { Types } from 'mongoose'
@@ -41,17 +42,16 @@ export const solucionCaso = async (req: Request, res: Response): Promise<void> =
 
       const usuario = await usuarioModel.findById(solicitud.usuario)
       if (usuario) {
+        const { html, text } = buildCasoCerradoEmail({
+          nombre: usuario.nombre,
+          codigoCaso: solicitud.codigoCaso,
+        })
         await sendMail({
-          from: process.env.EMAIL,
+          from: getEmailFrom(),
           to: usuario.correo,
-          subject: 'Caso Cerrado - Mesa de Servicio - CTPI-CAUCA',
-          html: `
-            <p>Cordial saludo, ${usuario.nombre},</p>
-            <p>Nos permitimos informarle que su caso con código ${solicitud.codigoCaso} ha sido cerrado con éxito.</p>
-            <p>Gracias por utilizar nuestro servicio de Mesa de Ayuda. Si tiene alguna otra solicitud, no dude en contactarnos.</p>
-            <br>
-            <p>Atentamente,</p>
-            <p>Equipo de Mesa de Servicio - CTPI-CAUCA</p>`,
+          subject: 'Caso Cerrado — AyudaTIC',
+          html,
+          text,
         })
       }
     }

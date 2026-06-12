@@ -77,7 +77,9 @@ const solicitudSchema = new Schema<ISolicitud>(
     toJSON: {
       virtuals: true,
       transform: function (_doc, ret) {
-        ret.fecha = DateTime.fromJSDate(ret.fecha).setLocale('es').toFormat('dd-MM-yyyy HH:mm')
+        ;(ret as { fecha?: Date | string }).fecha = DateTime.fromJSDate(ret.fecha)
+          .setLocale('es')
+          .toFormat('dd-MM-yyyy HH:mm')
         return ret
       },
     },

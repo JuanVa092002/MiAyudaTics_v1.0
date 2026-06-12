@@ -1,6 +1,11 @@
 import { Request, Response } from 'express'
 import { handleHttpError } from '../../../shared/utils/handleError'
 import { sendMail } from '../../../shared/utils/handleEmail'
+import {
+  buildSolicitudRegistradaEmail,
+  buildCasoAsignadoEmail,
+  getEmailFrom,
+} from '../../../shared/emails'
 import { io } from '../../../shared/utils/handleSocket'
 import { postConsecutivoCaso } from './consecutivoCaso'
 import models from '../../../core/models'
@@ -141,11 +146,16 @@ export const crearSolicitud = async (req: Request, res: Response): Promise<void>
 
     const usuario = await usuarioModel.findById(dataSolicitud.usuario)
     if (usuario) {
+      const { html, text } = buildSolicitudRegistradaEmail({
+        nombre: usuario.nombre,
+        codigoCaso,
+      })
       await sendMail({
-        from: process.env.EMAIL,
+        from: getEmailFrom(),
         to: usuario.correo,
-        subject: 'Registro Solicitud - Mesa de Servicio - CTPI-CAUCA',
-        html: `Cordial saludo, ${usuario.nombre}, nos permitimos informarle que su solicitud fue registrada en nuestro sistema con el número de caso ${codigoCaso}. <br><br> Su caso será gestionado en el menor tiempo posible, según los acuerdos de solución establecidos para la Mesa de Servicios del CTPI-CAUCA.<br><br>Lo invitamos a ingresar a nuestro sistema en la siguiente url: http://mesadeservicioctpicauca.sena.edu.co.`,
+        subject: 'Registro Solicitud — AyudaTIC',
+        html,
+        text,
       })
     }
   } catch (_error) {
@@ -225,14 +235,16 @@ export const asignarTecnicoSolicitud = async (req: Request, res: Response): Prom
 
     io.emit('actualizarTecnico', { tecnicoId: tecnico, numeroSolicitudesAsignadas: solicitudesAsignadas })
 
+    const { html, text } = buildCasoAsignadoEmail({
+      nombre: tecnicoAsignado.nombre,
+      codigoCaso: solicitudActualizada.codigoCaso,
+    })
     sendMail({
-      from: process.env.EMAIL,
+      from: getEmailFrom(),
       to: tecnicoAsignado.correo,
-      subject: 'Asignacion de caso - Mesa de Servicio - CTPI-CAUCA',
-      html: `<p>Cordial saludo, ${tecnicoAsignado.nombre},</p>
-        <p>Nos permitimos informarle que le ha sido asignada la solicitud con el código de caso <strong>${solicitudActualizada.codigoCaso}</strong>.</p>
-        <p>Para acceder al sistema: <a href="http://mesadeservicioctpicauca.sena.edu.co">http://mesadeservicioctpicauca.sena.edu.co</a></p>
-        <p>Atentamente,<br>Equipo de Mesa de Servicios<br>CTPI-CAUCA</p>`,
+      subject: 'Asignación de caso — AyudaTIC',
+      html,
+      text,
     })
 
     res.status(200).json({ message: 'Técnico asignado exitosamente', solicitud })

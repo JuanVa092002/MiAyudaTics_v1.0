@@ -1,6 +1,11 @@
 import { Request, Response } from 'express'
 import { handleHttpError } from '../../../shared/utils/handleError'
 import { sendMail } from '../../../shared/utils/handleEmail'
+import {
+  buildTecnicoAprobadoEmail,
+  buildTecnicoDenegadoEmail,
+  getEmailFrom,
+} from '../../../shared/emails'
 import fs from 'fs'
 import path from 'path'
 import models from '../../../core/models'
@@ -48,15 +53,13 @@ export const aprobarTecnico = async (req: Request, res: Response): Promise<void>
 
     res.status(200).send({ message: 'Técnico aprobado exitosamente', tecnico })
 
+    const { html, text } = buildTecnicoAprobadoEmail({ nombre: tecnico.nombre })
     sendMail({
-      from: process.env.EMAIL,
+      from: getEmailFrom(),
       to: tecnico.correo,
-      subject: 'Aprobación de Registro - Mesa de Servicio - CTPI-CAUCA',
-      html: `Cordial saludo, ${tecnico.nombre}.<br><br>
-                    Nos complace informarle que su cuenta ha sido aprobada y ahora tiene acceso al sistema de Mesa de Servicio del CTPI-CAUCA.<br><br>
-                    Puede ingresar al sistema utilizando el siguiente enlace: <a href="http://mesadeservicioctpicauca.sena.edu.co">Mesa de Servicio CTPI-CAUCA</a>.<br><br>
-                    Si tiene alguna pregunta o necesita asistencia, no dude en contactarnos.<br><br>
-                    Atentamente,<br>Equipo de Mesa de Servicio CTPI-CAUCA`,
+      subject: 'Aprobación de Registro — AyudaTIC',
+      html,
+      text,
     })
   } catch (_error) {
     handleHttpError(res, 'Error al aprobar técnico', 500)
@@ -85,15 +88,13 @@ export const denegarTecnico = async (req: Request, res: Response): Promise<void>
       })
     }
 
+    const { html, text } = buildTecnicoDenegadoEmail({ nombre: tecnico.nombre })
     sendMail({
-      from: process.env.EMAIL,
+      from: getEmailFrom(),
       to: tecnico.correo,
-      subject: 'Registro Denegado - Mesa de Servicio - CTPI-CAUCA',
-      html: `Cordial saludo, ${tecnico.nombre}.<br><br>
-                    Lamentamos informarle que su cuenta no ha sido aprobada, es posible que su registro esté incompleto o
-                    no cuente con los permisos para ingresar a: <a href="http://mesadeservicioctpicauca.sena.edu.co">Mesa de Servicio CTPI-CAUCA</a>.<br><br>
-                    Si tiene alguna pregunta o necesita asistencia, no dude en contactarnos.<br><br>
-                    Atentamente,<br>Equipo de Mesa de Servicio CTPI-CAUCA`,
+      subject: 'Registro Denegado — AyudaTIC',
+      html,
+      text,
     })
 
     await usuarioModel.findByIdAndDelete(id)
