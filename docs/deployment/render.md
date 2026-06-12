@@ -29,8 +29,19 @@ Configura en Render (Dashboard → Environment) las mismas claves que en `server
 | `CORS_ORIGINS` | `https://tu-app.vercel.app` |
 | `JWT_SECRET` | Secreto largo aleatorio |
 | `BREVO_API_KEY` | Clave API de Brevo |
+| `CLOUDINARY_CLOUD_NAME` | Nombre de la cuenta Cloudinary |
+| `CLOUDINARY_API_KEY` | API key de Cloudinary |
+| `CLOUDINARY_API_SECRET` | API secret de Cloudinary |
+| `CLOUDINARY_FOLDER` | Carpeta raíz (ej. `miayudatics`) |
+| `STORAGE_PATH` | Solo si Cloudinary no está configurado (respaldo local) |
 
 `CLIENT_URL` y `CORS_ORIGINS` deben coincidir con la URL del frontend en Vercel.
+
+## Almacenamiento de evidencias (Cloudinary)
+
+Con `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY` y `CLOUDINARY_API_SECRET` configurados, las fotos de solicitudes, perfiles y evidencias se suben a Cloudinary y **persisten tras redeploy** en Render.
+
+Sin Cloudinary, el backend guarda en `STORAGE_PATH` (disco local, efímero en Render gratis).
 
 ## Detalles Adicionales
 

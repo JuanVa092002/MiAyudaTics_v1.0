@@ -19,7 +19,7 @@ import { validarSolicitud } from '../../../shared/validators/solicitud'
 const router = Router()
 
 // http://localhost:3010/api/solicitud/
-router.get('/', getSolicitud)
+router.get('/', authMiddleware, checkRol(['lider']), getSolicitud)
 
 // http://localhost:3010/api/solicitud/historialSolicitudes (lider)
 router.get('/historialSolicitudes', authMiddleware, checkRol(['lider']), getHistorialSolicitud)
@@ -46,8 +46,8 @@ router.post(
   crearSolicitud
 )
 
-router.get('/:id', getSolicitudId)
-router.delete('/:id', deleteSolicitud)
+router.get('/:id', authMiddleware, checkRol(['lider', 'tecnico', 'funcionario']), getSolicitudId)
+router.delete('/:id', authMiddleware, checkRol(['lider']), deleteSolicitud)
 
 // http://localhost:3010/api/solicitud/:id/asignarTecnico (lider)
 router.put('/:id/asignarTecnico', authMiddleware, checkRol(['lider']), asignarTecnicoSolicitud)

@@ -5,7 +5,8 @@ import {
   getSolicitudesPorAmbiente,
   getSolicitudesPorMes,
 } from '@/features/estadisticas'
-import { ClipLoader } from 'react-spinners'
+import { getApiErrorMessage } from '@/shared/api/apiError'
+import { Loaders } from '@/shared/ui'
 import {
   Chart,
   ArcElement,
@@ -47,8 +48,8 @@ export default function AdminEstadisticas() {
         setLoadingAmbientes(true)
         const data = await getSolicitudesPorAmbiente(year)
         setAmbientesData(data)
-      } catch {
-        setError('Error al cargar los datos de solicitudes por ambiente.')
+      } catch (err) {
+        setError(getApiErrorMessage(err))
       } finally {
         setLoadingAmbientes(false)
       }
@@ -63,8 +64,8 @@ export default function AdminEstadisticas() {
         setLoadingMeses(true)
         const data = await getSolicitudesPorMes(year)
         setMesesData(data)
-      } catch {
-        setError('Error al cargar los datos de solicitudes por mes.')
+      } catch (err) {
+        setError(getApiErrorMessage(err))
       } finally {
         setLoadingMeses(false)
       }
@@ -115,45 +116,61 @@ export default function AdminEstadisticas() {
   return (
     <AppLayout>
       <AdminLayout>
-        <div className="flex items-center flex-col">
-          <h1 className="my-8 text-lg font-semibold">Estadísticas de Solicitudes</h1>
-          <div className="flex justify-center items-center gap-12">
-            <div className="flex flex-col items-center">
-              <h2 className="text-lg font-semibold">Estadisticas por año</h2>
-              <label htmlFor="yearSelect">Seleccione el año:</label>
-              <select id="yearSelect" value={year} onChange={e => setYear(Number(e.target.value))}>
+        <main className="p-6 sm:p-8 animate-in fade-in duration-500">
+          <section className="solid-card rounded-3xl p-6 sm:p-8">
+            <h1 className="text-2xl font-bold text-on-surface tracking-tight">Estadísticas de Solicitudes</h1>
+            <p className="text-sm text-on-surface-variant mt-1 mb-8">Distribución por ambiente y mes.</p>
+
+            <div className="mb-6">
+              <label htmlFor="yearSelect" className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+                Año
+              </label>
+              <select
+                id="yearSelect"
+                value={year}
+                onChange={e => setYear(Number(e.target.value))}
+                className="mt-2 block solid-input rounded-xl px-4 py-2 text-sm"
+              >
                 {Array.from({ length: 5 }, (_, i) => (
                   <option key={i} value={new Date().getFullYear() - i}>
                     {new Date().getFullYear() - i}
                   </option>
                 ))}
               </select>
+            </div>
 
-              <div style={{ width: '600px', margin: '0 auto' }}>
-                {loadingAmbientes ? (
-                  <ClipLoader size={50} color={'#123abc'} loading={loadingAmbientes} />
-                ) : ambientesData ? (
-                  <Pie data={ambientesChartData} />
-                ) : (
-                  <p>{error || 'No se encontraron datos de solicitudes por ambiente.'}</p>
-                )}
+            {error && (
+              <p className="mb-6 text-sm font-semibold text-red-600" role="alert">{error}</p>
+            )}
+
+            <div className="grid gap-8 lg:grid-cols-2">
+              <div className="rounded-2xl border hairline-border border-slate-100 p-4">
+                <h2 className="text-lg font-semibold text-on-surface mb-4">Por ambiente</h2>
+                <div className="min-h-[280px] flex items-center justify-center">
+                  {loadingAmbientes ? (
+                    <Loaders />
+                  ) : ambientesData ? (
+                    <Pie data={ambientesChartData} />
+                  ) : (
+                    <p className="text-sm text-on-surface-variant">No hay datos de solicitudes por ambiente.</p>
+                  )}
+                </div>
+              </div>
+              <div className="rounded-2xl border hairline-border border-slate-100 p-4">
+                <h2 className="text-lg font-semibold text-on-surface mb-4">Por mes</h2>
+                <div className="min-h-[280px] flex items-center justify-center">
+                  {loadingMeses ? (
+                    <Loaders />
+                  ) : mesesData ? (
+                    <Bar data={mesesChartData} />
+                  ) : (
+                    <p className="text-sm text-on-surface-variant">No hay datos de solicitudes por mes.</p>
+                  )}
+                </div>
               </div>
             </div>
-            <div className="flex flex-col items-center">
-              <h2 className="text-lg font-semibold">Estadisticas por mes</h2>
-
-              <div style={{ width: '600px', margin: '0 auto', marginTop: '50px' }}>
-                {loadingMeses ? (
-                  <ClipLoader size={50} color={'#123abc'} loading={loadingMeses} />
-                ) : mesesData ? (
-                  <Bar data={mesesChartData} />
-                ) : (
-                  <p>{error || 'No se encontraron datos de solicitudes por mes.'}</p>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
+          </section>
+        </main>
       </AdminLayout>
     </AppLayout>
   )

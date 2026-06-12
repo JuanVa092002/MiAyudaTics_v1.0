@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+    branches: [main, master, develop]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Server typecheck
+        run: pnpm -C server run typecheck
+
+      - name: Server build
+        run: pnpm -C server run build
+
+      - name: Server tests
+        run: pnpm -C server run test
+        env:
+          NODE_ENV: test
+          JWT_SECRET: test_secret
+
+      - name: Client typecheck
+        run: pnpm -C client run typecheck
+
+      - name: Client build
+        run: pnpm -C client run build
+        env:
+          VITE_BACKEND_URL: http://localhost:8000

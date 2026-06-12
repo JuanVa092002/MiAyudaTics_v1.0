@@ -6,14 +6,14 @@ import {
   buildCasoAsignadoEmail,
   getEmailFrom,
 } from '../../../shared/emails'
-import { io } from '../../../shared/utils/handleSocket'
+import { emitToUser } from '../../../shared/utils/handleSocket'
 import { postConsecutivoCaso } from './consecutivoCaso'
 import models from '../../../core/models'
 import { Types } from 'mongoose'
 import Notificacion from '../../shared/models/notificaciones'
 
 const { solicitudModel, storageModel, usuarioModel, ambienteModel } = models
-const PUBLIC_URL = process.env.PUBLIC_URL || 'http://localhost:3010'
+import { saveUploadedFile } from '../../../shared/services/mediaStorage'
 
 export const getSolicitud = async (_req: Request, res: Response): Promise<void> => {
   try {
@@ -123,10 +123,7 @@ export const crearSolicitud = async (req: Request, res: Response): Promise<void>
     let fotoId: Types.ObjectId | undefined
 
     if (file) {
-      const fileData = {
-        filename: file.filename,
-        url: `${PUBLIC_URL}/${file.filename}`,
-      }
+      const fileData = await saveUploadedFile(file, 'evidencias')
       const fileSaved = await storageModel.create(fileData)
       fotoId = fileSaved._id
     }
@@ -226,14 +223,22 @@ export const asignarTecnicoSolicitud = async (req: Request, res: Response): Prom
       leido: false
     })
 
-    io.emit('actualizarSolicitud', { solicitudId: solicitudActualizada._id, estado: solicitudActualizada.estado })
+    const solicitudPayload = {
+      solicitudId: solicitudActualizada._id,
+      estado: solicitudActualizada.estado,
+    }
+    emitToUser(String(solicitudActualizada.usuario), 'actualizarSolicitud', solicitudPayload)
+    emitToUser(String(tecnico), 'actualizarSolicitud', solicitudPayload)
 
     const solicitudesAsignadas = await solicitudModel.countDocuments({
       tecnico,
       estado: 'asignado',
     })
 
-    io.emit('actualizarTecnico', { tecnicoId: tecnico, numeroSolicitudesAsignadas: solicitudesAsignadas })
+    emitToUser(String(tecnico), 'actualizarTecnico', {
+      tecnicoId: tecnico,
+      numeroSolicitudesAsignadas: solicitudesAsignadas,
+    })
 
     const { html, text } = buildCasoAsignadoEmail({
       nombre: tecnicoAsignado.nombre,

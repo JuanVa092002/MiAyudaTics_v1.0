@@ -1,6 +1,6 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios'
+import { getApiErrorMessage, notifyUnauthorized } from './apiError'
 
-/** Backend sin /api — ej. http://localhost:8000 o https://api.onrender.com */
 function resolveApiBaseUrl(): string {
   const raw = (import.meta.env.VITE_BACKEND_URL ||
     import.meta.env.VITE_API_URL) as string | undefined
@@ -33,15 +33,14 @@ axiosConfig.interceptors.request.use(
 axiosConfig.interceptors.response.use(
   response => response,
   (error: AxiosError) => {
-    if (import.meta.env.DEV) {
-      if (error.response) {
-        console.error('Error de respuesta:', error.response.data)
-      } else if (error.request) {
-        console.error('Error de conexión:', error.request)
-      } else {
-        console.error('Error:', error.message)
-      }
+    if (error.response?.status === 401 && !error.config?.url?.includes('auth/verify-token')) {
+      notifyUnauthorized()
     }
+
+    if (import.meta.env.DEV) {
+      console.error('Error de API:', getApiErrorMessage(error))
+    }
+
     return Promise.reject(error)
   }
 )

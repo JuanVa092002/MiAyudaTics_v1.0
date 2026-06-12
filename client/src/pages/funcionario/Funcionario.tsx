@@ -7,6 +7,7 @@ import {
 } from '@/features/tickets'
 import AppLayout from '@/app/layouts/AppLayout'
 import { toast } from 'react-toastify'
+import { getApiErrorMessage } from '@/shared/api/apiError'
 import { useForm, Controller } from 'react-hook-form'
 import HistorialFuncionario from './HistorialFuncionario'
 import { CustomSelect } from '@/shared/ui'
@@ -50,7 +51,7 @@ export default function Funcionario(): ReactNode {
           setTiposCaso(tiposResponse.data)
         }
       } catch (error) {
-        console.error('Error al cargar datos iniciales:', error)
+        toast.error(getApiErrorMessage(error))
       }
     }
 
@@ -96,7 +97,7 @@ export default function Funcionario(): ReactNode {
       closeModal() // Cierra el modal después de enviar
     } catch (error) {
       console.error('Error al enviar la solicitud:', error)
-      toast.error('Hubo un error al realizar la solicitud.')
+      toast.error(getApiErrorMessage(error))
       closeModal() // Cierra el modal si ocurre un error
     }
   }
@@ -124,7 +125,7 @@ export default function Funcionario(): ReactNode {
         const resueltas = solicitudes.filter(s => s.estado === 'finalizado').length
         setStats({ total, pendientes, resueltas })
       } catch (error) {
-        console.error('Error al cargar estadísticas:', error)
+        toast.error(getApiErrorMessage(error))
       }
     }
     fetchStats()

@@ -5,6 +5,7 @@ import { getTecnicosAprobados } from '@/features/users'
 import AppLayout from '@/app/layouts/AppLayout'
 import AdminLayout from '@/app/layouts/AdminLayout'
 import { toast } from 'react-toastify'
+import { getApiErrorMessage } from '@/shared/api/apiError'
 import AdminSolicitudLayout from '@/app/layouts/AdminSolicitudLayout'
 import type { Solicitud, User } from '@/shared/types'
 
@@ -14,12 +15,15 @@ export default function AdminSolicitud() {
   const [tecnicos, setTecnicos] = useState<User[]>([])
   const [selectedSolicitud, setSelectedSolicitud] = useState<Solicitud | null>(null)
   const [loading, setLoading] = useState(true)
+  const [fetchError, setFetchError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 5
 
   useEffect(() => {
     async function fetchSolicitudes() {
+      setLoading(true)
+      setFetchError(null)
       try {
         const data = await getSolicitudesPendientes()
         const sortedData = data.sort(
@@ -28,7 +32,7 @@ export default function AdminSolicitud() {
         )
         setSolicitudes(sortedData)
       } catch (error) {
-        console.error('Error al cargar solicitudes:', error)
+        setFetchError(getApiErrorMessage(error))
       } finally {
         setLoading(false)
       }
@@ -44,7 +48,7 @@ export default function AdminSolicitud() {
       setTecnicos(tecnicosAprobados)
       setShowModal(true)
     } catch (error) {
-      console.error('Error al cargar técnicos aprobados:', error)
+      toast.error(getApiErrorMessage(error))
     }
   }
 
@@ -59,8 +63,8 @@ export default function AdminSolicitud() {
         prevSolicitudes.filter(solicitud => solicitud._id !== selectedSolicitud._id)
       )
       setShowModal(false)
-    } catch {
-      toast.error('Error al asignar la solicitud')
+    } catch (error) {
+      toast.error(getApiErrorMessage(error))
     }
   }
 
@@ -115,6 +119,10 @@ export default function AdminSolicitud() {
                   <tbody className="bg-white">
                     {loading ? (
                       <tr><td colSpan={6} className="py-20 text-center"><span className="animate-pulse font-bold text-slate-300 uppercase tracking-widest">Cargando datos...</span></td></tr>
+                    ) : fetchError ? (
+                      <tr>
+                        <td colSpan={6} className="py-20 text-center text-red-600 font-semibold">{fetchError}</td>
+                      </tr>
                     ) : currentItems.length > 0 ? (
                       currentItems.map((row) => (
                         <tr key={row._id} className="premium-tr group">
@@ -199,14 +207,19 @@ export default function AdminSolicitud() {
           </main>
 
           {showModal && (
-            <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex justify-center items-center z-[100] animate-in fade-in duration-300 p-4">
-              <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in duration-300">
+            <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex justify-center items-center z-[100] animate-in fade-in duration-300 p-4" role="presentation">
+              <div
+                className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in duration-300"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="assign-tech-title"
+              >
                 <div className="p-8 border-b hairline-border border-slate-100 flex justify-between items-center bg-slate-50/30">
                   <div>
-                    <h2 className="text-xl font-bold text-on-surface">Seleccionar Técnico</h2>
+                    <h2 id="assign-tech-title" className="text-xl font-bold text-on-surface">Seleccionar Técnico</h2>
                     <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Personal calificado disponible</p>
                   </div>
-                  <button onClick={() => setShowModal(false)} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-slate-100 transition-colors">
+                  <button onClick={() => setShowModal(false)} aria-label="Cerrar modal" className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-slate-100 transition-colors">
                     <span className="material-symbols-outlined text-slate-400">close</span>
                   </button>
                 </div>

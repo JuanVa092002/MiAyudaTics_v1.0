@@ -1,5 +1,6 @@
 import { useState, useEffect, type ReactNode } from 'react'
-import { isAxiosError } from 'axios'
+import { toast } from 'react-toastify'
+import { getApiErrorMessage } from '@/shared/api/apiError'
 import AppLayout from '@/app/layouts/AppLayout'
 import TecnicoLayout from '@/app/layouts/TecnicoLayout'
 import {
@@ -18,6 +19,7 @@ export default function CasosPorResolverTabla(): ReactNode {
   const [modalIsOpen, setModalIsOpen] = useState(false)
   const [selectedCase, setSelectedCase] = useState<CaseForResolution | null>(null)
   const [caseTypes, setCaseTypes] = useState<TipoCaso[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchCases = async (): Promise<void> => {
@@ -25,9 +27,7 @@ export default function CasosPorResolverTabla(): ReactNode {
         const solicitudesAsignadas = await getCasosAsignados()
         setCases(solicitudesAsignadas.filter(c => c.estado !== 'finalizado'))
       } catch (error) {
-        if (import.meta.env.DEV) {
-          console.error('Error al obtener los casos:', error)
-        }
+        toast.error(getApiErrorMessage(error))
       }
     }
 
@@ -38,14 +38,15 @@ export default function CasosPorResolverTabla(): ReactNode {
           setCaseTypes(response.data)
         }
       } catch (error) {
-        if (import.meta.env.DEV) {
-          console.error('Error al obtener los tipos de caso:', error)
-        }
+        toast.error(getApiErrorMessage(error))
       }
     }
 
-    fetchCases()
-    fetchCaseTypes()
+    void (async () => {
+      setLoading(true)
+      await Promise.all([fetchCases(), fetchCaseTypes()])
+      setLoading(false)
+    })()
   }, [])
 
   // Search and Pagination Logic
@@ -110,7 +111,7 @@ export default function CasosPorResolverTabla(): ReactNode {
       }
 
       if (!payload.descripcionSolucion || !payload.tipoCaso || !payload.tipoSolucion) {
-        alert('Por favor completa todos los campos antes de enviar.')
+        toast.error('Por favor completa todos los campos antes de enviar.')
         return
       }
 
@@ -121,9 +122,7 @@ export default function CasosPorResolverTabla(): ReactNode {
       }
       closeModal()
     } catch (error) {
-      if (import.meta.env.DEV) {
-        console.error('Error al actualizar el caso:', isAxiosError(error) ? error.response?.data : error)
-      }
+      toast.error(getApiErrorMessage(error))
     }
   }
 
@@ -165,7 +164,16 @@ export default function CasosPorResolverTabla(): ReactNode {
                 </tr>
               </thead>
               <tbody className="bg-white">
-                {currentItems.length > 0 ? (
+                {loading ? (
+                  <tr>
+                    <td colSpan={7} className="py-24 text-center">
+                      <div className="flex flex-col items-center gap-4 opacity-40" role="status" aria-live="polite">
+                        <div className="h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-[#04324d]" />
+                        <p className="text-sm font-black uppercase tracking-[0.2em]">Cargando casos...</p>
+                      </div>
+                    </td>
+                  </tr>
+                ) : currentItems.length > 0 ? (
                   currentItems.map((row) => (
                     <tr key={row._id} className="premium-tr group">
                       <td className="premium-td">

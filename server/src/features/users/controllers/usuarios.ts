@@ -1,13 +1,12 @@
 import { Request, Response } from 'express'
-import fs from 'fs'
-import path from 'path'
 import { encrypt } from '../../../shared/utils/handlePassword'
 import { handleHttpError } from '../../../shared/utils/handleError'
 import models from '../../../core/models'
 import { Types } from 'mongoose'
+import { deleteStoredMedia, saveUploadedFile } from '../../../shared/services/mediaStorage'
+import { DEFAULT_AVATAR_FILENAME, isDefaultAvatar } from '../../../shared/constants/media'
 
 const { usuarioModel, storageModel } = models
-const RENDER_URL = process.env.RENDER_URL
 
 export const getUsuarios = async (_req: Request, res: Response): Promise<void> => {
   try {
@@ -78,20 +77,12 @@ export const updateUsuarios = async (req: Request, res: Response): Promise<void>
     }
 
     if (file) {
-      if (user.foto && user.foto.filename !== 'usuario-undefined.png') {
+      if (user.foto && !isDefaultAvatar(user.foto.filename)) {
         await storageModel.findByIdAndDelete(user.foto._id)
-        const pathStorage = path.join(__dirname, '../storage', user.foto.filename)
-        fs.unlink(pathStorage, err => {
-          if (err) {
-            console.error('Error al eliminar el archivo físico:', err)
-          }
-        })
+        await deleteStoredMedia(user.foto)
       }
 
-      const fileData = {
-        url: `${RENDER_URL}/${file.filename}`,
-        filename: file.filename,
-      }
+      const fileData = await saveUploadedFile(file, 'perfiles')
       const fileSaved = await storageModel.create(fileData)
       updatedData.foto = fileSaved._id
     }
@@ -109,7 +100,7 @@ export const inactivarUsuarios = async (req: Request, res: Response): Promise<vo
   try {
     const user = await usuarioModel
       .findById(userId)
-      .populate<{ foto: { _id: Types.ObjectId; filename: string } | null }>('foto')
+      .populate<{ foto: { _id: Types.ObjectId; filename: string; url: string } | null }>('foto')
 
     if (!user) {
       res.status(404).send({ message: 'Usuario no encontrado' })
@@ -120,14 +111,9 @@ export const inactivarUsuarios = async (req: Request, res: Response): Promise<vo
       return
     }
 
-    if (user.foto && user.foto.filename !== 'usuario-undefined.png') {
+    if (user.foto && !isDefaultAvatar(user.foto.filename)) {
       await storageModel.findByIdAndDelete(user.foto._id)
-      const pathStorage = path.join(__dirname, '../storage', user.foto.filename)
-      fs.unlink(pathStorage, err => {
-        if (err) {
-          console.error('Error al eliminar el archivo físico:', err)
-        }
-      })
+      await deleteStoredMedia(user.foto)
     }
 
     await usuarioModel.findByIdAndUpdate(userId, { $set: { activo: false }, $unset: { foto: 1 } })
@@ -155,7 +141,7 @@ export const reactivarUsuarios = async (req: Request, res: Response): Promise<vo
     user.activo = true
 
     if (!user.foto) {
-      const defaultFoto = await storageModel.findOne({ filename: 'usuario-undefined.png' })
+      const defaultFoto = await storageModel.findOne({ filename: DEFAULT_AVATAR_FILENAME })
       if (defaultFoto) {
         user.foto = defaultFoto._id
       }

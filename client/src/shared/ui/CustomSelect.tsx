@@ -32,14 +32,31 @@ export default function CustomSelect({
   }, [])
 
   const selectedOption = options.find(opt => opt._id === value)
+  const listboxId = `${label.replace(/\s+/g, '-').toLowerCase()}-listbox`
 
   return (
     <div className="space-y-1.5 relative" ref={dropdownRef}>
-      <label className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant ml-1">
+      <label
+        id={`${listboxId}-label`}
+        className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant ml-1"
+      >
         {label}
       </label>
 
       <div
+        role="combobox"
+        aria-expanded={isOpen}
+        aria-haspopup="listbox"
+        aria-controls={listboxId}
+        aria-labelledby={`${listboxId}-label`}
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            setIsOpen(prev => !prev)
+          }
+          if (e.key === 'Escape') setIsOpen(false)
+        }}
         onClick={() => setIsOpen(!isOpen)}
         className={`
           w-full flex items-center justify-between solid-input rounded-xl px-4 py-2.5 text-sm font-medium transition-all cursor-pointer hover:bg-slate-50/80
@@ -63,12 +80,19 @@ export default function CustomSelect({
       </div>
 
       {isOpen && (
-        <div className="absolute z-[100] w-full mt-2 bg-white/90 backdrop-blur-xl border hairline-border border-slate-200 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 origin-top">
+        <div
+          id={listboxId}
+          role="listbox"
+          aria-labelledby={`${listboxId}-label`}
+          className="absolute z-[100] w-full mt-2 bg-white/90 backdrop-blur-xl border hairline-border border-slate-200 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 origin-top"
+        >
           <div className="max-h-[240px] overflow-auto hairline-scrollbar py-2">
             {options.length > 0 ? (
               options.map(option => (
                 <div
                   key={option._id}
+                  role="option"
+                  aria-selected={value === option._id}
                   onClick={() => {
                     onChange(option._id)
                     setIsOpen(false)

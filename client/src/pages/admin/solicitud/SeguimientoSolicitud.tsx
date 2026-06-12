@@ -3,22 +3,26 @@ import AppLayout from '@/app/layouts/AppLayout'
 import AdminLayout from '@/app/layouts/AdminLayout'
 import AdminSolicitudLayout from '@/app/layouts/AdminSolicitudLayout'
 import { historialSolicitudesLider } from '@/features/tickets'
+import { getApiErrorMessage } from '@/shared/api/apiError'
 import type { Solicitud } from '@/shared/types'
 
 export default function SeguimientoSolicitud() {
   const [solicitudes, setSolicitudes] = useState<Solicitud[]>([])
   const [loading, setLoading] = useState(true)
+  const [fetchError, setFetchError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 5
 
   useEffect(() => {
     const fetchHistorial = async () => {
+      setLoading(true)
+      setFetchError(null)
       try {
         const data = await historialSolicitudesLider()
         setSolicitudes(data)
       } catch (error) {
-        console.error('Error al cargar las solicitudes:', error)
+        setFetchError(getApiErrorMessage(error))
       } finally {
         setLoading(false)
       }
@@ -124,6 +128,10 @@ export default function SeguimientoSolicitud() {
                             <p className="text-sm font-black uppercase tracking-[0.2em]">Cargando solicitudes...</p>
                           </div>
                         </td>
+                      </tr>
+                    ) : fetchError ? (
+                      <tr>
+                        <td colSpan={9} className="py-24 text-center text-red-600 font-semibold">{fetchError}</td>
                       </tr>
                     ) : currentItems.length > 0 ? (
                       currentItems.map((row) => (

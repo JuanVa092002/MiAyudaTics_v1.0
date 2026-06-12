@@ -23,8 +23,11 @@ export const forgotPassword = async (req: Request, res: Response): Promise<void>
     }
 
     const user = await usuarioModel.findOne({ correo })
+    const genericMessage =
+      'Si el correo está registrado, recibirás instrucciones para restablecer tu contraseña.'
+
     if (!user) {
-      res.status(404).send({ message: 'Usuario no encontrado' })
+      res.send({ message: genericMessage })
       return
     }
 
@@ -49,7 +52,7 @@ export const forgotPassword = async (req: Request, res: Response): Promise<void>
       html,
     })
 
-    res.send({ message: 'Correo electrónico enviado' })
+    res.send({ message: genericMessage })
   } catch (_error) {
     res.status(500).send({ message: 'Error al enviar el correo electrónico' })
   }

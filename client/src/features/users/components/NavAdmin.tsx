@@ -1,43 +1,38 @@
 import type { ReactNode } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
+
+const links = [
+  { to: '/adminSolicitud', label: 'Solicitudes' },
+  { to: '/adminTecnicos', label: 'Técnicos' },
+  { to: '/adminEstadisticas', label: 'Estadísticas' },
+  { to: '/adminAmbientes', label: 'Ambientes' },
+  { to: '/adminCasos', label: 'Tipo de soporte' },
+]
 
 export default function NavAdmin(): ReactNode {
+  const location = useLocation()
+
   return (
-    <div className="w-full max-w-[13%] py-8 border-r border-azul-sena h-screen">
-      <div>
-        <ol className="flex flex-col gap-4">
-          <Link
-            className=" font-semibold text-azul-sena text-xl bg-white px-4 py-3 transition-all hover:bg-azul-sena hover:text-white "
-            to="/adminSolicitud"
-          >
-            <li> Solicitudes </li>
-          </Link>
-          <Link
-            className=" font-semibold text-azul-sena text-xl bg-white px-4 py-3 transition-all hover:bg-azul-sena hover:text-white "
-            to="/adminTecnicos"
-          >
-            <li>Tecnicos </li>
-          </Link>
-          <Link
-            className=" font-semibold text-azul-sena text-xl bg-white px-4 py-3 transition-all hover:bg-azul-sena hover:text-white "
-            to="/adminEstadisticas"
-          >
-            <li> Estadisticas </li>
-          </Link>
-          <Link
-            className=" font-semibold text-azul-sena text-xl bg-white px-4 py-3 transition-all hover:bg-azul-sena hover:text-white "
-            to="/adminAmbientes"
-          >
-            <li> Ambientes </li>
-          </Link>
-          <Link
-            className=" font-semibold text-azul-sena text-xl bg-white px-4 py-3 transition-all hover:bg-azul-sena hover:text-white "
-            to="/adminCasos"
-          >
-            <li> Tipo de soporte </li>
-          </Link>
-        </ol>
-      </div>
-    </div>
+    <nav className="w-full border-b border-azul-sena bg-white px-3 py-3 lg:max-w-[13%] lg:border-b-0 lg:border-r lg:py-8 lg:h-screen">
+      <ol className="flex flex-row flex-wrap gap-2 lg:flex-col lg:gap-4">
+        {links.map(link => {
+          const active = location.pathname === link.to
+          return (
+            <li key={link.to}>
+              <Link
+                className={`block rounded px-4 py-2 text-sm font-semibold transition-all lg:text-xl lg:py-3 ${
+                  active
+                    ? 'bg-azul-sena text-white'
+                    : 'bg-white text-azul-sena hover:bg-azul-sena hover:text-white'
+                }`}
+                to={link.to}
+              >
+                {link.label}
+              </Link>
+            </li>
+          )
+        })}
+      </ol>
+    </nav>
   )
 }

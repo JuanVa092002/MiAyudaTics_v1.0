@@ -2,15 +2,12 @@ import { Router } from 'express'
 import { validatorRegister, validatorLogin } from '../../../shared/validators/auth'
 import { uploadMiddleware } from '../../../shared/utils/handleStorage'
 import { registerCtrl, loginCtrl, verifyToken, createLogout } from '../controllers/auth'
+import { authLimiter } from '../../../shared/config/rateLimit'
 
 const router = Router()
 
-// http://localhost:3010/api/auth/register
-// http://localhost:3010/api/auth/login
-// http://localhost:3010/api/auth/logout
-
-router.post('/register', uploadMiddleware.single('foto'), validatorRegister, registerCtrl)
-router.post('/login', validatorLogin, loginCtrl)
+router.post('/register', authLimiter, uploadMiddleware.single('foto'), validatorRegister, registerCtrl)
+router.post('/login', authLimiter, validatorLogin, loginCtrl)
 router.get('/verify-token', verifyToken)
 router.post('/logout', createLogout)
 

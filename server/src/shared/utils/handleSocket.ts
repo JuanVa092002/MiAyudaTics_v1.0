@@ -1,31 +1,51 @@
 import express from 'express'
 import http from 'http'
 import { Server as SocketIoServer, Socket } from 'socket.io'
+import { verifyToken } from './handleJwt'
 
-// Aquí se crea la app de Express
 export const app = express()
-
-// Crea el servidor HTTP a partir de la app de Express
 export const server = http.createServer(app)
 
-// Inicializa socket.io en el servidor
-export const io = new SocketIoServer(server)
+export const io = new SocketIoServer(server, {
+  cors: {
+    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    credentials: true,
+  },
+})
 
-// Configuración de Socket.IO
+function parseTokenFromCookie(cookieHeader: string | undefined): string | null {
+  if (!cookieHeader) return null
+  const match = cookieHeader.split(';').find(part => part.trim().startsWith('token='))
+  if (!match) return null
+  return decodeURIComponent(match.trim().slice('token='.length))
+}
+
+io.use(async (socket, next) => {
+  const token = parseTokenFromCookie(socket.handshake.headers.cookie)
+  if (!token) {
+    next(new Error('Unauthorized'))
+    return
+  }
+
+  const payload = await verifyToken(token)
+  if (!payload?._id) {
+    next(new Error('Unauthorized'))
+    return
+  }
+
+  socket.data.userId = payload._id
+  next()
+})
+
 io.on('connection', (socket: Socket) => {
-  console.log('Nuevo cliente conectado:', socket.id)
+  const userId = socket.data.userId as string
+  socket.join(`user:${userId}`)
 
-  // Escuchar un evento personalizado desde el cliente
-  socket.on('eventoPersonalizado', (data: any) => {
-    console.log('Datos recibidos del cliente:', data)
-
-    // Enviar respuesta al cliente
-    io.emit('respuestaServidor', { message: 'Respuesta del servidor', data })
-  })
-
-  // Detectar desconexión
   socket.on('disconnect', () => {
-    console.log('Cliente desconectado:', socket.id)
+    socket.leave(`user:${userId}`)
   })
 })
 
+export function emitToUser(userId: string, event: string, payload: unknown): void {
+  io.to(`user:${userId}`).emit(event, payload)
+}

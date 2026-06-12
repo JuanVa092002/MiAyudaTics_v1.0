@@ -1,25 +1,27 @@
 import jwt from 'jsonwebtoken'
+import { getJwtSecret } from '../config/jwt'
+import type { IUsuario } from '../../features/users/models/usuarios'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'secret' // definir JWT_SECRET en archivo .env
+interface JwtPayload {
+  _id: string
+  rol: string
+}
 
-export const tokenSign = async (usuario: any): Promise<string> => {
-  const sign = jwt.sign(
-    // payload
+export const tokenSign = async (usuario: Pick<IUsuario, '_id' | 'rol'>): Promise<string> => {
+  return jwt.sign(
     {
       _id: usuario._id,
       rol: usuario.rol,
     },
-    JWT_SECRET,
-    { expiresIn: '2h' } // tiempo de expiración del token
+    getJwtSecret(),
+    { expiresIn: '2h' }
   )
-  return sign
 }
 
-export const verifyToken = async (tokenJwt: string): Promise<any | null> => {
+export const verifyToken = async (tokenJwt: string): Promise<JwtPayload | null> => {
   try {
-    return jwt.verify(tokenJwt, JWT_SECRET)
-  } catch (error) {
+    return jwt.verify(tokenJwt, getJwtSecret()) as JwtPayload
+  } catch {
     return null
   }
 }
-

@@ -31,7 +31,7 @@ const solicitudSchema = new Schema<ISolicitud>(
     },
     tipoCaso: {
       type: Schema.Types.ObjectId,
-      ref: 'TipoCaso',
+      ref: 'TipoDeCaso',
       required: true,
     },
     descripcion: {

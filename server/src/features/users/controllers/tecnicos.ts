@@ -6,10 +6,10 @@ import {
   buildTecnicoDenegadoEmail,
   getEmailFrom,
 } from '../../../shared/emails'
-import fs from 'fs'
-import path from 'path'
 import models from '../../../core/models'
 import { Types } from 'mongoose'
+import { deleteStoredMedia } from '../../../shared/services/mediaStorage'
+import { isDefaultAvatar } from '../../../shared/constants/media'
 
 const { usuarioModel, storageModel, solicitudModel } = models
 
@@ -71,21 +71,16 @@ export const denegarTecnico = async (req: Request, res: Response): Promise<void>
   try {
     const tecnico = await usuarioModel
       .findById(id)
-      .populate<{ foto: { _id: Types.ObjectId; filename: string } | null }>('foto')
+      .populate<{ foto: { _id: Types.ObjectId; filename: string; url: string } | null }>('foto')
 
     if (!tecnico) {
       res.status(404).send({ message: 'tecnico no encontrado' })
       return
     }
 
-    if (tecnico.foto && tecnico.foto.filename !== 'usuario-undefined.png') {
+    if (tecnico.foto && !isDefaultAvatar(tecnico.foto.filename)) {
       await storageModel.findByIdAndDelete(tecnico.foto._id)
-      const pathStorage = path.join(__dirname, '../storage', tecnico.foto.filename)
-      fs.unlink(pathStorage, err => {
-        if (err) {
-          console.error('Error al eliminar el archivo físico:', err)
-        }
-      })
+      await deleteStoredMedia(tecnico.foto)
     }
 
     const { html, text } = buildTecnicoDenegadoEmail({ nombre: tecnico.nombre })

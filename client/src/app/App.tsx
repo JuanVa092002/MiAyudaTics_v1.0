@@ -42,13 +42,13 @@ class ErrorBoundary extends Component<{ children: ReactNode }, ErrorBoundaryStat
 
 export default function App(): ReactNode {
   return (
-    <AuthProvider>
-      <BrowserRouter>
+    <BrowserRouter>
+      <AuthProvider>
         <ErrorBoundary>
           <Allroutes />
         </ErrorBoundary>
         <ToastContainer />
-      </BrowserRouter>
-    </AuthProvider>
+      </AuthProvider>
+    </BrowserRouter>
   )
 }

@@ -4,8 +4,11 @@ import path from 'path'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import morgan from 'morgan'
+import helmet from 'helmet'
 import { app, server } from '../shared/utils/handleSocket'
 import router from './routes'
+import { healthCheck } from './health'
+import { getStorageDir } from '../shared/config/storagePaths'
 
 function parseAllowedOrigins(): string[] {
   const origins = new Set<string>()
@@ -19,11 +22,19 @@ function parseAllowedOrigins(): string[] {
   const clientUrl = process.env.CLIENT_URL?.trim()
   if (clientUrl) origins.add(clientUrl)
 
-  // Compatibilidad con despliegues previos en Render (frontend estático)
-  origins.add('https://frontend-miayudatics-v1-0-1.onrender.com')
+  const legacyOrigin = process.env.LEGACY_RENDER_FRONTEND_URL?.trim()
+  if (legacyOrigin) origins.add(legacyOrigin)
 
   return [...origins]
 }
+
+const isProd = process.env.NODE_ENV === 'production'
+
+if (isProd) {
+  app.set('trust proxy', 1)
+}
+
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }))
 
 const allowedProdOrigins = parseAllowedOrigins()
 
@@ -50,13 +61,13 @@ app.use(
       return callback(new Error(`CORS blocked for origin: ${origin}`))
     },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     optionsSuccessStatus: 200,
   })
 )
 
-app.use(morgan('dev'))
+app.use(morgan(isProd ? 'combined' : 'dev'))
 app.use(express.json())
 
 // Middleware para analizar cuerpos de formularios URL-encoded
@@ -69,10 +80,9 @@ app.use('/media', express.static(path.join(__dirname, 'media')))
 app.set('view engine', 'ejs')
 app.set('views', path.join(__dirname, 'views'))
 
-// Los recursos públicos salen de la carpeta storage
-app.use(express.static('storage'))
+app.use(express.static(getStorageDir()))
 
-// Invoca las rutas de la API
+app.get('/api/health', healthCheck)
 app.use('/api', router)
 
 // Iniciar el servidor se movió a src/index.ts

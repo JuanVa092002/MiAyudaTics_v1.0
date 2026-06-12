@@ -14,7 +14,13 @@ describe('Caso Feliz Crtico - Solicitudes', () => {
     _id: '60d0fe4f5311236168a109ca',
     rol: 'funcionario',
     nombre: 'Juan Funcionario',
-    correo: 'juan@test.com'
+    correo: 'juan@test.com',
+    activo: true,
+    estado: true,
+  }
+
+  const dummyTipoCaso = {
+    _id: '60d0fe4f5311236168a109cc',
   }
 
   const dummyAmbiente = {
@@ -41,8 +47,8 @@ describe('Caso Feliz Crtico - Solicitudes', () => {
     // @ts-expect-error: Mocking specific return type for create method
     createSolicitudSpy.mockResolvedValue({ _id: 'new-sol-id', codigoCaso: 'SOL-001' })
 
-    const findOneConsecutivoSpy = vi.spyOn(models.consecutivoCasoModel, 'findOne')
-    findOneConsecutivoSpy.mockResolvedValue({ yearMonth: '2024-04', sequence: 1, save: vi.fn() })
+    const findOneConsecutivoSpy = vi.spyOn(models.consecutivoCasoModel, 'findOneAndUpdate')
+    findOneConsecutivoSpy.mockResolvedValue({ yearMonth: '2024-04', sequence: 1 } as never)
 
     const findOneStorageSpy = vi.spyOn(models.storageModel, 'findOne')
     findOneStorageSpy.mockResolvedValue({ _id: 'storage-id', filename: 'test.png' })
@@ -56,9 +62,10 @@ describe('Caso Feliz Crtico - Solicitudes', () => {
       .set('Authorization', `Bearer ${token}`)
       .send({
         ambiente: dummyAmbiente._id,
+        tipoCaso: dummyTipoCaso._id,
         descripcion: 'Problema con el aire acondicionado del ambiente',
         telefono: '3001234567',
-        usuario: dummyUser._id
+        usuario: dummyUser._id,
       })
 
     expect(response.status).toBe(201)

@@ -58,7 +58,6 @@ export default function RegisterForm(): ReactNode {
   const roles: { val: UserRole; label: string }[] = [
     { val: 'funcionario', label: 'Funcionario' },
     { val: 'tecnico', label: 'Técnico' },
-    { val: 'lider', label: 'Líder TICS' },
   ]
 
   return (
@@ -84,7 +83,7 @@ export default function RegisterForm(): ReactNode {
 
           <fieldset>
             <legend className="block text-sm font-semibold text-gray-700 mb-3">Rol en la institución</legend>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 gap-3">
               {roles.map(r => (
                 <label key={r.val} className="cursor-pointer">
                   <input

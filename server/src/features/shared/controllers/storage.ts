@@ -1,12 +1,10 @@
 import { Request, Response } from 'express'
 import { handleHttpError } from '../../../shared/utils/handleError'
-import fs from 'fs'
-import path from 'path'
 import models from '../../../core/models'
+import { deleteStoredMedia, saveUploadedFile } from '../../../shared/services/mediaStorage'
+import { isDefaultAvatar } from '../../../shared/constants/media'
 
 const { storageModel } = models
-const PUBLIC_URL = process.env.PUBLIC_URL
-const RENDER_URL = process.env.RENDER_URL
 
 export const createStorage = async (req: Request, res: Response): Promise<void> => {
   const { file } = req
@@ -15,16 +13,12 @@ export const createStorage = async (req: Request, res: Response): Promise<void> 
     return
   }
 
-  const fileData = {
-    filename: file.filename,
-    url: `${PUBLIC_URL}/${file.filename}`,
-  }
-
   try {
+    const fileData = await saveUploadedFile(file, 'storage')
     const data = await storageModel.create(fileData)
     res.status(201).send({ message: 'archivo creado exitosamente', file: data })
-  } catch (_error) {
-    handleHttpError(res, 'Error al crear archivo')
+  } catch (error) {
+    handleHttpError(res, 'Error al crear archivo', 500, error)
   }
 }
 
@@ -32,8 +26,8 @@ export const getStorage = async (_req: Request, res: Response): Promise<void> =>
   try {
     const data = await storageModel.find({})
     res.send({ data })
-  } catch (_error) {
-    handleHttpError(res, 'error al obtener datos')
+  } catch (error) {
+    handleHttpError(res, 'error al obtener datos', 500, error)
   }
 }
 
@@ -46,8 +40,8 @@ export const getStorageId = async (req: Request, res: Response): Promise<void> =
       return
     }
     res.send({ data })
-  } catch (_error) {
-    handleHttpError(res, 'error al obtener datos')
+  } catch (error) {
+    handleHttpError(res, 'error al obtener datos', 500, error)
   }
 }
 
@@ -66,22 +60,18 @@ export const updateStorage = async (req: Request, res: Response): Promise<void> 
     const updateData: Record<string, string> = { ...body }
 
     if (file) {
-      const pathStorage = path.join(__dirname, '../storage', storageData.filename)
-
-      updateData.filename = file.filename
-      updateData.url = `${RENDER_URL}/${file.filename}`
-
-      fs.unlink(pathStorage, err => {
-        if (err) {
-          handleHttpError(res, 'Error al eliminar el archivo físico')
-        }
-      })
+      if (!isDefaultAvatar(storageData.filename)) {
+        await deleteStoredMedia(storageData)
+      }
+      const uploaded = await saveUploadedFile(file, 'storage')
+      updateData.filename = uploaded.filename
+      updateData.url = uploaded.url
     }
 
     const data = await storageModel.findOneAndUpdate({ _id: id }, updateData, { new: true })
     res.send({ message: `Archivo ${id} actualizado exitosamente`, data })
-  } catch (_error) {
-    handleHttpError(res, 'Error al actualizar archivo')
+  } catch (error) {
+    handleHttpError(res, 'Error al actualizar archivo', 500, error)
   }
 }
 
@@ -94,17 +84,12 @@ export const deleteStorage = async (req: Request, res: Response): Promise<void> 
       return
     }
 
-    const pathStorage = path.join(__dirname, '../storage', data.filename)
+    if (!isDefaultAvatar(data.filename)) {
+      await deleteStoredMedia(data)
+    }
 
-    fs.unlink(pathStorage, err => {
-      if (err) {
-        handleHttpError(res, 'Error al eliminar el archivo físico')
-        return
-      }
-      res.send({ message: `Archivo ${id} eliminado correctamente` })
-    })
-  } catch (_error) {
-    handleHttpError(res, 'Error al eliminar la imagen')
+    res.send({ message: `Archivo ${id} eliminado correctamente` })
+  } catch (error) {
+    handleHttpError(res, 'Error al eliminar la imagen', 500, error)
   }
 }
-

@@ -4,20 +4,19 @@ import { app } from '../core/app'
 import models from '../core/models'
 
 describe('Logic Mocks - Auth & Password', () => {
-  it('POST /api/auth/login debe retornar 404 si el usuario no existe', async () => {
+  it('POST /api/auth/login debe retornar 401 si el usuario no existe', async () => {
     const findOneSpy = vi.spyOn(models.usuarioModel, 'findOne')
-    // Mock de cadena: .findOne().select().populate()
     findOneSpy.mockReturnValue({
       select: vi.fn().mockReturnThis(),
-      populate: vi.fn().mockResolvedValue(null)
-    } as any)
+      populate: vi.fn().mockResolvedValue(null),
+    } as never)
 
     const response = await request(app)
       .post('/api/auth/login')
       .send({ correo: 'noexiste@gmail.com', password: 'password123' })
-    
-    expect(response.status).toBe(404)
-    expect(response.body.error).toContain('usuario no existe')
+
+    expect(response.status).toBe(401)
+    expect(response.body.message ?? response.body.error).toContain('credenciales inválidas')
     findOneSpy.mockRestore()
   })
 

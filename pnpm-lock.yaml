@@ -156,6 +156,9 @@ importers:
       bcryptjs:
         specifier: ^3.0.3
         version: 3.0.3
+      cloudinary:
+        specifier: ^2.10.0
+        version: 2.10.0
       cookie-parser:
         specifier: ^1.4.7
         version: 1.4.7
@@ -171,6 +174,9 @@ importers:
       express-rate-limit:
         specifier: ^8.3.2
         version: 8.5.2(express@5.2.1)
+      helmet:
+        specifier: ^8.2.0
+        version: 8.2.0
       joi:
         specifier: ^17.13.1
         version: 17.13.3
@@ -1637,6 +1643,10 @@ packages:
     resolution: {integrity: sha512-BSeNnyus75C4//NQ9gQt1/csTXyo/8Sb+afLAkzAptFuMsod9HFokGNudZpi/oQV73hnVK+sR+5PVRMd+Dr7YQ==}
     engines: {node: '>=12'}
 
+  cloudinary@2.10.0:
+    resolution: {integrity: sha512-sY09kYg7wprkndAOjZBAYqFZqwL+SxnEGcAvksOvFA+5upnFn949UjkEkHKNSwkBtW/xRDd0p6NgbSXZcxkI3w==}
+    engines: {node: '>=9'}
+
   clsx@2.1.1:
     resolution: {integrity: sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA==}
     engines: {node: '>=6'}
@@ -2316,6 +2326,10 @@ packages:
     resolution: {integrity: sha512-T2UbfbBEF32wiepXIsMlTW9+dDYC6wMh/t/vYA4tuOMKqWz/n3vr1NFSxQiyP+zk2mXsoMA/i/7qV6LKut1t1A==}
     engines: {node: '>= 0.4'}
 
+  helmet@8.2.0:
+    resolution: {integrity: sha512-DRgTIUgnWcJ62KyarxxziuqYxKGnR6Rgg19BlbucN/dpmJbl1XOit6qvoOX0ZT+HhWe5OUVhU/a1zpGyc1xA0Q==}
+    engines: {node: '>=18.0.0'}
+
   hermes-estree@0.25.1:
     resolution: {integrity: sha512-0wUoCcLp+5Ev5pDW2OriHC2MJCbwLwuRx+gAqMTOkGKJJiBCLjtrvy4PWUGn6MIVefecRpzoOZ/UV6iGdOr+Cw==}
 
@@ -2922,6 +2936,9 @@ packages:
 
   lodash.upperfirst@4.3.1:
     resolution: {integrity: sha512-sReKOYJIJf74dhJONhU4e0/shzi1trVbSWDOhKYE5XV2O+H7Sb2Dihwuc7xWxVl+DgFPyTqIN3zMfT9cq5iWDg==}
+
+  lodash@4.18.1:
+    resolution: {integrity: sha512-dMInicTPVE8d1e5otfwmmjlxkZoUpiVLwyeTdUsi/Caj/gfzzblBcCE5sRHV/AsjuCmxWrte2TNGSYuCeCq+0Q==}
 
   loose-envify@1.4.0:
     resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}
@@ -5121,7 +5138,7 @@ snapshots:
 
   '@testing-library/dom@10.4.1':
     dependencies:
-      '@babel/code-frame': 7.29.0
+      '@babel/code-frame': 7.29.7
       '@babel/runtime': 7.29.7
       '@types/aria-query': 5.0.4
       aria-query: 5.3.0
@@ -5498,7 +5515,7 @@ snapshots:
       obug: 2.1.2
       std-env: 4.1.0
       tinyrainbow: 3.1.0
-      vitest: 4.1.8(@types/node@25.6.0)(@vitest/coverage-v8@4.1.8)(jsdom@29.1.1(@noble/hashes@1.8.0))(vite@8.0.16(@types/node@25.6.0)(jiti@1.21.7))
+      vitest: 4.1.8(@types/node@25.6.0)(@vitest/coverage-v8@4.1.8)(jsdom@29.1.1(@noble/hashes@1.8.0))(vite@8.0.16(@types/node@25.6.0)(jiti@2.6.1))
 
   '@vitest/expect@4.1.8':
     dependencies:
@@ -5909,6 +5926,10 @@ snapshots:
       string-width: 4.2.3
       strip-ansi: 6.0.1
       wrap-ansi: 7.0.0
+
+  cloudinary@2.10.0:
+    dependencies:
+      lodash: 4.18.1
 
   clsx@2.1.1: {}
 
@@ -6748,6 +6769,8 @@ snapshots:
     dependencies:
       function-bind: 1.1.2
 
+  helmet@8.2.0: {}
+
   hermes-estree@0.25.1: {}
 
   hermes-parser@0.25.1:
@@ -7516,6 +7539,8 @@ snapshots:
   lodash.startcase@4.4.0: {}
 
   lodash.upperfirst@4.3.1: {}
+
+  lodash@4.18.1: {}
 
   loose-envify@1.4.0:
     dependencies:

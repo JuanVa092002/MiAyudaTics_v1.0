@@ -22,7 +22,7 @@ const router = Router()
 // http://localhost:3010/api/usuarios/:idUsuario/inactivar
 // http://localhost:3010/api/usuarios/:idUsuario/reactivar
 
-router.get('/', getUsuarios)
+router.get('/', authMiddleware, checkRol(['lider']), getUsuarios)
 router.get(
   '/perfil',
   authMiddleware,
@@ -39,7 +39,13 @@ router.put(
 )
 router.get('/activos', authMiddleware, checkRol(['lider']), usuariosActivos)
 router.get('/inactivos', authMiddleware, checkRol(['lider']), usuariosInactivos)
-router.get('/:id', validatorUsuariosId, getUsuariosId)
+router.get(
+  '/:id',
+  authMiddleware,
+  checkRol(['lider']),
+  validatorUsuariosId,
+  getUsuariosId
+)
 router.put(
   '/:id/inactivar',
   authMiddleware,

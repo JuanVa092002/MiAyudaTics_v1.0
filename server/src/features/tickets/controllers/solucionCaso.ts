@@ -2,13 +2,13 @@ import { Request, Response } from 'express'
 import { handleHttpError } from '../../../shared/utils/handleError'
 import { sendMail } from '../../../shared/utils/handleEmail'
 import { buildCasoCerradoEmail, getEmailFrom } from '../../../shared/emails'
-import { io } from '../../../shared/utils/handleSocket'
+import { emitToUser } from '../../../shared/utils/handleSocket'
 import models from '../../../core/models'
 import { Types } from 'mongoose'
 import Notificacion from '../../shared/models/notificaciones'
 
 const { solicitudModel, storageModel, usuarioModel, solucionCasoModel } = models
-const PUBLIC_URL = process.env.PUBLIC_URL || 'http://localhost:3010'
+import { saveUploadedFile } from '../../../shared/services/mediaStorage'
 
 export const solucionCaso = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params
@@ -22,13 +22,16 @@ export const solucionCaso = async (req: Request, res: Response): Promise<void> =
       return
     }
 
+    const tecnicoId = req.usuario!._id.toString()
+    if (!solicitud.tecnico || solicitud.tecnico.toString() !== tecnicoId) {
+      res.status(403).send({ message: 'No autorizado para resolver esta solicitud' })
+      return
+    }
+
     let fotoId: Types.ObjectId | undefined
 
     if (file) {
-      const fileData = {
-        filename: file.filename,
-        url: `${PUBLIC_URL}/${file.filename}`,
-      }
+      const fileData = await saveUploadedFile(file, 'evidencias')
       const fileSaved = await storageModel.create(fileData)
       fotoId = fileSaved._id
     }
@@ -90,10 +93,16 @@ export const solucionCaso = async (req: Request, res: Response): Promise<void> =
       leido: false
     })
 
-    io.emit('actualizarSolicitud', {
+    emitToUser(String(solicitudActualizada.usuario), 'actualizarSolicitud', {
       solicitudId: solicitudActualizada._id,
       estado: solicitudActualizada.estado,
     })
+    if (solicitudActualizada.tecnico) {
+      emitToUser(String(solicitudActualizada.tecnico), 'actualizarSolicitud', {
+        solicitudId: solicitudActualizada._id,
+        estado: solicitudActualizada.estado,
+      })
+    }
 
     const message =
       tipoSolucion === 'finalizado'

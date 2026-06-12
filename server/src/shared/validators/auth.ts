@@ -4,7 +4,7 @@ import { handleValidator } from '../utils/handleValidator'
 export const registerSchema = z.object({
   nombre: z.string().min(1, 'El nombre es requerido'),
   correo: z.string().email('El correo electrónico no es válido'),
-  rol: z.enum(['funcionario', 'lider', 'tecnico'], {
+  rol: z.enum(['funcionario', 'tecnico'], {
     message: 'El rol no es válido',
   }),
   telefono: z

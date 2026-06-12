@@ -4,6 +4,7 @@ node_modules
 .env.*
 !.env.example
 !.env.production.example
+!.env.test.example
 coverage/
 dist/
 build/

@@ -1,15 +1,10 @@
 import { Router } from 'express'
+import { authMiddleware } from '../../../shared/middleware/session'
+import { checkRol } from '../../../shared/middleware/rol'
 import { getSolicitudesPorAmbientes } from '../controllers/graficaSolicitudesPorAmbiente'
 
 const router = Router()
 
-/*  Ruta para obtener las solicitudes por ambiente
- http://localhost:3010/api/graficaSolicitudesPorAmbiente 
-
- Ruta para obtener la grafica
- http://localhost:3010/solicitudesPorAmbiente.html  */
-
-router.get('/', getSolicitudesPorAmbientes)
+router.get('/', authMiddleware, checkRol(['lider']), getSolicitudesPorAmbientes)
 
 export default router
-

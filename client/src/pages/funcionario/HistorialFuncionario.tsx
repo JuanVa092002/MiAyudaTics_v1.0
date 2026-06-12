@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { historialSolicitudesFuncionario } from '@/features/tickets'
+import { getApiErrorMessage } from '@/shared/api/apiError'
 import type { Solicitud } from '@/shared/types'
 
 interface HistorialFuncionarioProps {
@@ -10,15 +11,21 @@ export default function HistorialFuncionario({ refreshKey }: HistorialFuncionari
   const [historial, setHistorial] = useState<Solicitud[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
+  const [loading, setLoading] = useState(true)
+  const [fetchError, setFetchError] = useState<string | null>(null)
   const itemsPerPage = 5
 
   useEffect(() => {
     const fetchHistorial = async () => {
+      setLoading(true)
+      setFetchError(null)
       try {
         const solicitudes = await historialSolicitudesFuncionario()
         setHistorial(solicitudes)
       } catch (error) {
-        console.error('Error al cargar el historial:', error)
+        setFetchError(getApiErrorMessage(error))
+      } finally {
+        setLoading(false)
       }
     }
     fetchHistorial()
@@ -109,7 +116,25 @@ export default function HistorialFuncionario({ refreshKey }: HistorialFuncionari
             </tr>
           </thead>
           <tbody className="bg-white">
-            {currentItems.length > 0 ? (
+            {loading ? (
+              <tr>
+                <td colSpan={8} className="py-24 text-center">
+                  <div className="flex flex-col items-center gap-4 opacity-40" role="status" aria-live="polite">
+                    <div className="h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-[#04324d]" />
+                    <p className="text-sm font-black uppercase tracking-[0.2em]">Cargando historial...</p>
+                  </div>
+                </td>
+              </tr>
+            ) : fetchError ? (
+              <tr>
+                <td colSpan={8} className="py-24 text-center">
+                  <div className="flex flex-col items-center gap-4 text-red-600">
+                    <span className="material-symbols-outlined !text-[48px]">error</span>
+                    <p className="text-sm font-semibold">{fetchError}</p>
+                  </div>
+                </td>
+              </tr>
+            ) : currentItems.length > 0 ? (
               currentItems.map((row) => (
                 <tr key={row._id} className="hover:bg-slate-50/50 transition-colors group">
                   {/* Ticket - Align Top */}
