@@ -7,13 +7,27 @@ import morgan from 'morgan'
 import { app, server } from '../shared/utils/handleSocket'
 import router from './routes'
 
-// Configuración de Express en la app
-const allowedProdOrigins = [
-  'https://frontend-miayudatics-v1-0-1.onrender.com'
-]
+function parseAllowedOrigins(): string[] {
+  const origins = new Set<string>()
 
-// Permite cualquier puerto en localhost/127.0.0.1 para que Vite pueda cambiar libremente en desarrollo local
-const isLocalDevOrigin = (origin: string) =>
+  const fromEnv = process.env.CORS_ORIGINS ?? process.env.CORS_ORIGIN ?? ''
+  for (const entry of fromEnv.split(',')) {
+    const trimmed = entry.trim()
+    if (trimmed) origins.add(trimmed)
+  }
+
+  const clientUrl = process.env.CLIENT_URL?.trim()
+  if (clientUrl) origins.add(clientUrl)
+
+  // Compatibilidad con despliegues previos en Render (frontend estático)
+  origins.add('https://frontend-miayudatics-v1-0-1.onrender.com')
+
+  return [...origins]
+}
+
+const allowedProdOrigins = parseAllowedOrigins()
+
+const isLocalDevOrigin = (origin: string): boolean =>
   /^http:\/\/localhost:\d+$/.test(origin) ||
   /^http:\/\/127\.0\.0\.1:\d+$/.test(origin)
 
@@ -22,7 +36,14 @@ app.use(
     origin: (origin, callback) => {
       if (!origin) return callback(null, true)
 
-      if (isLocalDevOrigin(origin) || allowedProdOrigins.includes(origin)) {
+      if (
+        process.env.NODE_ENV !== 'production' &&
+        isLocalDevOrigin(origin)
+      ) {
+        return callback(null, true)
+      }
+
+      if (allowedProdOrigins.includes(origin)) {
         return callback(null, true)
       }
 

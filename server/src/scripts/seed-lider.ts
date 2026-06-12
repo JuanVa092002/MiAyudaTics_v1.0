@@ -1,6 +1,7 @@
 import 'dotenv/config'
 import mongoose from 'mongoose'
 import bcryptjs from 'bcryptjs'
+import { configureMongoDns } from '../shared/config/mongo'
 
 const DB_URI = process.env.DB_URI
 const PUBLIC_URL = process.env.PUBLIC_URL || 'http://localhost:3010'
@@ -12,6 +13,7 @@ async function seed() {
   }
 
   try {
+    configureMongoDns()
     await mongoose.connect(DB_URI)
     console.log('--- CONECTADO A MONGODB ATLAS ---')
 
