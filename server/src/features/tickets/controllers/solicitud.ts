@@ -6,7 +6,13 @@ import {
   buildCasoAsignadoEmail,
   getEmailFrom,
 } from '../../../shared/emails'
-import { emitToUser } from '../../../shared/utils/handleSocket'
+import {
+  emitSolicitudUpdate,
+  emitTecnicoUpdate,
+  emitNotificacion,
+} from '../../../shared/services/realtime'
+import { isSolicitudFotoRequired } from '../../../shared/config/media'
+import { enrichSolicitudList, enrichSolicitudFoto } from '../../../shared/utils/enrichMediaResponse'
 import { postConsecutivoCaso } from './consecutivoCaso'
 import models from '../../../core/models'
 import { Types } from 'mongoose'
@@ -23,14 +29,14 @@ export const getSolicitud = async (_req: Request, res: Response): Promise<void> 
       .populate('usuario', 'nombre')
       .populate('ambiente', 'nombre')
       .populate('tecnico', 'nombre')
-      .populate('foto', 'url')
+      .populate('foto', 'url filename')
       .populate({
         path: 'solucion',
         select: 'descripcionSolucion evidencia',
         populate: { path: 'evidencia', select: 'url' },
       })
 
-    res.status(200).json({ message: 'solicitudes consultadas exitosamente', data })
+    res.status(200).json({ message: 'solicitudes consultadas exitosamente', data: enrichSolicitudList(data) })
   } catch (_error) {
     handleHttpError(res, 'error al obtener datos')
   }
@@ -44,10 +50,10 @@ export const getHistorialSolicitud = async (_req: Request, res: Response): Promi
       .populate('usuario', 'nombre')
       .populate('ambiente', 'nombre')
       .populate('tecnico', 'nombre')
-      .populate('foto', 'url')
+      .populate('foto', 'url filename')
       .populate({ path: 'solucion', select: 'descripcionSolucion' })
 
-    res.status(200).json({ message: 'Solicitudes consultadas exitosamente', data })
+    res.status(200).json({ message: 'Solicitudes consultadas exitosamente', data: enrichSolicitudList(data) })
   } catch (_error) {
     handleHttpError(res, 'Error al obtener datos')
   }
@@ -62,7 +68,7 @@ export const getSolicitudId = async (req: Request, res: Response): Promise<void>
       .populate('usuario', 'nombre')
       .populate('ambiente', 'nombre activo')
       .populate('tecnico', 'nombre')
-      .populate('foto', 'url')
+      .populate('foto', 'url filename')
       .populate({
         path: 'solucion',
         select: 'descripcionSolucion evidencia',
@@ -73,7 +79,7 @@ export const getSolicitudId = async (req: Request, res: Response): Promise<void>
       handleHttpError(res, 'solicitud no encontrada')
       return
     }
-    res.status(200).json({ message: 'solicitud consultada exitosamente', data })
+    res.status(200).json({ message: 'solicitud consultada exitosamente', data: enrichSolicitudFoto(data) })
   } catch (_error) {
     handleHttpError(res, 'Error al consultar la solicitud')
   }
@@ -100,9 +106,9 @@ export const getSolicitudesPendientes = async (_req: Request, res: Response): Pr
       .select('descripcion fecha estado codigoCaso')
       .populate('usuario', 'nombre')
       .populate('ambiente', 'nombre')
-      .populate('foto', 'url')
+      .populate('foto', 'url filename')
 
-    res.status(200).json({ message: 'Solicitudes pendientes consultadas', data })
+    res.status(200).json({ message: 'Solicitudes pendientes consultadas', data: enrichSolicitudList(data) })
   } catch (_error) {
     handleHttpError(res, 'Error al obtener solicitudes pendientes')
   }
@@ -126,6 +132,18 @@ export const crearSolicitud = async (req: Request, res: Response): Promise<void>
       const fileData = await saveUploadedFile(file, 'evidencias')
       const fileSaved = await storageModel.create(fileData)
       fotoId = fileSaved._id
+    } else if (body.fotoId) {
+      const existing = await storageModel.findById(body.fotoId)
+      if (!existing) {
+        handleHttpError(res, 'La foto referenciada no existe', 400)
+        return
+      }
+      fotoId = existing._id
+    }
+
+    if (isSolicitudFotoRequired() && !fotoId) {
+      handleHttpError(res, 'La foto es obligatoria para registrar la solicitud', 400)
+      return
     }
 
     const codigoCaso = await postConsecutivoCaso()
@@ -137,6 +155,8 @@ export const crearSolicitud = async (req: Request, res: Response): Promise<void>
       codigoCaso,
       estado: 'solicitado',
     }
+
+    delete dataSolicitud.fotoId
 
     const solicitudCreada = await solicitudModel.create(dataSolicitud)
     res.status(201).send({ message: 'Registro de solicitud exitoso', solicitud: solicitudCreada })
@@ -155,7 +175,11 @@ export const crearSolicitud = async (req: Request, res: Response): Promise<void>
         text,
       })
     }
-  } catch (_error) {
+  } catch (error) {
+    if (error instanceof Error && error.message === 'UNSUPPORTED_MEDIA') {
+      res.status(415).json({ code: 'UNSUPPORTED_MEDIA', message: 'Tipo de archivo no permitido' })
+      return
+    }
     handleHttpError(res, 'Error al registrar solicitud')
   }
 }
@@ -171,12 +195,12 @@ export const historialSolicitudesCreadas = async (req: Request, res: Response): 
       .populate('ambiente', 'nombre')
       .populate('tipoCaso', 'nombre')
       .populate('tecnico', 'nombre')
-      .populate('foto', 'url')
+      .populate('foto', 'url filename')
       .populate({ path: 'solucion', select: 'descripcionSolucion' })
 
     res.status(200).json({
       message: `Historial Solicitudes finalizadas ${usuario?.nombre ?? ''}`,
-      solicitudesFinalizadas,
+      solicitudesFinalizadas: enrichSolicitudList(solicitudesFinalizadas),
     })
   } catch (_error) {
     handleHttpError(res, 'error al obtener datos')
@@ -214,8 +238,7 @@ export const asignarTecnicoSolicitud = async (req: Request, res: Response): Prom
       return
     }
 
-    // Crear notificación para el usuario
-    await Notificacion.create({
+    const notificacion = await Notificacion.create({
       usuario: solicitudActualizada.usuario,
       mensaje: `Tu solicitud #${solicitudActualizada.codigoCaso} cambió a "Asignado"`,
       tipo: 'estado_ticket',
@@ -223,20 +246,17 @@ export const asignarTecnicoSolicitud = async (req: Request, res: Response): Prom
       leido: false
     })
 
-    const solicitudPayload = {
-      solicitudId: solicitudActualizada._id,
-      estado: solicitudActualizada.estado,
-    }
-    emitToUser(String(solicitudActualizada.usuario), 'actualizarSolicitud', solicitudPayload)
-    emitToUser(String(tecnico), 'actualizarSolicitud', solicitudPayload)
+    emitSolicitudUpdate(String(solicitudActualizada.usuario), solicitudActualizada)
+    emitSolicitudUpdate(String(tecnico), solicitudActualizada)
+    emitNotificacion(String(solicitudActualizada.usuario), notificacion)
 
     const solicitudesAsignadas = await solicitudModel.countDocuments({
       tecnico,
       estado: 'asignado',
     })
 
-    emitToUser(String(tecnico), 'actualizarTecnico', {
-      tecnicoId: tecnico,
+    emitTecnicoUpdate(String(tecnico), {
+      tecnicoId: String(tecnico),
       numeroSolicitudesAsignadas: solicitudesAsignadas,
     })
 
@@ -269,7 +289,7 @@ export const getSolicitudesAsignadas = async (req: Request, res: Response): Prom
       .select('descripcion telefono fecha estado codigoCaso')
       .populate('usuario', 'nombre')
       .populate('ambiente', 'nombre')
-      .populate('foto', 'url')
+      .populate('foto', 'url filename')
 
     // Evita respuestas condicionales 304 sin body para esta consulta de técnico.
     res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
@@ -278,7 +298,7 @@ export const getSolicitudesAsignadas = async (req: Request, res: Response): Prom
 
     res.status(200).json({
       message: `solicitudes asignadas tecnico ${tecnico?.nombre ?? ''}`,
-      solicitudesAsignadas,
+      solicitudesAsignadas: enrichSolicitudList(solicitudesAsignadas),
     })
   } catch (_error) {
     handleHttpError(res, 'Error al obtener datos')
@@ -295,7 +315,7 @@ export const getSolicitudesFinalizadas = async (req: Request, res: Response): Pr
       .select('descripcion fecha codigoCaso')
       .populate('usuario', 'nombre')
       .populate('ambiente', 'nombre')
-      .populate('foto', 'url')
+      .populate('foto', 'url filename')
       .populate({
         path: 'solucion',
         select: 'descripcionSolucion evidencia',
@@ -304,7 +324,7 @@ export const getSolicitudesFinalizadas = async (req: Request, res: Response): Pr
 
     res.status(200).json({
       message: `Solicitudes finalizadas del técnico ${tecnico?.nombre ?? ''}`,
-      solicitudesFinalizadas,
+      solicitudesFinalizadas: enrichSolicitudList(solicitudesFinalizadas),
     })
   } catch (_error) {
     handleHttpError(res, 'Error al obtener solicitudes finalizadas')

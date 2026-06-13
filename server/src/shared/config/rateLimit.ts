@@ -15,3 +15,11 @@ export const forgotPasswordLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 })
+
+export const uploadLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  message: { message: 'Demasiados uploads. Espera 15 minutos.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+})

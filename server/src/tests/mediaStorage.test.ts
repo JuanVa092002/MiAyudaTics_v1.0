@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import fs from 'fs'
 import path from 'path'
 import { isDefaultAvatar, DEFAULT_AVATAR_FILENAME } from '../shared/constants/media'
+import { detectMediaMime } from '../shared/utils/validateMediaBuffer'
 
 const storageDir = path.join(process.cwd(), 'storage-qa-test')
 
@@ -30,6 +31,18 @@ describe('media constants', () => {
   })
 })
 
+describe('validateMediaBuffer', () => {
+  it('detecta JPEG por magic bytes', () => {
+    const jpeg = Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10])
+    expect(detectMediaMime(jpeg)).toBe('image/jpeg')
+  })
+
+  it('detecta PNG por magic bytes', () => {
+    const png = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
+    expect(detectMediaMime(png)).toBe('image/png')
+  })
+})
+
 describe('mediaStorage local', () => {
   beforeEach(() => {
     fs.mkdirSync(storageDir, { recursive: true })
@@ -45,9 +58,21 @@ describe('mediaStorage local', () => {
     ).rejects.toThrow(/vacío/)
   })
 
+  it('rechaza buffer no reconocido', async () => {
+    await expect(
+      saveUploadedFile(
+        { buffer: Buffer.from([0x00, 0x01, 0x02]), mimetype: 'image/png', originalname: 'x.png' },
+        'evidencias'
+      )
+    ).rejects.toThrow(/UNSUPPORTED_MEDIA/)
+  })
+
   it('guarda y elimina archivo local', async () => {
     const file = {
-      buffer: Buffer.from('qa-test'),
+      buffer: Buffer.from([
+        0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
+        ...Buffer.from('qa-test'),
+      ]),
       mimetype: 'image/png',
       originalname: 'evidencia.png',
     }

@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node dist/index.js",
     "dev": "ts-node-dev --respawn --transpile-only ./src/index.ts",
-    "build": "tsc",
+    "build": "pnpm -C ../packages/contracts run build && tsc",
     "typecheck": "tsc --noEmit",
     "clean": "node -e \"const fs = require('fs'); ['dist', 'coverage'].forEach(d => fs.rmSync(d, { recursive: true, force: true }))\"",
     "lint": "eslint .",
@@ -18,12 +18,15 @@
     "test:coverage": "vitest run --coverage",
     "test:integration": "vitest run -c vitest.integration.config.ts",
     "test:cloudinary": "ts-node --transpile-only src/scripts/test-cloudinary.ts",
+    "smoke:mobile-client": "ts-node --transpile-only src/scripts/mobile-smoke-client.ts",
     "verify:env": "ts-node --transpile-only src/scripts/verify-env.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@miayuda/contracts": "workspace:*",
+    "@socket.io/redis-adapter": "^8.3.0",
     "@types/nodemailer": "^8.0.0",
     "bcryptjs": "^3.0.3",
     "cloudinary": "^2.10.0",
@@ -41,6 +44,7 @@
     "multer": "^2.1.1",
     "nodemailer": "^8.0.5",
     "pdf-lib": "^1.17.1",
+    "redis": "^5.6.0",
     "socket.io": "^4.8.3",
     "socket.io-client": "^4.8.3",
     "zod": "^4.3.6",

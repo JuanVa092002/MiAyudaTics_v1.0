@@ -34,11 +34,14 @@ echo "$health_body" | grep -q '"database":"connected"' && db_conn=1 || db_conn=0
 check "health status ok" "$db_ok"
 check "health database connected" "$db_conn"
 
-# CORS GET
-cors_get="$(curl -s -o /dev/null -w '%{http_code}' -H "Origin: $FRONTEND_URL" "$BACKEND_URL/api/health")"
-check "CORS GET from frontend" "$([ "$cors_get" = "200" ] && echo 1 || echo 0)"
+# CORS GET (ruta con middleware CORS, no /api/health)
+cors_get="$(curl -s -o /dev/null -w '%{http_code}' -H "Origin: $FRONTEND_URL" "$BACKEND_URL/api/auth/login")"
+check "CORS GET auth route" "$([ "$cors_get" = "404" ] || [ "$cors_get" = "405" ] || [ "$cors_get" = "200" ] && echo 1 || echo 0)"
 
-cors_header="$(curl -si -H "Origin: $FRONTEND_URL" "$BACKEND_URL/api/health" 2>/dev/null | grep -i 'access-control-allow-origin' || true)"
+cors_header="$(curl -si -H "Origin: $FRONTEND_URL" \
+  -X OPTIONS \
+  -H "Access-Control-Request-Method: POST" \
+  "$BACKEND_URL/api/auth/login" 2>/dev/null | grep -i 'access-control-allow-origin' || true)"
 echo "$cors_header" | grep -q "$FRONTEND_URL" && cors_hdr=1 || cors_hdr=0
 check "CORS allow-origin header" "$cors_hdr"
 
@@ -60,7 +63,7 @@ login_code="$(curl -s -o /dev/null -w '%{http_code}' -X POST \
   "$BACKEND_URL/api/auth/login")"
 check "login invalido -> 401" "$([ "$login_code" = "401" ] && echo 1 || echo 0)"
 
-evil_code="$(curl -s -o /dev/null -w '%{http_code}' -H "Origin: https://evil.example" "$BACKEND_URL/api/health" || echo 000)"
+evil_code="$(curl -s -o /dev/null -w '%{http_code}' -H "Origin: https://evil.example" "$BACKEND_URL/api/usuarios" || echo 000)"
 check "CORS origen malicioso bloqueado" "$([ "$evil_code" = "500" ] && echo 1 || echo 0)"
 
 # Frontend

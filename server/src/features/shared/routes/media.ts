@@ -1,23 +1,19 @@
 import { Router } from 'express'
 import { authMiddleware } from '../../../shared/middleware/session'
-import { checkRol } from '../../../shared/middleware/rol'
-import { solucionCaso } from '../controllers/solucionCaso'
 import { uploadMiddleware } from '../../../shared/utils/handleStorage'
 import { handleUploadError } from '../../../shared/middleware/uploadError'
 import { uploadLimiter } from '../../../shared/config/rateLimit'
-import { validarSolucionCaso } from '../../../shared/validators/solucionCaso'
+import { uploadMedia } from '../controllers/media'
 
 const router = Router()
 
 router.post(
-  '/:id',
+  '/upload',
   authMiddleware,
-  checkRol(['tecnico']),
   uploadLimiter,
-  uploadMiddleware.single('evidencia'),
+  uploadMiddleware.single('file'),
   handleUploadError,
-  validarSolucionCaso,
-  solucionCaso
+  uploadMedia
 )
 
 export default router

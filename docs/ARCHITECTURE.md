@@ -57,7 +57,17 @@ La arquitectura productiva en la nube se basa en las siguientes anclas estática
     *   **Start**: `pnpm run start` (Llama a `node dist/index.js`)
 *   **CI/CD**: Las intervenciones manuales en los dashboards de Vercel o Render para alterar builds están prohibidas; todo se parametriza en el repo.
 
-## 6. Enforcement Rules
+## 6. Mobile API Platform (Fase 4)
+
+El backend expone una superficie **stack-agnóstica** para apps nativas futuras:
+
+*   **Auth:** JWT vía `Authorization: Bearer` en REST y `auth.token` en Socket.IO (cookies opcionales para web).
+*   **Realtime:** Socket.IO con rooms `user:{id}`; eventos tipados en `packages/contracts` (`@miayuda/contracts`).
+*   **Medios:** `POST /api/media/upload` y multipart en solicitudes; Cloudinary en producción; HEIC/JPEG hasta `MEDIA_MAX_BYTES`.
+*   **Documentación:** `docs/mobile-integration.md`, spec `openspec/specs/phase-4-mobile-platform.md`.
+*   **Validación:** `pnpm run smoke:mobile-api` y `pnpm run smoke:mobile-client` (con credenciales de prueba).
+
+## 7. Enforcement Rules
 
 1.  **Alias Exclusivo (`@/`)**: Es el único alias permitido. Prohibido usar `../../../` para evitar fragilidad en el refactor.
 2.  **CSS Modular**: Prohibido importar componentes a partir de `index.css` locales de manera anidada. Estilizar via Tailwind classes directamente.

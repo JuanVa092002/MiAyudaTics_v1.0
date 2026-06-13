@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express'
 import { handleHttpError } from '../utils/handleError'
 import { verifyToken } from '../utils/handleJwt'
 import { assertAccountActive } from './accountStatus'
+import { extractAuthToken } from '../utils/extractAuthToken'
 import models from '../../core/models'
 
 const { usuarioModel } = models
@@ -12,9 +13,11 @@ export const authMiddleware = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const cookieToken = req.cookies?.token as string | undefined
-    const headerToken = req.headers.authorization?.split(' ').pop()
-    const token = cookieToken || headerToken
+    const token = extractAuthToken({
+      authorizationHeader: req.headers.authorization,
+      cookies: req.cookies as { token?: string },
+      cookieHeader: req.headers.cookie,
+    })
 
     if (!token) {
       handleHttpError(res, 'error en inicio de sesion, no cuenta con token', 401)

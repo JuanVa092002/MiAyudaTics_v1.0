@@ -12,7 +12,7 @@ Respuesta esperada:
 {
   "status": "ok",
   "database": "connected",
-  "integrations": { "cloudinary": "configured", "brevo": "configured" }
+  "integrations": { "cloudinary": "configured", "brevo": "configured", "socket": { "connections": 0 } }
 }
 ```
 
@@ -28,6 +28,22 @@ Smoke automatizado post-deploy:
 ```
 
 Ver checklist completo: `docs/deployment/production-qa-checklist.md`
+
+## Socket.IO (móvil / realtime)
+
+- Handshake 401: token ausente, expirado (2h) o usuario inactivo → re-login en cliente.
+- Conexión: `io(BACKEND_URL, { auth: { token } })` — ver `docs/mobile-integration.md`.
+- Cold start Render desconecta sockets; el cliente móvil debe reconectar con backoff.
+- Multi-instancia: configurar `REDIS_URL` + `@socket.io/redis-adapter` (ver `docs/deployment/render.md`).
+
+## Uploads (móvil)
+
+| HTTP | Código | Acción |
+|------|--------|--------|
+| 413 | `FILE_TOO_LARGE` | Reducir imagen o subir `MEDIA_MAX_BYTES` en Render |
+| 415 | `UNSUPPORTED_MEDIA` | Usar JPEG/PNG/WebP/HEIC; validar magic bytes |
+
+Rate limit uploads: 20 req / 15 min por IP.
 
 ## Deploy
 

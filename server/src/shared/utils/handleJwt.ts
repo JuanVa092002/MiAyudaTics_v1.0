@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken'
 import { getJwtSecret } from '../config/jwt'
+import { JWT_EXPIRES_IN_SECONDS } from '../config/media'
 import type { IUsuario } from '../../features/users/models/usuarios'
 
 interface JwtPayload {
@@ -14,7 +15,7 @@ export const tokenSign = async (usuario: Pick<IUsuario, '_id' | 'rol'>): Promise
       rol: usuario.rol,
     },
     getJwtSecret(),
-    { expiresIn: '2h' }
+    { expiresIn: JWT_EXPIRES_IN_SECONDS }
   )
 }
 

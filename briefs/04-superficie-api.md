@@ -146,6 +146,7 @@ Schemas en `server/src/shared/validators/`:
 | `auth.ts` | register, login |
 | `restablecerPassword.ts` | reset password |
 | `solicitud.ts` | crear solicitud |
+| `solucionCaso.ts` | resolver caso técnico |
 | `usuarios.ts` | update perfil, id param |
 
 DTOs tipados exportados en `server/src/shared/types/dto.ts` (post Fase 2.5).
@@ -155,8 +156,30 @@ DTOs tipados exportados en `server/src/shared/types/dto.ts` (post Fase 2.5).
 ## Socket.IO
 
 - Inicializado en `handleSocket.ts` sobre el mismo servidor HTTP.
-- Eventos emitidos con `io.emit` global desde controladores de tickets (sin rooms por usuario).
-- **Sin middleware de autenticación** en conexión.
+- Auth: cookie **o** `Authorization: Bearer` **o** `handshake.auth.token` (móvil).
+- Rooms por usuario: `user:{userId}`.
+- Eventos (tipos en `@miayuda/contracts`):
+
+| Evento | Payload | Cuándo |
+|--------|---------|--------|
+| `connection:ack` | `{ userId, serverTime }` | Al conectar |
+| `actualizarSolicitud` | `{ solicitudId, estado, consecutivo?, updatedAt? }` | Asignación / resolución |
+| `actualizarTecnico` | `{ tecnicoId, numeroSolicitudesAsignadas }` | Asignación a técnico |
+| `nuevaNotificacion` | `{ _id, mensaje, tipo, ticketId, leido, createdAt }` | Tras crear notificación |
+
+---
+
+## Mobile API surface
+
+| Recurso | Método | Auth | Notas |
+|---------|--------|------|-------|
+| `/api/auth/login` | POST | Público | Devuelve `dataUser.token` + `expiresIn: 7200` |
+| `/api/auth/verify-token` | GET | Bearer o cookie | Sesión móvil |
+| `/api/media/upload` | POST | Auth | multipart `file`, query `folder` |
+| `/api/solicitud` | POST | funcionario | multipart `foto` o campo `fotoId` |
+| `/api/solucionCaso/:id` | POST | tecnico | multipart `evidencia` |
+
+Guía completa: `docs/mobile-integration.md`
 
 ---
 

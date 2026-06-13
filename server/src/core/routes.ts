@@ -12,6 +12,7 @@ import graficaMesRoutes from '../features/tickets/routes/graficaSolicitudesPorMe
 import ambienteFormacionRoutes from '../features/shared/routes/ambienteFormacion'
 import notificacionesRoutes from '../features/shared/routes/notificaciones'
 import storageRoutes from '../features/shared/routes/storage'
+import mediaRoutes from '../features/shared/routes/media'
 
 const router = Router()
 
@@ -28,6 +29,7 @@ router.use('/graficaSolicitudesPorMes', graficaMesRoutes)
 router.use('/ambienteFormacion', ambienteFormacionRoutes)
 router.use('/notificaciones', notificacionesRoutes)
 router.use('/storage', storageRoutes)
+router.use('/media', mediaRoutes)
 
 export default router
 

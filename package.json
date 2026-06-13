@@ -8,6 +8,8 @@
   "scripts": {
     "prepare": "husky",
     "smoke:prod": "bash scripts/smoke-prod.sh",
+    "smoke:mobile-api": "bash scripts/smoke-mobile-api.sh",
+    "smoke:mobile-client": "pnpm -C server exec ts-node --transpile-only src/scripts/mobile-smoke-client.ts",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui"
   },

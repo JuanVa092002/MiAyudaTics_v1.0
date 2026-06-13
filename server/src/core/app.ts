@@ -1,5 +1,5 @@
 import 'dotenv/config'
-import express from 'express'
+import express, { type NextFunction, type Request, type Response } from 'express'
 import path from 'path'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
@@ -9,27 +9,11 @@ import { app, server } from '../shared/utils/handleSocket'
 import { healthCheck } from './health'
 import router from './routes'
 import { getStorageDir } from '../shared/config/storagePaths'
+import { createCorsOriginValidator, parseAllowedOrigins } from '../shared/config/cors'
+import { handleUploadError } from '../shared/middleware/uploadError'
 
 // Liveness probe — antes de CORS/helmet para probes de Render (sin Origin)
 app.get('/api/health', healthCheck)
-
-function parseAllowedOrigins(): string[] {
-  const origins = new Set<string>()
-
-  const fromEnv = process.env.CORS_ORIGINS ?? process.env.CORS_ORIGIN ?? ''
-  for (const entry of fromEnv.split(',')) {
-    const trimmed = entry.trim()
-    if (trimmed) origins.add(trimmed)
-  }
-
-  const clientUrl = process.env.CLIENT_URL?.trim()
-  if (clientUrl) origins.add(clientUrl)
-
-  const legacyOrigin = process.env.LEGACY_RENDER_FRONTEND_URL?.trim()
-  if (legacyOrigin) origins.add(legacyOrigin)
-
-  return [...origins]
-}
 
 const isProd = process.env.NODE_ENV === 'production'
 
@@ -41,28 +25,9 @@ app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }))
 
 const allowedProdOrigins = parseAllowedOrigins()
 
-const isLocalDevOrigin = (origin: string): boolean =>
-  /^http:\/\/localhost:\d+$/.test(origin) ||
-  /^http:\/\/127\.0\.0\.1:\d+$/.test(origin)
-
 app.use(
   cors({
-    origin: (origin, callback) => {
-      if (!origin) return callback(null, true)
-
-      if (
-        process.env.NODE_ENV !== 'production' &&
-        isLocalDevOrigin(origin)
-      ) {
-        return callback(null, true)
-      }
-
-      if (allowedProdOrigins.includes(origin)) {
-        return callback(null, true)
-      }
-
-      return callback(new Error(`CORS blocked for origin: ${origin}`))
-    },
+    origin: createCorsOriginValidator(allowedProdOrigins),
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -73,11 +38,9 @@ app.use(
 app.use(morgan(isProd ? 'combined' : 'dev'))
 app.use(express.json())
 
-// Middleware para analizar cuerpos de formularios URL-encoded
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
 
-// Configuración de archivos estáticos y motor de plantillas
 app.use(express.static(path.join(__dirname, 'public')))
 app.use('/media', express.static(path.join(__dirname, 'media')))
 app.set('view engine', 'ejs')
@@ -87,8 +50,18 @@ app.use(express.static(getStorageDir()))
 
 app.use('/api', router)
 
-// Iniciar el servidor se movió a src/index.ts
+app.use(handleUploadError)
 
-// Exportar para pruebas
+app.use((err: Error, _req: Request, res: Response, next: NextFunction) => {
+  if (res.headersSent) {
+    next(err)
+    return
+  }
+  if (err.message?.startsWith('CORS blocked')) {
+    res.status(500).json({ message: err.message })
+    return
+  }
+  res.status(500).json({ message: 'Error interno del servidor' })
+})
+
 export { app, server }
-

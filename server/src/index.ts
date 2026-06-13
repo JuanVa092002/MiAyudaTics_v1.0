@@ -3,6 +3,7 @@ import { app, server } from './core/app'
 import { dbConnect } from './shared/config/mongo'
 import { validateEnvOnBoot } from './shared/config/env'
 import { assertJwtSecretOnBoot } from './shared/config/jwt'
+import { setupSocketAdapterIfConfigured } from './shared/config/socketAdapter'
 
 const port = process.env.PORT || 8000
 
@@ -12,6 +13,7 @@ async function startServer(): Promise<void> {
 
   try {
     await dbConnect()
+    await setupSocketAdapterIfConfigured()
   } catch (error) {
     console.error('Error de conexión a la base de datos:', error)
     process.exit(1)

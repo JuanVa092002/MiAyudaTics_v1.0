@@ -44,5 +44,29 @@ describe('Auth & RBAC Logic', () => {
     
     expect(response.status).toBe(401)
   })
+
+  it('verify-token acepta Authorization Bearer', async () => {
+    const dummyUser = {
+      _id: '60d0fe4f5311236168a109ca',
+      rol: 'funcionario',
+      nombre: 'Test User',
+      activo: true,
+      estado: true,
+    }
+
+    const findOneSpy = vi.spyOn(models.usuarioModel, 'findOne')
+    findOneSpy.mockReturnValue({
+      populate: vi.fn().mockResolvedValue(dummyUser),
+    } as never)
+
+    const token = await tokenSign(dummyUser)
+    const response = await request(app)
+      .get('/api/auth/verify-token')
+      .set('Authorization', `Bearer ${token}`)
+
+    expect(response.status).toBe(200)
+    expect(response.body.nombre).toBe('Test User')
+    findOneSpy.mockRestore()
+  })
 })
 

@@ -2,7 +2,7 @@ import { Request, Response } from 'express'
 import { handleHttpError } from '../../../shared/utils/handleError'
 import { sendMail } from '../../../shared/utils/handleEmail'
 import { buildCasoCerradoEmail, getEmailFrom } from '../../../shared/emails'
-import { emitToUser } from '../../../shared/utils/handleSocket'
+import { emitSolicitudUpdate, emitNotificacion } from '../../../shared/services/realtime'
 import models from '../../../core/models'
 import { Types } from 'mongoose'
 import Notificacion from '../../shared/models/notificaciones'
@@ -80,12 +80,11 @@ export const solucionCaso = async (req: Request, res: Response): Promise<void> =
       return
     }
 
-    // Crear notificación para el usuario
     const mensajeNotif = solicitudActualizada.estado === 'finalizado' 
       ? `Tu solicitud #${solicitudActualizada.codigoCaso} cambió a "Finalizado"`
-      : `Tu solicitud #${solicitudActualizada.codigoCaso} cambió a "Pendiente"`;
+      : `Tu solicitud #${solicitudActualizada.codigoCaso} cambió a "Pendiente"`
 
-    await Notificacion.create({
+    const notificacion = await Notificacion.create({
       usuario: solicitudActualizada.usuario,
       mensaje: mensajeNotif,
       tipo: 'estado_ticket',
@@ -93,15 +92,10 @@ export const solucionCaso = async (req: Request, res: Response): Promise<void> =
       leido: false
     })
 
-    emitToUser(String(solicitudActualizada.usuario), 'actualizarSolicitud', {
-      solicitudId: solicitudActualizada._id,
-      estado: solicitudActualizada.estado,
-    })
+    emitSolicitudUpdate(String(solicitudActualizada.usuario), solicitudActualizada)
+    emitNotificacion(String(solicitudActualizada.usuario), notificacion)
     if (solicitudActualizada.tecnico) {
-      emitToUser(String(solicitudActualizada.tecnico), 'actualizarSolicitud', {
-        solicitudId: solicitudActualizada._id,
-        estado: solicitudActualizada.estado,
-      })
+      emitSolicitudUpdate(String(solicitudActualizada.tecnico), solicitudActualizada)
     }
 
     const message =
@@ -110,9 +104,11 @@ export const solucionCaso = async (req: Request, res: Response): Promise<void> =
         : 'La solución del caso está pendiente y será resuelto próximamente.'
 
     res.status(200).send({ message, solucionCaso: solucion })
-  } catch (_error) {
+  } catch (error) {
+    if (error instanceof Error && error.message === 'UNSUPPORTED_MEDIA') {
+      res.status(415).json({ code: 'UNSUPPORTED_MEDIA', message: 'Tipo de archivo no permitido' })
+      return
+    }
     handleHttpError(res, 'Error al registrar la solución del caso')
   }
 }
-
-

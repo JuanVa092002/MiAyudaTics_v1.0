@@ -7,6 +7,7 @@ export const solicitudSchema = z.object({
   tipoCaso: z.string().regex(/^[0-9a-fA-F]{24}$/, 'El ID del tipo de caso no es válido'),
   descripcion: z.string().min(10, 'La descripción debe tener al menos 10 caracteres'),
   telefono: z.string().min(1, 'El campo teléfono es obligatorio'),
+  fotoId: z.string().regex(/^[0-9a-fA-F]{24}$/, 'El ID de la foto no es válido').optional(),
 })
 
 export type SolicitudDto = z.infer<typeof solicitudSchema>

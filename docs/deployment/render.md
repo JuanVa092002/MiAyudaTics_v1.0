@@ -33,6 +33,9 @@ Configura en Render (Dashboard → Environment) las mismas claves que en `server
 | `CLOUDINARY_API_KEY` | API key de Cloudinary |
 | `CLOUDINARY_API_SECRET` | API secret de Cloudinary |
 | `CLOUDINARY_FOLDER` | Carpeta raíz (ej. `miayudatics`) |
+| `MEDIA_MAX_BYTES` | Límite upload (default `10485760`) |
+| `REDIS_URL` | Opcional; Socket.IO multi-instancia |
+| `REQUIRE_SOLICITUD_FOTO` | `true` para exigir foto en solicitudes |
 | `STORAGE_PATH` | Solo si Cloudinary no está configurado (respaldo local) |
 
 `CLIENT_URL` y `CORS_ORIGINS` deben coincidir con la URL del frontend en Vercel.
@@ -42,6 +45,12 @@ Configura en Render (Dashboard → Environment) las mismas claves que en `server
 Con `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY` y `CLOUDINARY_API_SECRET` configurados, las fotos de solicitudes, perfiles y evidencias se suben a Cloudinary y **persisten tras redeploy** en Render.
 
 Sin Cloudinary, el backend guarda en `STORAGE_PATH` (disco local, efímero en Render gratis).
+
+## Socket.IO y escalabilidad
+
+- **Piloto (1 instancia):** rooms en memoria; sin `REDIS_URL`.
+- **Multi-instancia:** añade `REDIS_URL` (Render Redis o Upstash). El servidor activa `@socket.io/redis-adapter` al arrancar.
+- Apps móviles: ver `docs/mobile-integration.md` para `auth.token` y eventos realtime.
 
 ## Detalles Adicionales
 

@@ -3,6 +3,7 @@ import path from 'path'
 import { getPublicFileUrl, getStorageDir } from '../config/storagePaths'
 import { cloudinary, ensureCloudinaryConfig, getCloudinaryFolder, isCloudinaryEnabled } from '../config/cloudinary'
 import { logError } from '../utils/logger'
+import { assertValidMediaBuffer } from '../utils/validateMediaBuffer'
 
 export type MediaFolder = 'evidencias' | 'perfiles' | 'storage'
 
@@ -27,6 +28,9 @@ function extensionFromMime(mimetype: string): string {
       return '.gif'
     case 'image/webp':
       return '.webp'
+    case 'image/heic':
+    case 'image/heif':
+      return '.heic'
     case 'application/pdf':
       return '.pdf'
     default:
@@ -106,6 +110,8 @@ export async function saveUploadedFile(
   if (!file.buffer?.length) {
     throw new Error('Archivo vacío o no disponible en memoria')
   }
+
+  assertValidMediaBuffer(file.buffer, file.mimetype)
 
   if (isCloudinaryEnabled()) {
     return uploadToCloudinary(file, folder)

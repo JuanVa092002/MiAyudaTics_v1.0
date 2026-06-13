@@ -1,6 +1,7 @@
 import { Request, Response } from 'express'
 import mongoose from 'mongoose'
 import { isCloudinaryEnabled } from '../shared/config/cloudinary'
+import { getActiveSocketConnections } from '../shared/utils/handleSocket'
 
 function isBrevoConfigured(): boolean {
   if (process.env.BREVO_API_KEY?.trim()) return true
@@ -21,6 +22,7 @@ export const healthCheck = (_req: Request, res: Response): void => {
     integrations: {
       cloudinary: isCloudinaryEnabled() ? 'configured' : 'local',
       brevo: isBrevoConfigured() ? 'configured' : 'missing',
+      socket: { connections: getActiveSocketConnections() },
     },
     timestamp: new Date().toISOString(),
   })

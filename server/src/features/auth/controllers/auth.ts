@@ -2,11 +2,13 @@ import { Request, Response } from 'express'
 import { encrypt, compare } from '../../../shared/utils/handlePassword'
 import models from '../../../core/models'
 import { tokenSign } from '../../../shared/utils/handleJwt'
-import { getJwtSecret } from '../../../shared/config/jwt'
+import { JWT_EXPIRES_IN_SECONDS } from '../../../shared/config/media'
 import { handleHttpError } from '../../../shared/utils/handleError'
 import { getAuthCookieOptions, getClearAuthCookieOptions } from '../../../shared/utils/cookieOptions'
 import { rejectInactiveAccount } from '../../../shared/middleware/accountStatus'
-import jwt from 'jsonwebtoken'
+import { extractAuthToken } from '../../../shared/utils/extractAuthToken'
+import { isAccountAllowed } from '../../../shared/middleware/accountStatus'
+import { verifyToken as verifyJwtToken } from '../../../shared/utils/handleJwt'
 import type { RegisterDto } from '../../../shared/validators/auth'
 
 import { DEFAULT_AVATAR_FILENAME } from '../../../shared/constants/media'
@@ -63,7 +65,10 @@ export const registerCtrl = async (req: Request, res: Response): Promise<void> =
 
     const token = await tokenSign(dataUser)
     res.cookie('token', token, getAuthCookieOptions())
-    res.json({ message, data: { token, user: dataUser } })
+    res.json({
+      message,
+      data: { token, user: dataUser, expiresIn: JWT_EXPIRES_IN_SECONDS },
+    })
   } catch (_error) {
     res.status(400).send({ message: 'Error al registrar el usuario' })
   }
@@ -97,7 +102,7 @@ export const loginCtrl = async (req: Request, res: Response): Promise<void> => {
 
     user.set('password', undefined, { strict: false })
     const token = await tokenSign(user)
-    const dataUser = { token, user }
+    const dataUser = { token, user, expiresIn: JWT_EXPIRES_IN_SECONDS }
 
     res.cookie('token', token, getAuthCookieOptions())
     res.json({ message: 'Usuario ha ingresado exitosamente', dataUser })
@@ -107,7 +112,11 @@ export const loginCtrl = async (req: Request, res: Response): Promise<void> => {
 }
 
 export const verifyToken = async (req: Request, res: Response): Promise<void> => {
-  const token = req.cookies?.token as string | undefined
+  const token = extractAuthToken({
+    authorizationHeader: req.headers.authorization,
+    cookies: req.cookies as { token?: string },
+    cookieHeader: req.headers.cookie,
+  })
 
   try {
     if (!token) {
@@ -115,23 +124,22 @@ export const verifyToken = async (req: Request, res: Response): Promise<void> =>
       return
     }
 
-    jwt.verify(token, getJwtSecret(), async (err: jwt.VerifyErrors | null, payload: unknown) => {
-      if (err) {
-        res.status(401).json({ message: 'Token inválido o expirado' })
-        return
-      }
-      const { _id } = payload as { _id: string }
-      const foundUser = await usuarioModel.findOne({ _id }).populate('foto')
-      if (!foundUser) {
-        res.status(401).json({ message: 'Usuario no encontrado.' })
-        return
-      }
-      if (!foundUser.activo || (foundUser.rol === 'tecnico' && !foundUser.estado)) {
-        res.status(403).json({ message: 'Cuenta inactiva o pendiente de aprobación.' })
-        return
-      }
-      res.status(200).json(foundUser)
-    })
+    const payload = await verifyJwtToken(token)
+    if (!payload?._id) {
+      res.status(401).json({ message: 'Token inválido o expirado' })
+      return
+    }
+
+    const foundUser = await usuarioModel.findOne({ _id: payload._id }).populate('foto')
+    if (!foundUser) {
+      res.status(401).json({ message: 'Usuario no encontrado.' })
+      return
+    }
+    if (!isAccountAllowed(foundUser)) {
+      res.status(403).json({ message: 'Cuenta inactiva o pendiente de aprobación.' })
+      return
+    }
+    res.status(200).json(foundUser)
   } catch (_error) {
     handleHttpError(res, 'Error al verificar el token', 500)
   }

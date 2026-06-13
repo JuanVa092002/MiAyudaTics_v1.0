@@ -24,6 +24,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Build contracts package
+        run: pnpm -C packages/contracts run build
+
       - name: Server typecheck
         run: pnpm -C server run typecheck
 
