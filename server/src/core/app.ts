@@ -6,9 +6,12 @@ import cookieParser from 'cookie-parser'
 import morgan from 'morgan'
 import helmet from 'helmet'
 import { app, server } from '../shared/utils/handleSocket'
-import router from './routes'
 import { healthCheck } from './health'
+import router from './routes'
 import { getStorageDir } from '../shared/config/storagePaths'
+
+// Liveness probe — antes de CORS/helmet para probes de Render (sin Origin)
+app.get('/api/health', healthCheck)
 
 function parseAllowedOrigins(): string[] {
   const origins = new Set<string>()
@@ -82,7 +85,6 @@ app.set('views', path.join(__dirname, 'views'))
 
 app.use(express.static(getStorageDir()))
 
-app.get('/api/health', healthCheck)
 app.use('/api', router)
 
 // Iniciar el servidor se movió a src/index.ts

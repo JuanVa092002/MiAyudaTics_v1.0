@@ -41,6 +41,7 @@ pnpm -C client run typecheck && pnpm -C client run test && pnpm -C client run bu
 
 ## Documentación operativa
 
+- `docs/deployment/production-qa-checklist.md` — QA pre-piloto y Go/No-Go
 - `docs/SECURITY.md` — reporte de vulnerabilidades
 - `docs/RUNBOOK.md` — operaciones e incidentes
 - `docs/DATA-HANDLING.md` — tratamiento de datos

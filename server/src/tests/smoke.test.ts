@@ -10,9 +10,10 @@ describe('Smoke Tests - App Connectivity', () => {
 
   it('GET /api/health responde con estado del servicio', async () => {
     const response = await request(app).get('/api/health')
-    expect([200, 503]).toContain(response.status)
+    expect(response.status).toBe(200)
     expect(response.body).toHaveProperty('status')
     expect(response.body).toHaveProperty('database')
+    expect(response.body).toHaveProperty('integrations')
   })
 
   it('el servidor debe estar arriba y responder en el prefijo /api', async () => {

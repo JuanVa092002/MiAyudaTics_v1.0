@@ -14,16 +14,13 @@ export function configureMongoDns(): void {
   }
 }
 
-export const dbConnect = (): void => {
+export async function dbConnect(): Promise<void> {
   configureMongoDns()
-  const DB_URI = process.env.DB_URI as string
-  mongoose
-    .connect(DB_URI)
-    .then(() => {
-      console.log('Conectado a la base de datos')
-    })
-    .catch((error: Error) => {
-      console.error('Error de conexión a la base de datos:', error)
-    })
-}
+  const dbUri = process.env.DB_URI?.trim()
+  if (!dbUri) {
+    throw new Error('DB_URI no está configurada')
+  }
 
+  await mongoose.connect(dbUri)
+  console.log('Conectado a la base de datos')
+}

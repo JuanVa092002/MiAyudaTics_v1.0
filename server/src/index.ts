@@ -6,13 +6,24 @@ import { assertJwtSecretOnBoot } from './shared/config/jwt'
 
 const port = process.env.PORT || 8000
 
-if (process.env.NODE_ENV !== 'test') {
+async function startServer(): Promise<void> {
   validateEnvOnBoot()
   assertJwtSecretOnBoot()
+
+  try {
+    await dbConnect()
+  } catch (error) {
+    console.error('Error de conexión a la base de datos:', error)
+    process.exit(1)
+  }
+
   server.listen(port, () => {
     console.log(`Servidor corriendo en http://localhost:${port}`)
   })
-  dbConnect()
+}
+
+if (process.env.NODE_ENV !== 'test') {
+  void startServer()
 }
 
 export { app, server }

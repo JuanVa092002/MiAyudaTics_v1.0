@@ -5,14 +5,14 @@ Este documento describe la configuración de despliegue para el backend en Rende
 ## Configuración de Web Service en Render
 
 1.  **Environment:** `Node`
-2.  **Root Directory:** `server` (Esto asegura que el servicio se ejecute en el contexto de la carpeta del backend).
-3.  **Build Command:** `pnpm install --frozen-lockfile && pnpm run build`
-    *   *Nota: Dado que estamos usando `pnpm`, asegúrate de tener pnpm instalado en tu entorno o definir `PNPM_VERSION` si Render lo requiere.*
-4.  **Start Command:** `pnpm run start`
+2.  **Root Directory:** *(vacío — raíz del monorepo)* para que `pnpm-lock.yaml` esté disponible
+3.  **Build Command:** `pnpm install --frozen-lockfile --filter nodeproyectosena... && pnpm -C server run build`
+4.  **Start Command:** `pnpm -C server run start`
+5.  **Health Check Path:** `/api/health`
 
 ## Manejo del Monorepo
 
-Al configurar `Root Directory` como `server`, el comando `pnpm install` leerá el `package.json` de la carpeta `server`, pero se apalancará en el `pnpm-workspace.yaml` de la raíz si se requiere subir el contexto.
+El `pnpm-lock.yaml` vive en la raíz. Si usas Root Directory `server` sin incluir archivos externos, el build fallará. Alternativa: Docker con `server/Dockerfile` y contexto en la raíz del repo.
 
 ## Variables de Entorno
 

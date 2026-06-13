@@ -1,0 +1,26 @@
+name: Post-Deploy Smoke
+
+on:
+  workflow_dispatch:
+    inputs:
+      backend_url:
+        description: 'Backend URL (sin /api)'
+        required: false
+        default: 'https://miayudatics-v1-0.onrender.com'
+      frontend_url:
+        description: 'Frontend URL'
+        required: false
+        default: 'https://miayudatics.vercel.app'
+
+jobs:
+  smoke-prod:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run production smoke script
+        run: |
+          chmod +x scripts/smoke-prod.sh
+          BACKEND_URL="${{ inputs.backend_url }}" \
+          FRONTEND_URL="${{ inputs.frontend_url }}" \
+          ./scripts/smoke-prod.sh

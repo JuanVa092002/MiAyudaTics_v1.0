@@ -39,6 +39,9 @@ jobs:
       - name: Client typecheck
         run: pnpm -C client run typecheck
 
+      - name: Client tests
+        run: pnpm -C client run test -- --run
+
       - name: Client build
         run: pnpm -C client run build
         env:
