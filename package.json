@@ -1,6 +1,7 @@
 {
   "name": "miayudatics-root",
   "private": true,
+  "packageManager": "pnpm@10.34.3",
   "engines": {
     "node": ">=20.0.0",
     "pnpm": ">=10.0.0"
