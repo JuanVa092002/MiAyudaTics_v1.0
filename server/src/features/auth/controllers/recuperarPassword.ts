@@ -1,6 +1,7 @@
 import { Request, Response } from 'express'
 import crypto from 'crypto'
 import { sendMail } from '../../../shared/utils/handleEmail'
+import { logError } from '../../../shared/utils/logger'
 import {
   buildPasswordResetEmail,
   getClientUrl,
@@ -53,7 +54,8 @@ export const forgotPassword = async (req: Request, res: Response): Promise<void>
     })
 
     res.send({ message: genericMessage })
-  } catch (_error) {
+  } catch (error) {
+    logError('recuperarPassword: fallo al enviar correo de reset', error)
     res.status(500).send({ message: 'Error al enviar el correo electrónico' })
   }
 }

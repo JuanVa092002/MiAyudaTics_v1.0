@@ -100,6 +100,23 @@ else
   check "bundle apunta a Render" "$be_js"
 fi
 
+# Forgot password — solo si SMOKE_REGISTERED_EMAIL está definido (usuario real en prod)
+if [ -n "${SMOKE_REGISTERED_EMAIL:-}" ]; then
+  recover_body="$(curl -sf -X POST "$BACKEND_URL/api/recuperarPassword" \
+    -H "Content-Type: application/json" \
+    -H "Origin: $FRONTEND_URL" \
+    -d "{\"correo\":\"$SMOKE_REGISTERED_EMAIL\"}" 2>/dev/null || echo '{}')"
+  recover_code="$(curl -s -o /dev/null -w '%{http_code}' -X POST "$BACKEND_URL/api/recuperarPassword" \
+    -H "Content-Type: application/json" \
+    -H "Origin: $FRONTEND_URL" \
+    -d "{\"correo\":\"$SMOKE_REGISTERED_EMAIL\"}")"
+  echo "$recover_body" | grep -q 'recibirás instrucciones' && recover_msg=1 || recover_msg=0
+  check "recuperarPassword usuario registrado -> 200" "$([ "$recover_code" = "200" ] && echo 1 || echo 0)"
+  check "recuperarPassword mensaje genérico" "$recover_msg"
+else
+  echo "SKIP: recuperarPassword usuario registrado (define SMOKE_REGISTERED_EMAIL)"
+fi
+
 echo ""
 echo "=== Resumen: $pass PASS, $fail FAIL ==="
 [ "$fail" -eq 0 ]

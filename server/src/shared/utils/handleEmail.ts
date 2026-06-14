@@ -81,33 +81,65 @@ async function sendViaBrevoApi(mailOptions: SendMailOptions): Promise<void> {
   console.log('Correo enviado vía Brevo API: %s', result.messageId ?? 'ok')
 }
 
+function isBrevoIpBlockError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error)
+  return (
+    message.includes('unrecognised IP address') ||
+    message.includes('unauthorized') && message.includes('Brevo API 401')
+  )
+}
+
+async function sendViaSmtp(mailOptions: SendMailOptions): Promise<void> {
+  const nodemailer = await import('nodemailer')
+  const port = Number(process.env.BREVO_SMTP_PORT || 587)
+  const transporter = nodemailer.default.createTransport({
+    host: process.env.BREVO_SMTP_HOST || 'smtp-relay.sendinblue.com',
+    port,
+    secure: port === 465,
+    auth: {
+      user: process.env.BREVO_USER,
+      pass: process.env.BREVO_PASSWORD,
+    },
+    connectionTimeout: 15_000,
+    greetingTimeout: 15_000,
+  })
+
+  const info = await transporter.sendMail({
+    ...mailOptions,
+    from: mailOptions.from || process.env.EMAIL_FROM || 'MiAyudaTics <onboarding@brevo.com>',
+  })
+
+  console.log('Correo enviado vía Brevo SMTP: %s', info.messageId)
+}
+
 /**
  * Envía correo usando Brevo REST API (preferido) o SMTP como respaldo.
  */
 export const sendMail = async (mailOptions: SendMailOptions): Promise<void> => {
   try {
-    if (process.env.BREVO_API_KEY) {
-      await sendViaBrevoApi(mailOptions)
-      return
+    const hasSmtp =
+      Boolean(process.env.BREVO_USER?.trim()) && Boolean(process.env.BREVO_PASSWORD?.trim())
+    const preferSmtp = process.env.BREVO_PREFER_SMTP === 'true'
+
+    if (process.env.BREVO_API_KEY && !preferSmtp) {
+      try {
+        await sendViaBrevoApi(mailOptions)
+        return
+      } catch (error) {
+        if (isBrevoIpBlockError(error) && hasSmtp) {
+          logError('Brevo API bloqueada por IP; usando SMTP como respaldo', error)
+          await sendViaSmtp(mailOptions)
+          return
+        }
+        throw error
+      }
     }
 
-    const nodemailer = await import('nodemailer')
-    const transporter = nodemailer.default.createTransport({
-      host: 'smtp-relay.sendinblue.com',
-      port: 587,
-      secure: false,
-      auth: {
-        user: process.env.BREVO_USER,
-        pass: process.env.BREVO_PASSWORD,
-      },
-    })
+    if (!hasSmtp) {
+      throw new Error('BREVO_API_KEY o credenciales SMTP (BREVO_USER/BREVO_PASSWORD) requeridas')
+    }
 
-    const info = await transporter.sendMail({
-      ...mailOptions,
-      from: mailOptions.from || process.env.EMAIL_FROM || 'MiAyudaTics <onboarding@brevo.com>',
-    })
-
-    console.log('Correo enviado vía Brevo SMTP: %s', info.messageId)
+    await sendViaSmtp(mailOptions)
   } catch (error) {
     logError('Error al enviar correo con Brevo', error)
     throw error
