@@ -1,6 +1,7 @@
 import { Request, Response } from 'express'
 import { handleHttpError } from '../../../shared/utils/handleError'
 import { sendMail } from '../../../shared/utils/handleEmail'
+import { logError } from '../../../shared/utils/logger'
 import {
   buildSolicitudRegistradaEmail,
   buildCasoAsignadoEmail,
@@ -62,6 +63,29 @@ export const getHistorialSolicitud = async (_req: Request, res: Response): Promi
 export const getSolicitudId = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params
+    const solicitud = await solicitudModel.findById(id).select('usuario tecnico')
+
+    if (!solicitud) {
+      handleHttpError(res, 'solicitud no encontrada', 404)
+      return
+    }
+
+    const usuario = req.usuario!
+    if (
+      usuario.rol === 'funcionario' &&
+      String(solicitud.usuario) !== String(usuario._id)
+    ) {
+      handleHttpError(res, 'No autorizado', 403)
+      return
+    }
+    if (
+      usuario.rol === 'tecnico' &&
+      String(solicitud.tecnico) !== String(usuario._id)
+    ) {
+      handleHttpError(res, 'No autorizado', 403)
+      return
+    }
+
     const data = await solicitudModel
       .findById(id)
       .select('descripcion fecha estado')
@@ -76,7 +100,7 @@ export const getSolicitudId = async (req: Request, res: Response): Promise<void>
       })
 
     if (!data) {
-      handleHttpError(res, 'solicitud no encontrada')
+      handleHttpError(res, 'solicitud no encontrada', 404)
       return
     }
     res.status(200).json({ message: 'solicitud consultada exitosamente', data: enrichSolicitudFoto(data) })
@@ -224,6 +248,13 @@ export const asignarTecnicoSolicitud = async (req: Request, res: Response): Prom
       return
     }
 
+    if (solicitud.estado !== 'solicitado') {
+      res.status(409).json({
+        message: 'Solo se pueden asignar solicitudes en estado solicitado',
+      })
+      return
+    }
+
     const solicitudActualizada = await solicitudModel.findByIdAndUpdate(
       id,
       { 
@@ -264,15 +295,22 @@ export const asignarTecnicoSolicitud = async (req: Request, res: Response): Prom
       nombre: tecnicoAsignado.nombre,
       codigoCaso: solicitudActualizada.codigoCaso,
     })
-    sendMail({
-      from: getEmailFrom(),
-      to: tecnicoAsignado.correo,
-      subject: 'Asignación de caso — AyudaTIC',
-      html,
-      text,
-    })
+    try {
+      await sendMail({
+        from: getEmailFrom(),
+        to: tecnicoAsignado.correo,
+        subject: 'Asignación de caso — AyudaTIC',
+        html,
+        text,
+      })
+    } catch (error) {
+      logError('Error al enviar correo de asignación de caso', error, {
+        solicitudId: id,
+        tecnicoId: String(tecnico),
+      })
+    }
 
-    res.status(200).json({ message: 'Técnico asignado exitosamente', solicitud })
+    res.status(200).json({ message: 'Técnico asignado exitosamente', solicitud: solicitudActualizada })
   } catch (error) {
     const err = error as Error
     res.status(500).json({ message: 'Error al asignar técnico', error: err.message })

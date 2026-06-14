@@ -56,7 +56,9 @@ describe('Auth & RBAC Logic', () => {
 
     const findOneSpy = vi.spyOn(models.usuarioModel, 'findOne')
     findOneSpy.mockReturnValue({
-      populate: vi.fn().mockResolvedValue(dummyUser),
+      select: vi.fn().mockReturnValue({
+        populate: vi.fn().mockResolvedValue(dummyUser),
+      }),
     } as never)
 
     const token = await tokenSign(dummyUser)

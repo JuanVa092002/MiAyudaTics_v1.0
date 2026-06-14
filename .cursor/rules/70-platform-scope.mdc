@@ -1,0 +1,50 @@
+---
+description: "Platform/API scope — server/ and packages/contracts. No UI."
+globs: ["server/**/*", "packages/**/*", "scripts/smoke*.sh"]
+alwaysApply: false
+---
+
+# Platform Scope
+
+> Surface 2 of 3. Do not edit `client/` or `mobile/MiAyudaTIC-Mobile/` UI from this workstream.
+
+## Official paths
+
+| Path | Purpose |
+|------|---------|
+| `server/` | Express API → Render |
+| `packages/contracts/` | `@miayuda/contracts` SSOT types |
+| `scripts/smoke-*.sh` | Prod/mobile API gates |
+
+## Standards
+
+- Business logic in `features/<domain>/` — not `core/`
+- Zod on all inputs; strict TS
+- `authMiddleware` + `checkRol` on protected routes
+- Dual auth: Bearer + cookie
+
+## Contracts first
+
+New shared types → `packages/contracts` → then server + consumers.
+
+## Subagent
+
+Delegate to `product-engineer-platform`.
+
+## Skills
+
+- `rbac-review` — auth/endpoints
+- `ticket-lifecycle` — solicitud domain
+
+## Verify
+
+```bash
+pnpm -C server run typecheck && pnpm -C server run test && pnpm -C server run build
+pnpm -C packages/contracts run build   # if contracts touched
+pnpm run smoke:mobile-api              # if auth/socket/media changed
+```
+
+## Never
+
+- UI polish (delegate Design Engineer)
+- Skip RBAC tests on auth changes

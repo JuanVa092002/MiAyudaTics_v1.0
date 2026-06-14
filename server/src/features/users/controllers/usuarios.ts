@@ -22,7 +22,7 @@ export const getUsuariosId = async (req: Request, res: Response): Promise<void> 
     const { id } = req.params
     const data = await usuarioModel.findById(id).populate('foto')
     if (!data) {
-      res.send({ message: 'Usuario no existe', data })
+      res.status(404).send({ message: 'Usuario no existe', data: null })
       return
     }
     res.send({ message: 'Usuario consultado exitosamente', data })

@@ -1,0 +1,66 @@
+---
+description: "Engineering standards, architecture guardrails, prohibitions."
+globs: ["client/**/*", "server/**/*", "mobile/MiAyudaTIC-Mobile/**/*", "packages/**/*"]
+alwaysApply: false
+---
+
+# Engineering Standards
+
+> Source: `docs/quality-bar.md`, `docs/architecture.md`, `docs/contracts.md`
+
+## TypeScript
+
+- Strict; **no `any`**
+- New client files: `.tsx`
+- Server: 100% TS
+
+## Frontend (`client/src`)
+
+FSD: `app → pages → features → shared`
+
+- `@/` alias only — no `../../../`
+- **No cross-import between features**
+- Auth: `withCredentials` cookies — no localStorage JWT
+
+## Backend (`server/src`)
+
+- Business logic in `features/<domain>/`
+- Zod on all inputs
+- Every protected route: `authMiddleware` + `checkRol`
+- Auth: Bearer **and** cookie supported
+
+## Mobile (`mobile/MiAyudaTIC-Mobile/`)
+
+- Standalone: `cd mobile/MiAyudaTIC-Mobile && pnpm install`
+- Bearer + SecureStore
+- `pnpm typecheck` before handoff
+
+## Contracts
+
+- Package: `@miayuda/contracts` in `packages/contracts/`
+- New shared types → package first, then consumers
+- Ticket states: `solicitado | asignado | pendiente | finalizado`
+
+## Tests
+
+- Framework: **Vitest** (not Jest)
+- Auth/RBAC changes require tests
+- No merge without build pass
+
+## Verify before handoff
+
+```bash
+pnpm -C server run typecheck && pnpm -C server run test && pnpm -C server run build  # if server
+pnpm -C client run typecheck && pnpm -C client run build  # if client
+cd mobile/MiAyudaTIC-Mobile && pnpm typecheck  # if mobile
+```
+
+## Explicit prohibitions
+
+1. Extend Flutter legacy app
+2. Hardcode mobile API URL
+3. Skip RBAC on new endpoints
+4. Business logic in `server/src/core/`
+5. Secrets in repo
+6. `lider` features on mobile without CTO approval
+7. PR >400 LOC without split plan

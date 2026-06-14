@@ -1,4 +1,5 @@
 import type { SendMailOptions } from 'nodemailer'
+import { logError } from './logger'
 
 interface BrevoRecipient {
   email: string
@@ -108,6 +109,7 @@ export const sendMail = async (mailOptions: SendMailOptions): Promise<void> => {
 
     console.log('Correo enviado vía Brevo SMTP: %s', info.messageId)
   } catch (error) {
-    console.error('Error al enviar correo con Brevo:', error)
+    logError('Error al enviar correo con Brevo', error)
+    throw error
   }
 }

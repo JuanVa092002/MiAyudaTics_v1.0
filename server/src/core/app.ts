@@ -8,7 +8,6 @@ import helmet from 'helmet'
 import { app, server } from '../shared/utils/handleSocket'
 import { healthCheck } from './health'
 import router from './routes'
-import { getStorageDir } from '../shared/config/storagePaths'
 import { createCorsOriginValidator, parseAllowedOrigins } from '../shared/config/cors'
 import { handleUploadError } from '../shared/middleware/uploadError'
 
@@ -45,8 +44,6 @@ app.use(express.static(path.join(__dirname, 'public')))
 app.use('/media', express.static(path.join(__dirname, 'media')))
 app.set('view engine', 'ejs')
 app.set('views', path.join(__dirname, 'views'))
-
-app.use(express.static(getStorageDir()))
 
 app.use('/api', router)
 

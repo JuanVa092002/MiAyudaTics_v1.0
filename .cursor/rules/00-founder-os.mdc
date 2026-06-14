@@ -1,0 +1,28 @@
+---
+description: "Founder OS — persistent context, 6 roles, operating model. Always active."
+alwaysApply: true
+---
+
+# MiAyudaTIC Founder OS
+
+> 6-role founding team. Human coordinates. **One role per task.**
+
+**Entrypoint:** [`AGENTS.md`](AGENTS.md) — roles, subagents (`.cursor/agents/`), skills (`.cursor/skills/`), hooks, verify.
+
+## Repo map
+
+| Path | Surface |
+|------|---------|
+| `client/` | Web (Vercel) |
+| `server/` | API (Render) |
+| `mobile/MiAyudaTIC-Mobile/` | Official mobile (Expo) |
+| `packages/contracts/` | `@miayuda/contracts` |
+| `mobile_flutter/MBO_ULT/` | **LEGACY — do not extend** |
+
+## Before coding
+
+1. Read `AGENTS.md` and docs for your surface (`product.md`, `contracts.md`, `architecture.md`).
+2. Declare scope (in / out) and pick subagent from `.cursor/agents/`.
+3. Complete `docs/handoff-template.md` when done.
+
+**Code truth:** `archive/audits/` when docs conflict with code.

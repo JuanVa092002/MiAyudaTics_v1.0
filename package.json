@@ -8,6 +8,7 @@
   "scripts": {
     "prepare": "husky",
     "smoke:prod": "bash scripts/smoke-prod.sh",
+    "e2e:ticket": "bash scripts/e2e-ticket-lifecycle.sh",
     "smoke:mobile-api": "bash scripts/smoke-mobile-api.sh",
     "smoke:mobile-client": "pnpm -C server exec ts-node --transpile-only src/scripts/mobile-smoke-client.ts",
     "test:e2e": "playwright test",

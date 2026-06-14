@@ -1,0 +1,38 @@
+---
+description: "Design system tokens and premium UI bar for web and mobile."
+globs: ["client/**/*", "mobile/**/shared/ui/**", "mobile/**/app/**"]
+alwaysApply: false
+---
+
+# Design System
+
+> Source: `docs/design-system.md`, `docs/quality-bar.md`
+
+## Tokens (mandatory)
+
+| Token | Hex |
+|-------|-----|
+| primary | `#04324d` |
+| accent | `#39a900` |
+
+Never use `#1B2A4A` or ad-hoc colors.
+
+## Every screen needs
+
+Loading state | Empty state | Error with retry | One primary CTA
+
+## Web
+
+Reuse `.premium-table`, `.premium-card`, `.badge-base`, react-hook-form patterns in `client/src/index.css`.
+
+## Mobile
+
+Reuse `mobile/MiAyudaTIC-Mobile/src/shared/ui/*` before new components.
+
+## Language
+
+Spanish (Colombia), institutional tone — AyudaTIC / MiAyudaTIC.
+
+## Skill
+
+Invoke `.cursor/skills/design-system` for UI workstreams.

@@ -130,7 +130,10 @@ export const verifyToken = async (req: Request, res: Response): Promise<void> =>
       return
     }
 
-    const foundUser = await usuarioModel.findOne({ _id: payload._id }).populate('foto')
+    const foundUser = await usuarioModel
+      .findOne({ _id: payload._id })
+      .select('-password -resetPasswordToken -resetPasswordExpires')
+      .populate('foto')
     if (!foundUser) {
       res.status(401).json({ message: 'Usuario no encontrado.' })
       return

@@ -19,5 +19,5 @@ export function getPublicBaseUrl(): string {
 }
 
 export function getPublicFileUrl(filename: string): string {
-  return `${getPublicBaseUrl()}/${filename}`
+  return `${getPublicBaseUrl()}/api/media/local/${encodeURIComponent(filename)}`
 }

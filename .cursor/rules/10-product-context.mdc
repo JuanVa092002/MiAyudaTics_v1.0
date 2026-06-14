@@ -1,0 +1,50 @@
+---
+description: "Product context, ICP, mobile policy, language. Always active."
+globs: ["**/*"]
+alwaysApply: true
+---
+
+# Product Context
+
+> Source: `docs/product.md`
+
+## Identity
+
+**MiAyudaTIC** — institutional helpdesk for SENA formation centers. Not generic SaaS.
+
+## Roles
+
+| Rol | Primary surface |
+|-----|-----------------|
+| funcionario | Web + mobile (field) |
+| tecnico | Web + mobile (field) |
+| lider | **Web only** — mobile blocked by design |
+
+## Official language
+
+- Spanish (Colombia), institutional tone
+- Product names: **AyudaTIC** / **MiAyudaTIC**
+- Brand colors: `#04324d` (primary), `#39a900` (accent)
+
+## Mobile policy
+
+- **Ship:** `mobile/MiAyudaTIC-Mobile` (Expo)
+- **Do not ship:** `mobile_flutter/MBO_ULT` (wrong backend)
+- Env: `EXPO_PUBLIC_API_URL` — never hardcode API host
+
+## Current product stage
+
+- Web: full journeys shipped
+- API: mobile-ready (Bearer, socket, multipart)
+- Mobile: **auth only** — Stage 1 = solicitud + técnico casos
+
+## Anti-goals
+
+- Generic ticket SaaS
+- Líder admin on mobile without CTO decision
+- AI chatbot as user-facing product
+- Feature without metric link to north-star
+
+## When unsure
+
+Read `docs/product.md` and `docs/contracts.md` before inventing behavior.

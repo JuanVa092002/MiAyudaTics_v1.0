@@ -1,0 +1,62 @@
+---
+description: "Handoff discipline, small changes, review gates. Always active."
+globs: ["**/*"]
+alwaysApply: true
+---
+
+# Handoffs & Delivery Discipline
+
+> Source: `docs/handoff-template.md`, `docs/operating-model.md`, `docs/execution-rhythm.md`
+
+## Mission contract (start of work)
+
+Before editing, state:
+1. **Role** you are operating as
+2. **Goal** (one sentence)
+3. **In scope** files/areas
+4. **Out of scope** (explicit)
+5. **Verify** commands
+
+If scope expands → STOP → report to coordinator.
+
+## Handoff contract (end of work)
+
+Output a completed handoff with:
+- Goal, Why, Constraints, Files touched, Decisions, Risks, Open questions, Next owner, Acceptance criteria, Verify commands
+
+Template: `docs/handoff-template.md`
+
+**Incomplete handoff = task not done.**
+
+## Change size
+
+- Prefer PRs < 200 LOC
+- >400 LOC → split plan required (Founder-CTO)
+- One workstream = one primary outcome
+
+## HITL gates (must ask before proceeding)
+
+- Auth, JWT, sessions
+- Mongoose schema / models
+- Deploy or prod env
+- New dependencies
+- Contract breaking changes
+- Líder on mobile
+
+## Release gates
+
+- CI green
+- `pnpm run smoke:prod` → 12/12 before prod release
+- `pnpm run smoke:mobile-api` if API auth/socket/media changed
+- QA subprocess: invoke `qa-premerge` subagent (or Task: review-reliability + review-risk) if auth/RBAC/mobile/>200 LOC — see `docs/agents.md`
+
+## Git
+
+- Confirm clean baseline before implementation batch
+- No force-push main without CTO
+
+## Cadence awareness
+
+- Max 2 parallel implementation workstreams
+- No new scope when smoke prod is red
+- Friday ship review — handoffs are the standup

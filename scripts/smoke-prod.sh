@@ -66,6 +66,13 @@ check "login invalido -> 401" "$([ "$login_code" = "401" ] && echo 1 || echo 0)"
 evil_code="$(curl -s -o /dev/null -w '%{http_code}' -H "Origin: https://evil.example" "$BACKEND_URL/api/usuarios" || echo 000)"
 check "CORS origen malicioso bloqueado" "$([ "$evil_code" = "500" ] && echo 1 || echo 0)"
 
+# Media — storage no debe ser público en raíz
+media_root="$(curl -s -o /dev/null -w '%{http_code}' "$BACKEND_URL/file-evidence-test.jpg" 2>/dev/null || echo 000)"
+check "storage raíz no público" "$([ "$media_root" = "404" ] || [ "$media_root" = "401" ] && echo 1 || echo 0)"
+
+media_local="$(curl -s -o /dev/null -w '%{http_code}' "$BACKEND_URL/api/media/local/file-evidence-test.jpg" 2>/dev/null || echo 000)"
+check "media local sin auth bloqueado" "$([ "$media_local" = "401" ] || [ "$media_local" = "404" ] && echo 1 || echo 0)"
+
 # Frontend
 fe_code="$(curl -s -o /dev/null -w '%{http_code}' "$FRONTEND_URL")"
 check "frontend home 200" "$([ "$fe_code" = "200" ] && echo 1 || echo 0)"
@@ -73,17 +80,25 @@ check "frontend home 200" "$([ "$fe_code" = "200" ] && echo 1 || echo 0)"
 deep_code="$(curl -s -o /dev/null -w '%{http_code}' "$FRONTEND_URL/adminSolicitud")"
 check "SPA deep link 200" "$([ "$deep_code" = "200" ] && echo 1 || echo 0)"
 
-js_file="$(curl -sf "$FRONTEND_URL" | grep -o 'assets/index-[^"]*\.js' | head -1 || true)"
-if [ -n "$js_file" ]; then
-  echo "$js_file" | grep -q 'index-' && js_ok=1 || js_ok=0
-  backend_in_js="$(curl -sf "$FRONTEND_URL/$js_file" | grep -o 'https://[^"`]*onrender[^"`]*' | head -1 || true)"
-  echo "$backend_in_js" | grep -q 'onrender.com' && be_js=1 || be_js=0
+is_local_fe=0
+echo "$FRONTEND_URL" | grep -qE 'localhost|127\.0\.0\.1' && is_local_fe=1
+
+if [ "$is_local_fe" = "1" ]; then
+  echo "SKIP: frontend bundle presente (dev mode)"
+  echo "SKIP: bundle apunta a Render (dev mode)"
 else
-  js_ok=0
-  be_js=0
+  js_file="$(curl -sf "$FRONTEND_URL" | grep -o 'assets/index-[^"]*\.js' | head -1 || true)"
+  if [ -n "$js_file" ]; then
+    echo "$js_file" | grep -q 'index-' && js_ok=1 || js_ok=0
+    backend_in_js="$(curl -sf "$FRONTEND_URL/$js_file" | grep -o 'https://[^"`]*onrender[^"`]*' | head -1 || true)"
+    echo "$backend_in_js" | grep -q 'onrender.com' && be_js=1 || be_js=0
+  else
+    js_ok=0
+    be_js=0
+  fi
+  check "frontend bundle presente" "$js_ok"
+  check "bundle apunta a Render" "$be_js"
 fi
-check "frontend bundle presente" "$js_ok"
-check "bundle apunta a Render" "$be_js"
 
 echo ""
 echo "=== Resumen: $pass PASS, $fail FAIL ==="

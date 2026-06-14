@@ -1,6 +1,7 @@
 import { Request, Response } from 'express'
 import { handleHttpError } from '../../../shared/utils/handleError'
 import { sendMail } from '../../../shared/utils/handleEmail'
+import { logError } from '../../../shared/utils/logger'
 import { buildCasoCerradoEmail, getEmailFrom } from '../../../shared/emails'
 import { emitSolicitudUpdate, emitNotificacion } from '../../../shared/services/realtime'
 import models from '../../../core/models'
@@ -28,6 +29,23 @@ export const solucionCaso = async (req: Request, res: Response): Promise<void> =
       return
     }
 
+    if (solicitud.estado === 'finalizado') {
+      res.status(409).send({ message: 'La solicitud ya está finalizada' })
+      return
+    }
+
+    if (!['asignado', 'pendiente'].includes(solicitud.estado)) {
+      res.status(409).send({ message: 'Estado inválido para registrar solución' })
+      return
+    }
+
+    const { tipoSolucion } = body as { tipoSolucion: 'pendiente' | 'finalizado' }
+
+    if (tipoSolucion === 'finalizado' && solicitud.solucion) {
+      res.status(409).send({ message: 'La solicitud ya tiene una solución registrada' })
+      return
+    }
+
     let fotoId: Types.ObjectId | undefined
 
     if (file) {
@@ -35,8 +53,6 @@ export const solucionCaso = async (req: Request, res: Response): Promise<void> =
       const fileSaved = await storageModel.create(fileData)
       fotoId = fileSaved._id
     }
-
-    const { tipoSolucion } = body as { tipoSolucion: 'pendiente' | 'finalizado' }
 
     if (tipoSolucion === 'pendiente') {
       solicitud.estado = 'pendiente'
@@ -49,13 +65,20 @@ export const solucionCaso = async (req: Request, res: Response): Promise<void> =
           nombre: usuario.nombre,
           codigoCaso: solicitud.codigoCaso,
         })
-        await sendMail({
-          from: getEmailFrom(),
-          to: usuario.correo,
-          subject: 'Caso Cerrado — AyudaTIC',
-          html,
-          text,
-        })
+        try {
+          await sendMail({
+            from: getEmailFrom(),
+            to: usuario.correo,
+            subject: 'Caso Cerrado — AyudaTIC',
+            html,
+            text,
+          })
+        } catch (error) {
+          logError('Error al enviar correo de caso cerrado', error, {
+            solicitudId: id,
+            usuarioId: String(solicitud.usuario),
+          })
+        }
       }
     }
 

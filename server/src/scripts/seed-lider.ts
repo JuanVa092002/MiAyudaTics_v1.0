@@ -15,6 +15,7 @@ function resolveDefaultAvatarUrl(): string {
     return `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/image/upload/f_auto,q_auto/${process.env.CLOUDINARY_FOLDER || 'miayudatics'}/defaults/${DEFAULT_AVATAR_FILENAME}`
   }
   return `${PUBLIC_URL.replace(/\/$/, '')}/${DEFAULT_AVATAR_FILENAME}`
+  // Avatar default served from server/public/ via express.static (non-sensitive)
 }
 
 async function seed() {

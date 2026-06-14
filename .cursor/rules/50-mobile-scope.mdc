@@ -1,0 +1,44 @@
+---
+description: "Official Expo mobile scope and field UX constraints."
+globs: ["mobile/MiAyudaTIC-Mobile/**"]
+alwaysApply: false
+---
+
+# Mobile Scope
+
+> Source: `docs/architecture.md` § mobile, `docs/product.md` mobile policy
+
+## Official app only
+
+`mobile/MiAyudaTIC-Mobile/` — **never** extend `mobile_flutter/MBO_ULT/`.
+
+## Auth & API
+
+- Bearer JWT in SecureStore — no cookies
+- `EXPO_PUBLIC_API_URL` — never hardcode prod host
+- Standalone install: `cd mobile/MiAyudaTIC-Mobile && pnpm install`
+
+## Roles on mobile
+
+- `funcionario` + `tecnico` — in scope
+- `lider` — **blocked** at app layer (web only)
+
+## Field UX
+
+- Photo report < 3 taps
+- Reconnect socket with backoff after cold start / JWT expiry
+- Multipart per `docs/architecture.md` § Mobile API integration
+
+## Verify
+
+```bash
+cd mobile/MiAyudaTIC-Mobile && pnpm typecheck
+```
+
+## Skill
+
+Invoke `.cursor/skills/mobile-field-ux` for solicitud and field screens.
+
+## Server changes
+
+Require Product Engineer Platform handoff — do not edit `server/` from mobile workstream.

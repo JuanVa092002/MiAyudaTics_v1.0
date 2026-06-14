@@ -1,0 +1,46 @@
+---
+description: "Web SPA scope — client/ only. No mobile native code."
+globs: ["client/**/*"]
+alwaysApply: false
+---
+
+# Web Scope
+
+> Surface 1 of 3. Do not edit `mobile/MiAyudaTIC-Mobile/` from this workstream.
+
+## Official path
+
+`client/` — React + Vite → Vercel (`miayudatics.vercel.app`)
+
+## Architecture
+
+- FSD: `app → pages → features → shared`
+- `@/` import alias — no deep `../../../`
+- **No cross-import between features**
+
+## Auth
+
+- Session cookies via `withCredentials`
+- **No** localStorage JWT
+- **No** Bearer header in web client
+
+## Roles
+
+- `funcionario`, `tecnico`, `lider` — full web journeys
+- Líder admin is **web-only** by product policy
+
+## Subagent
+
+Delegate to `product-engineer-web` or `design-engineer` per task.
+
+## Verify
+
+```bash
+pnpm -C client run typecheck && pnpm -C client run test && pnpm -C client run build
+```
+
+## Never
+
+- Port web pages into Expo
+- Share React DOM components with mobile
+- Change `server/` without PE Platform handoff

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express'
 import { handleHttpError } from '../../../shared/utils/handleError'
 import { sendMail } from '../../../shared/utils/handleEmail'
+import { logError } from '../../../shared/utils/logger'
 import {
   buildTecnicoAprobadoEmail,
   buildTecnicoDenegadoEmail,
@@ -41,8 +42,8 @@ export const listaTecnicosPendientes = async (_req: Request, res: Response): Pro
 export const aprobarTecnico = async (req: Request, res: Response): Promise<void> => {
   const id = req.params.id
   try {
-    const tecnico = await usuarioModel.findByIdAndUpdate(
-      id,
+    const tecnico = await usuarioModel.findOneAndUpdate(
+      { _id: id, rol: 'tecnico', estado: false },
       { estado: true, activo: true },
       { new: true }
     )
@@ -54,13 +55,17 @@ export const aprobarTecnico = async (req: Request, res: Response): Promise<void>
     res.status(200).send({ message: 'Técnico aprobado exitosamente', tecnico })
 
     const { html, text } = buildTecnicoAprobadoEmail({ nombre: tecnico.nombre })
-    sendMail({
-      from: getEmailFrom(),
-      to: tecnico.correo,
-      subject: 'Aprobación de Registro — AyudaTIC',
-      html,
-      text,
-    })
+    try {
+      await sendMail({
+        from: getEmailFrom(),
+        to: tecnico.correo,
+        subject: 'Aprobación de Registro — AyudaTIC',
+        html,
+        text,
+      })
+    } catch (error) {
+      logError('Error al enviar correo de aprobación de técnico', error, { tecnicoId: id })
+    }
   } catch (_error) {
     handleHttpError(res, 'Error al aprobar técnico', 500)
   }
@@ -70,7 +75,7 @@ export const denegarTecnico = async (req: Request, res: Response): Promise<void>
   const id = req.params.id
   try {
     const tecnico = await usuarioModel
-      .findById(id)
+      .findOne({ _id: id, rol: 'tecnico', estado: false })
       .populate<{ foto: { _id: Types.ObjectId; filename: string; url: string } | null }>('foto')
 
     if (!tecnico) {
@@ -84,13 +89,17 @@ export const denegarTecnico = async (req: Request, res: Response): Promise<void>
     }
 
     const { html, text } = buildTecnicoDenegadoEmail({ nombre: tecnico.nombre })
-    sendMail({
-      from: getEmailFrom(),
-      to: tecnico.correo,
-      subject: 'Registro Denegado — AyudaTIC',
-      html,
-      text,
-    })
+    try {
+      await sendMail({
+        from: getEmailFrom(),
+        to: tecnico.correo,
+        subject: 'Registro Denegado — AyudaTIC',
+        html,
+        text,
+      })
+    } catch (error) {
+      logError('Error al enviar correo de denegación de técnico', error, { tecnicoId: id })
+    }
 
     await usuarioModel.findByIdAndDelete(id)
 
@@ -113,11 +122,6 @@ export const listaTecnicosAprobados = async (_req: Request, res: Response): Prom
         tecnico: tecnico._id,
         estado: 'asignado',
       })
-    }
-
-    if (!tecnicos || tecnicos.length === 0) {
-      res.status(500).send({ message: 'No hay técnicos aprobados' })
-      return
     }
 
     res.status(200).json({ message: 'Lista de técnicos con registro aprobado', tecnicos })
