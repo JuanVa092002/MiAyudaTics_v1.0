@@ -5,6 +5,7 @@ import { verifyToken } from '@/features/auth/api/auth.service'
 import { setUnauthorizedHandler } from '@/shared/api/apiError'
 import type { User } from '@/shared/types'
 import { AuthContext } from '@/features/auth/context/auth-context'
+import { resolveWebAuthBootstrap } from '@/features/auth/context/web-auth-bootstrap'
 
 interface AuthProviderProps {
   children: ReactNode
@@ -28,16 +29,17 @@ export function AuthProvider({ children }: AuthProviderProps): ReactNode {
   useEffect(() => {
     const checkLogin = async (): Promise<void> => {
       setLoading(true)
-      try {
-        const response = await verifyToken()
+      const outcome = await resolveWebAuthBootstrap(verifyToken)
+
+      if (outcome.kind === 'authenticated') {
         setIsAuthenticated(true)
-        setUser(response)
-      } catch {
+        setUser(outcome.user)
+      } else {
         setIsAuthenticated(false)
         setUser(null)
-      } finally {
-        setLoading(false)
       }
+
+      setLoading(false)
     }
     void checkLogin()
   }, [])

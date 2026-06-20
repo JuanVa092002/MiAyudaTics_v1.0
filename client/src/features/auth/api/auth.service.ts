@@ -1,4 +1,5 @@
 import apiClient from '@/shared/api/axios'
+import { SESSION_VERIFY_TIMEOUT_MS } from '@/shared/api/sessionVerify'
 import type {
   AuthResponse,
   LoginCredentials,
@@ -18,8 +19,17 @@ export const login = async (credentials: LoginCredentials): Promise<LoginRespons
 }
 
 export const verifyToken = async (): Promise<User> => {
-  const response = await apiClient.get<User>('auth/verify-token')
-  return response.data
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), SESSION_VERIFY_TIMEOUT_MS)
+
+  try {
+    const response = await apiClient.get<User>('auth/verify-token', {
+      signal: controller.signal,
+    })
+    return response.data
+  } finally {
+    clearTimeout(timeoutId)
+  }
 }
 
 export const logout = async (): Promise<AuthResponse> => {
